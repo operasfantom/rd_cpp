@@ -10,11 +10,12 @@
 #include <optional>
 
 #include "Lifetime.h"
+//#include "SignalX.h"
 
 template<typename T>
 class ISource {
 public:
-    virtual void advise(Lifetime *lt, std::function<void(T)> handler) = 0;
+    virtual void advise(Lifetime *lifetime, std::function<void(T)> const &handler) = 0;
 };
 
 template<typename T>
@@ -25,28 +26,39 @@ class IAsyncSource : ISource<T> {
 template<typename T>
 class IViewable {
 public:
-    virtual void view(Lifetime *lt, std::function<void(Lifetime *, T)> handler) = 0;
+    virtual void view(Lifetime *lifetime, std::function<void(Lifetime *, T)> const &handler) = 0;
 };
 
 template<typename T>
-class IPropertyBase : ISource<T>, IViewable<T> {
-    ISource<T> *change;
+class IPropertyBase : public ISource<T>, public IViewable<T> {
 public:
-    void view(Lifetime *lt, std::function<void(Lifetime, T)> handler) {
+    virtual void view(Lifetime *lifetime, std::function<void(Lifetime *, T)> const &handler) {
         //TODO
     }
+
 };
 
 template<typename T>
-class IPropertyView : public IPropertyBase<T> {
+class IPropertyView : public virtual IPropertyBase<T> {
+private:
     T value;
 
-    T operator()() {
-        return value;
+public:
+    ISource<T> *change;
+
+    virtual ISource<T>* get_change() {
+        return change;
     }
 
-    void advise(Lifetime lt, std::function<void(T)> handler) {
-        //TODO
+    virtual T get() = 0;
+
+    virtual void advise(Lifetime *lifetime, std::function<void(T)> const &handler) {
+        if (lifetime->is_terminated()) {
+            return;
+        }
+
+        get_change()->advise(lifetime, handler);
+        handler(value);
     }
 };
 
@@ -55,7 +67,7 @@ class IOptPropertyView : IPropertyBase<T> {
 private:
     std::optional<T> value_or_null;
 public:
-    void advise(Lifetime lt, std::function<void(T)> handler) {
+    void advise(Lifetime lt, std::function<void(T)> const &handler) {
         //TODO
     }
 };
@@ -71,12 +83,13 @@ class IAsyncSignal : ISignal<T>, IAsyncSource<T> {
 };
 
 template<typename T>
-class IMutablePropertyBase : IPropertyBase<T> {
-    void set(T const &);
+class IMutablePropertyBase : public virtual IPropertyBase<T> {
+public:
+    virtual void set(T const &) = 0;
 };
 
 template<typename T>
-class IProperty : public IPropertyView<T>, public IMutablePropertyBase<T> {
+class IProperty : public IPropertyView<T>, public /*virtual */IMutablePropertyBase<T> {
 
 };
 

@@ -10,32 +10,41 @@
 
 #include <functional>
 #include <iostream>
+#include <atomic>
+#include <cstdint>
+#include <stdint-gcc.h>
 
 template<typename T>
 class SignalX : public ISignal<T> {
 private:
-    std::vector<std::function<void(T)> > listeners;
+//    std::vector<std::function<void(T)> > listeners;
+    using counter_t = std::int32_t;
+//    std::atomic<counter_t> advise_id = 0;
+    counter_t advise_id = 0;
+
+    std::unordered_map<counter_t ,std::function<void(T)> > listeners;
 public:
+
 //    rd_signal(rd_signal const & other) = delete;
 
     virtual void fire(T const &value) {
-        for (auto& action : listeners) {
-            action(value);
+        for (auto& p : listeners) {
+            p.second(value);
         }
     }
 
-    virtual void advise(Lifetime *lt, std::function<void(T)> handler) {
-        lt->bracket(
-                [this, handler]() { listeners.push_back(handler); },
-                [this, handler]() {
-//                    auto it = std::remove_if(listeners.begin(), listeners.end(), function_comparator(handler));
-//                    listeners.erase(it, listeners.end());
+    virtual void advise(Lifetime *lifetime, std::function<void(T)> const &handler) {
+        lifetime->bracket(
+                [this, handler]() { listeners[advise_id] = handler; },
+                [this, advise_id = advise_id, handler]() {
+                    listeners.erase(advise_id/*.load()*/);
                 }
         );
+        ++advise_id;
     }
 
     void advise_eternal(std::function<void(T)> handler) {
-
+        advise(Lifetime::eternal, handler);
     }
 };
 

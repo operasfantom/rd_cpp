@@ -8,15 +8,27 @@
 #include "SignalX.h"
 #include "interfaces.h"
 
-template <typename T>
+template<typename T>
 class Property : public IProperty<T> {
 private:
     T value;
 
     SignalX<T> change;
 public:
-    void set(T const & new_value){
-        if (value != new_value){
+
+    virtual ISource<T>* get_change() {
+        return &change;
+    }
+    explicit Property(T const & value) : value(value) {
+//        this->change = new SignalX<T>();
+    }
+
+    T get() {
+        return value;
+    }
+
+    void set(T const &new_value) {
+        if (value != new_value) {
             value = new_value;
             change.fire(new_value);
         }

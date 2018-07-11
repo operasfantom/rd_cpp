@@ -8,7 +8,7 @@
 LifetimeDefinition::LifetimeDefinition(bool is_eternal) : is_eternal(is_eternal), lt(new Lifetime(is_eternal)) {}
 
 bool LifetimeDefinition::is_terminated() {
-    return lt->is_terminated;
+    return lt->terminated;
 }
 
 void LifetimeDefinition::terminate() {

@@ -6,6 +6,7 @@
 #define RD_CPP_LIFETIME_H
 
 #include <functional>
+//#include "LifetimeDefinition.h"
 
 class LifetimeDefinition;
 
@@ -14,7 +15,7 @@ private:
     friend class LifetimeDefinition;
 
     bool is_eternal = false;
-    bool is_terminated = false;
+    bool terminated = false;
 
     std::vector<std::function<void()> > actions;
 public:
@@ -51,6 +52,8 @@ public:
     void terminate();
 
     void operator +=(std::function<void()> action);
+
+    bool is_terminated();
 };
 
 

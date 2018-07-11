@@ -26,7 +26,7 @@ void Lifetime::bracket(std::function<void()> opening, std::function<void()> clos
 
 void Lifetime::add(std::function<void()> action) {
     if (is_eternal) return;
-    if (is_terminated) throw std::invalid_argument("Already Terminated");
+    if (terminated) throw std::invalid_argument("Already Terminated");
     actions.push_back(action);
 }
 
@@ -43,7 +43,7 @@ Lifetime* Lifetime::create_nested() {
 }
 
 void Lifetime::attach_nested(LifetimeDefinition nested_def) {
-    if (nested_def.lt->is_terminated || this->is_eternal) return;
+    if (nested_def.lt->terminated || this->is_eternal) return;
 
     std::function<void()> action = [&nested_def]() { nested_def.terminate(); };
     add(action);
@@ -56,7 +56,7 @@ void Lifetime::attach_nested(LifetimeDefinition nested_def) {
 void Lifetime::terminate() {
     if (is_eternal) return;
 
-    is_terminated = true;
+    terminated = true;
     //TODO syncronized
     for (auto &action : actions) {
         action();
@@ -71,4 +71,8 @@ Lifetime::Lifetime(Lifetime *parent) {
 
 void Lifetime::operator+=(std::function<void()> action) {
     actions.push_back(action);
+}
+
+bool Lifetime::is_terminated() {
+    return terminated;
 }

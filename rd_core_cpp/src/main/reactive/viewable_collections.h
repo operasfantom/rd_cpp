@@ -19,17 +19,26 @@ enum class AddRemove {
 };
 
 template<typename T>
-class IViewableSet : std::unordered_set<T>, IViewable<T>, ISource<typename IViewableSet<T>::Event> {
+class IViewableSet : std::unordered_set<T>, IViewable<T>/*, ISource<typename IViewableSet<T>::Event>*/ {
 
     class Event {
+    public:
         AddRemove kind;
         T value;
     };
 
-    virtual void advise(Lifetime *lifetime, std::function<void(AddRemove, T)> handler);
+    virtual void advise(Lifetime *lifetime, std::function<void(AddRemove, T)> const &handler) {
+        /*advise(lifetime, [&handler](Event const &e){
+            handler(e.kind, e.value);
+        });*/
+    }
 
 
-    virtual void view(Lifetime *lifetime, std::function<void(Lifetime *, T)> handler);
+    virtual void view(Lifetime *lifetime, std::function<void(Lifetime *, T)> const &handler) {
+        //TODO
+    }
+
+    virtual void advise(Lifetime *lifetime, std::function<void(Event)> const &handler) = 0;
 };
 
 template<typename T>
@@ -55,6 +64,7 @@ public:
         public:
             K key;
             V new_value;
+
             Add(K key, V new_value) : key(key), new_value(new_value) {}
         };
 
@@ -63,6 +73,7 @@ public:
             K key;
             V old_value;
             V new_value;
+
             Update(K key, V old_value, V new_value) : key(key), old_value(old_value), new_value(new_value) {}
         };
 
@@ -70,13 +81,16 @@ public:
         public:
             K key;
             V old_value;
+
             Remove(K key, V old_value) : key(key), old_value(old_value) {}
         };
 
         std::variant<Add, Update, Remove> v;
 
         Event(Add const &x) : v(x) {}
+
         Event(Update const &x) : v(x) {}
+
         Event(Remove const &x) : v(x) {}
 
         std::optional<V> new_value_opt() {
@@ -95,11 +109,11 @@ public:
         }
     };
 
-    virtual void view(Lifetime *lifetime, std::function<void(Lifetime *lifetime, std::pair<K, V>)> handler) {
+    virtual void view(Lifetime *lifetime, std::function<void(Lifetime *lifetime, std::pair<K, V>)> const &handler) {
         //TODO
     }
 
-    void advise_add_remove(Lifetime *lifetime, std::function<void(AddRemove, K, V)> handler) {
+    void advise_add_remove(Lifetime *lifetime, std::function<void(AddRemove, K, V)> const &handler) {
         advise(lifetime, [&handler](Event const &e) {
             size_t i = e.index();
             switch (i) {
@@ -118,19 +132,19 @@ public:
         });
     }
 
-    void view(Lifetime *lifetime, std::function<void(Lifetime *, K, V)> handler) {
+    void view(Lifetime *lifetime, std::function<void(Lifetime *, K, V)> const &handler) {
         view(lifetime, [&handler](Lifetime *lf, std::pair<K, V> entry) {
             handler(lf, entry.first, entry.second);
         });
     }
 
-    virtual void advise(Lifetime *lifetime, std::function<void(Event)> handler) = 0;
+    virtual void advise(Lifetime *lifetime, std::function<void(Event)> const &handler) = 0;
 };
 
 //IViewableMap<int, int> m;
 
 template<typename V>
-class IViewableList : std::list<V>, IViewable<std::pair<int, V>>, ISource<typename IViewableList<V>::Event> {
+class IViewableList : std::list<V>, IViewable<std::pair<int, V>>/*, ISource<typename IViewableList<V>::Event>*/ {
 private:
     class Add {
         size_t index;
@@ -163,11 +177,19 @@ public:
         }
     };
 
-    void advise_add_remove(Lifetime *lifetime, std::function<void(AddRemove, int, V)> handler);
+    void advise_add_remove(Lifetime *lifetime, std::function<void(AddRemove, int, V)> const &handler) {
 
-    void view(Lifetime *lifetime, std::function<void(Lifetime *lifetime, std::pair<int, V>)> handler);
+    }
 
-    void view(Lifetime *lifetime, std::function<void(Lifetime *, int, V)> handler);
+    void view(Lifetime *lifetime, std::function<void(Lifetime *lifetime, std::pair<int, V>)> const &handler) {
+
+    }
+
+    void view(Lifetime *lifetime, std::function<void(Lifetime *, int, V)> const &handler) {
+
+    }
+
+    virtual void advise(Lifetime *lifetime, std::function<void(Event)> const &handler) = 0;
 };
 
 template<typename K, typename V>
