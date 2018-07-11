@@ -5,7 +5,7 @@
 #ifndef RD_CPP_PROPERTY_H
 #define RD_CPP_PROPERTY_H
 
-#include "MySignal.h"
+#include "SignalX.h"
 #include "interfaces.h"
 
 template <typename T>
@@ -13,7 +13,7 @@ class Property : public IProperty<T> {
 private:
     T value;
 
-    MySignal<T> change;
+    SignalX<T> change;
 public:
     void set(T const & new_value){
         if (value != new_value){

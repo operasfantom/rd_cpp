@@ -5,13 +5,13 @@
 #include "gtest/gtest.h"
 
 #include "interfaces.h"
-#include "MySignal.h"
+#include "SignalX.h"
 
 #include <vector>
 
 TEST(signal, advice) {
     int acc = 0;
-    ISignal<int> *s = new MySignal<int>();
+    ISignal<int> *s = new SignalX<int>();
 //    rd_signal<int> *s = new rd_signal<int>();
 
     s->fire(++acc);

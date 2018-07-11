@@ -25,7 +25,7 @@ class IAsyncSource : ISource<T> {
 template<typename T>
 class IViewable {
 public:
-    virtual void view(Lifetime *lt, std::function<void(Lifetime, T)> handler) = 0;
+    virtual void view(Lifetime *lt, std::function<void(Lifetime *, T)> handler) = 0;
 };
 
 template<typename T>

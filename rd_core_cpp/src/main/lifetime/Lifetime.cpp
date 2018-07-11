@@ -4,7 +4,6 @@
 
 #include "Lifetime.h"
 #include "LifetimeDefinition.h"
-#include "function_extension.h"
 
 Lifetime *Lifetime::eternal = new Lifetime(true);
 
@@ -49,8 +48,8 @@ void Lifetime::attach_nested(LifetimeDefinition nested_def) {
     std::function<void()> action = [&nested_def]() { nested_def.terminate(); };
     add(action);
     nested_def.lt->add([this, &action]() -> void {
-        auto it = std::remove_if(actions.begin(), actions.end(), function_comparator(action));
-        actions.erase(it, actions.end());
+//        auto it = std::remove_if(actions.begin(), actions.end(), function_comparator(action));
+//        actions.erase(it, actions.end());
     });
 }
 

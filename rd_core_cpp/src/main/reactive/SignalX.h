@@ -7,20 +7,19 @@
 
 #include <Lifetime.h>
 #include "interfaces.h"
-#include "function_extension.h"
 
 #include <functional>
 #include <iostream>
 
 template<typename T>
-class MySignal : public ISignal<T> {
+class SignalX : public ISignal<T> {
 private:
     std::vector<std::function<void(T)> > listeners;
 public:
 //    rd_signal(rd_signal const & other) = delete;
 
     virtual void fire(T const &value) {
-        for (auto action : listeners) {
+        for (auto& action : listeners) {
             action(value);
         }
     }
@@ -29,8 +28,8 @@ public:
         lt->bracket(
                 [this, handler]() { listeners.push_back(handler); },
                 [this, handler]() {
-                    auto it = std::remove_if(listeners.begin(), listeners.end(), function_comparator(handler));
-                    listeners.erase(it, listeners.end());
+//                    auto it = std::remove_if(listeners.begin(), listeners.end(), function_comparator(handler));
+//                    listeners.erase(it, listeners.end());
                 }
         );
     }
