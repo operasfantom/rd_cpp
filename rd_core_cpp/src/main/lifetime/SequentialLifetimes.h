@@ -9,14 +9,14 @@
 
 class SequentialLifetimes {
 private:
-    LifetimeDefinition* current_def = LifetimeDefinition::eternal;
-    LifetimeDefinition* parent_lifetime;
+    LifetimeDefinition* current_def;
+    Lifetime* parent_lifetime;
 public:
     SequentialLifetimes() = delete;
 
-    SequentialLifetimes(LifetimeDefinition *parent_lifetime);
+    SequentialLifetimes(Lifetime *parent_lifetime);
 
-    Lifetime next();
+    Lifetime * next();
 
     void terminate_current();
 

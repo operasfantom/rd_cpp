@@ -13,6 +13,7 @@
 class LifetimeDefinition {
 private:
 //    friend class lifetime;
+    friend class SequentialLifetimes;
 
     bool is_eternal = false;
 public:
@@ -20,6 +21,7 @@ public:
 
     explicit LifetimeDefinition(bool is_eternal = false);
 
+    explicit LifetimeDefinition(Lifetime *parent);
 //    lifetime_definition(lifetime_definition const & other) = delete;
 
     static LifetimeDefinition* eternal;

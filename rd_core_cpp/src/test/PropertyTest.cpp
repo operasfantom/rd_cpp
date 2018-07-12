@@ -6,29 +6,32 @@
 #include <main/reactive/Property.h>
 #include "interfaces.h"
 
-TEST(property, advise){
+TEST(property, advise) {
     int acc = 0;
 
-    IProperty<int>* property = new Property(acc);
+//    IProperty<int>* property = new Property(acc);
+    Property<int> *property = new Property<int>(acc);
+
+
     property->set(++acc);
 
     std::vector<int> log;
-    Lifetime::use<int>([&](Lifetime *lifetime){
+    Lifetime::use<int>([&property, &acc, &log](Lifetime *lifetime) {
         property->advise(lifetime, [&log](int x) {
             log.push_back(-x);
         });
-        property->view(lifetime, [&](Lifetime* inner, int x) {
+        /*property->view(lifetime, [&](Lifetime *inner, int x) {
             inner->bracket(
-                    [&log, &x](){ log.push_back(x); },
-                    [&log, &x](){ log.push_back(10 + x); }
-                    );
+                    [&log, &x]() { log.push_back(x); },
+                    [&log, &x]() { log.push_back(10 + x); }
+            );
         });
 
-        *lifetime += [&log](){ log.push_back(0); };
+        *lifetime += [&log]() { log.push_back(0); };
 
         property->set(property->get());
         property->set(++acc);
-        property->set(++acc);
+        property->set(++acc);*/
 
         return 0;
     });

@@ -17,11 +17,19 @@ private:
     bool is_eternal = false;
     bool terminated = false;
 
-    std::vector<std::function<void()> > actions;
+//    std::vector<std::function<void()> > actions;
+    using counter_t = int32_t;
+    counter_t action_id = 0;
+    std::unordered_map<counter_t, std::function<void()>> actions;
 public:
     explicit Lifetime(bool is_eternal = false);
 
     explicit Lifetime(Lifetime* parent);
+
+    counter_t add_action(std::function<void()> action){
+        actions[action_id] = action;
+        return action_id++;
+    }
 
     Lifetime (Lifetime const & other) = delete;
 
@@ -31,8 +39,8 @@ public:
 
     static LifetimeDefinition create(Lifetime parent);
 
-    template<typename T>
-    static T use(std::function<T(Lifetime*)> block){
+    template<typename T/*, typename F*/>
+    static T use(std::function<T(Lifetime*)>/*F*/ block){
         Lifetime* lt = new Lifetime(Lifetime::eternal);
         T result = block(lt);
         lt->terminate();
@@ -51,7 +59,7 @@ public:
 
     void terminate();
 
-    void operator +=(std::function<void()> action);
+    void operator +=(const std::function<void()> &action);
 
     bool is_terminated();
 };

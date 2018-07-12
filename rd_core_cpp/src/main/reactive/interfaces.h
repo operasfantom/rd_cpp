@@ -8,6 +8,7 @@
 
 #include <functional>
 #include <optional>
+#include <main/lifetime/SequentialLifetimes.h>
 
 #include "Lifetime.h"
 //#include "SignalX.h"
@@ -15,7 +16,7 @@
 template<typename T>
 class ISource {
 public:
-    virtual void advise(Lifetime *lifetime, std::function<void(T)> const &handler) = 0;
+    virtual void advise(Lifetime *lifetime, std::function<void(T)> handler) = 0;
 };
 
 template<typename T>
@@ -26,14 +27,23 @@ class IAsyncSource : ISource<T> {
 template<typename T>
 class IViewable {
 public:
-    virtual void view(Lifetime *lifetime, std::function<void(Lifetime *, T)> const &handler) = 0;
+    virtual void view(Lifetime *lifetime, std::function<void(Lifetime *, T)> handler) = 0;
 };
 
 template<typename T>
 class IPropertyBase : public ISource<T>, public IViewable<T> {
 public:
-    virtual void view(Lifetime *lifetime, std::function<void(Lifetime *, T)> const &handler) {
-        //TODO
+    virtual void view(Lifetime *lifetime, std::function<void(Lifetime *, T)> handler) {
+        if (lifetime->is_terminated()) return;
+
+        Lifetime *lf = lifetime->create_nested();
+        SequentialLifetimes seq(lf);
+
+        this->advise(lf, [lf, &seq, &handler](T const &v) {
+            if (!lf->is_terminated()) {
+                handler(seq.next(), v);
+            }
+        });
     }
 
 };
@@ -46,13 +56,13 @@ private:
 public:
     ISource<T> *change;
 
-    virtual ISource<T>* get_change() {
+    virtual ISource<T> *get_change() {
         return change;
     }
 
     virtual T get() = 0;
 
-    virtual void advise(Lifetime *lifetime, std::function<void(T)> const &handler) {
+    virtual void advise(Lifetime *lifetime, std::function<void(T)> handler) {
         if (lifetime->is_terminated()) {
             return;
         }
@@ -67,7 +77,7 @@ class IOptPropertyView : IPropertyBase<T> {
 private:
     std::optional<T> value_or_null;
 public:
-    void advise(Lifetime lt, std::function<void(T)> const &handler) {
+    void advise(Lifetime lt, std::function<void(T)> handler) {
         //TODO
     }
 };
@@ -89,7 +99,7 @@ public:
 };
 
 template<typename T>
-class IProperty : public IPropertyView<T>, public /*virtual */IMutablePropertyBase<T> {
+class IProperty : public IPropertyView<T>, public virtual IMutablePropertyBase<T> {
 
 };
 

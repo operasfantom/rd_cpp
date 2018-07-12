@@ -13,36 +13,57 @@
 #include <list>
 #include <variant>
 #include <optional>
+#include <main/lifetime/LifetimeDefinition.h>
 
 enum class AddRemove {
     ADD, REMOVE
 };
 
 template<typename T>
-class IViewableSet : std::unordered_set<T>, IViewable<T>/*, ISource<typename IViewableSet<T>::Event>*/ {
+class IViewableSet : std::unordered_set<T>, public IViewable<T>/*, ISource<typename IViewableSet<T>::Event>*/ {
+public:
+    std::unordered_map<Lifetime *, std::unordered_map<T, LifetimeDefinition> > lifetimes;
 
     class Event {
+    public:
+        Event(AddRemove kind, T value);
+
     public:
         AddRemove kind;
         T value;
     };
 
-    virtual void advise(Lifetime *lifetime, std::function<void(AddRemove, T)> const &handler) {
-        /*advise(lifetime, [&handler](Event const &e){
+    virtual void advise(Lifetime *lifetime, std::function<void(AddRemove, T)> handler) {
+        advise(lifetime, [&handler](Event const &e){
             handler(e.kind, e.value);
-        });*/
+        });
     }
 
 
-    virtual void view(Lifetime *lifetime, std::function<void(Lifetime *, T)> const &handler) {
+    virtual void view(Lifetime *lifetime, std::function<void(Lifetime *, T)> handler) {
         //TODO
+        advise(lifetime, [this, lifetime, &handler](AddRemove kind, T key){
+            switch (kind){
+                case AddRemove::ADD: {
+                    LifetimeDefinition def = lifetimes[lifetime][key] = LifetimeDefinition(lifetime);
+                    handler(def.lt, key);
+                    break;
+                }
+                case AddRemove ::REMOVE: {
+                    LifetimeDefinition def = lifetimes[lifetime][key];
+                    lifetimes[lifetime].erase(key);
+                    def.terminate();
+                    break;
+                }
+            }
+        });
     }
 
-    virtual void advise(Lifetime *lifetime, std::function<void(Event)> const &handler) = 0;
+    virtual void advise(Lifetime *lifetime, std::function<void(Event)> handler) = 0;
 };
 
 template<typename T>
-class IMutableViewableSet : public std::unordered_set<T>, public IViewableSet<T> {
+class IMutableViewableSet : /*public std::unordered_set<T>, */public IViewableSet<T> {
 };
 
 template<typename K, typename V>
@@ -109,11 +130,11 @@ public:
         }
     };
 
-    virtual void view(Lifetime *lifetime, std::function<void(Lifetime *lifetime, std::pair<K, V>)> const &handler) {
+    virtual void view(Lifetime *lifetime, std::function<void(Lifetime *lifetime, std::pair<K, V>)> handler) {
         //TODO
     }
 
-    void advise_add_remove(Lifetime *lifetime, std::function<void(AddRemove, K, V)> const &handler) {
+    void advise_add_remove(Lifetime *lifetime, std::function<void(AddRemove, K, V)> handler) {
         advise(lifetime, [&handler](Event const &e) {
             size_t i = e.index();
             switch (i) {
@@ -132,13 +153,13 @@ public:
         });
     }
 
-    void view(Lifetime *lifetime, std::function<void(Lifetime *, K, V)> const &handler) {
+    void view(Lifetime *lifetime, std::function<void(Lifetime *, K, V)> handler) {
         view(lifetime, [&handler](Lifetime *lf, std::pair<K, V> entry) {
             handler(lf, entry.first, entry.second);
         });
     }
 
-    virtual void advise(Lifetime *lifetime, std::function<void(Event)> const &handler) = 0;
+    virtual void advise(Lifetime *lifetime, std::function<void(Event)> handler) = 0;
 };
 
 //IViewableMap<int, int> m;
@@ -177,19 +198,19 @@ public:
         }
     };
 
-    void advise_add_remove(Lifetime *lifetime, std::function<void(AddRemove, int, V)> const &handler) {
+    void advise_add_remove(Lifetime *lifetime, std::function<void(AddRemove, int, V)> handler) {
 
     }
 
-    void view(Lifetime *lifetime, std::function<void(Lifetime *lifetime, std::pair<int, V>)> const &handler) {
+    void view(Lifetime *lifetime, std::function<void(Lifetime *lifetime, std::pair<int, V>)> handler) {
 
     }
 
-    void view(Lifetime *lifetime, std::function<void(Lifetime *, int, V)> const &handler) {
+    void view(Lifetime *lifetime, std::function<void(Lifetime *, int, V)> handler) {
 
     }
 
-    virtual void advise(Lifetime *lifetime, std::function<void(Event)> const &handler) = 0;
+    virtual void advise(Lifetime *lifetime, std::function<void(Event)> handler) = 0;
 };
 
 template<typename K, typename V>

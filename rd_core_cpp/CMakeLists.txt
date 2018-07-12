@@ -9,8 +9,8 @@ add_library(rd_core_cpp STATIC
         src/main/reactive/Property.cpp src/main/reactive/Property.h
         src/main/reactive/viewable_collections.cpp src/main/reactive/viewable_collections.h
         src/main/reactive/ViewableMap.cpp src/main/reactive/ViewableMap.h
-        #[[src/main/reactive/ViewableSet.cpp src/main/reactive/ViewableSet.h
-        src/main/reactive/ViewableList.cpp src/main/reactive/ViewableList.h]]
+        src/main/reactive/ViewableSet.cpp src/main/reactive/ViewableSet.h
+        src/main/reactive/ViewableList.cpp src/main/reactive/ViewableList.h
         src/main/Logger.cpp src/main/Logger.h)
 
 target_include_directories(rd_core_cpp PUBLIC src/)
@@ -23,7 +23,7 @@ target_include_directories(rd_core_cpp PUBLIC src/main/reactive)
 
 add_executable(rd_core_cpp_test
         src/test/SignalTest.cpp
-        src/test/ViewableMapTest.cpp src/test/PropertyTest.cpp)
+        src/test/ViewableMapTest.cpp src/test/PropertyTest.cpp src/test/ViewableSetTest.cpp)
 
 target_link_libraries(rd_core_cpp_test gtest gtest_main)
 target_link_libraries(rd_core_cpp_test rd_core_cpp)

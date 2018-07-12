@@ -4,3 +4,5 @@
 
 #include "viewable_collections.h"
 
+template<typename T>
+IViewableSet<T>::Event::Event(AddRemove kind, T value):kind(kind), value(value) {}

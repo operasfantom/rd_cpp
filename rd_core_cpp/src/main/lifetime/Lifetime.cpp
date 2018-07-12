@@ -5,9 +5,14 @@
 #include "Lifetime.h"
 #include "LifetimeDefinition.h"
 
-Lifetime *Lifetime::eternal = new Lifetime(true);
+Lifetime::Lifetime(bool is_eternal) : is_eternal(is_eternal) {
+}
 
-Lifetime::Lifetime(bool is_eternal) : is_eternal(is_eternal) {}
+Lifetime::Lifetime(Lifetime *parent) {
+    auto res = LifetimeDefinition();
+    parent->attach_nested(res);
+}
+
 
 LifetimeDefinition Lifetime::define(Lifetime lt, std::function<void(LifetimeDefinition, Lifetime)> f) {
     return LifetimeDefinition(false);
@@ -21,20 +26,21 @@ LifetimeDefinition Lifetime::create(Lifetime parent) {
 
 void Lifetime::bracket(std::function<void()> opening, std::function<void()> closing) {
     opening();
-    actions.push_back(closing);
+    add_action(closing);
 }
 
 void Lifetime::add(std::function<void()> action) {
     if (is_eternal) return;
     if (terminated) throw std::invalid_argument("Already Terminated");
-    actions.push_back(action);
+//    actions.push_back(action);
+    add_action(action);
 }
 
 LifetimeDefinition Lifetime::create_nested_def() {
     return LifetimeDefinition();
 }
 
-Lifetime* Lifetime::create_nested() {
+Lifetime *Lifetime::create_nested() {
     if (is_eternal) {
         return this;
     } else {
@@ -58,21 +64,19 @@ void Lifetime::terminate() {
 
     terminated = true;
     //TODO syncronized
-    for (auto &action : actions) {
-        action();
+    for (auto &p : actions) {
+        p.second();
     }
     actions.clear();
 }
 
-Lifetime::Lifetime(Lifetime *parent) {
-    auto res = LifetimeDefinition();
-    parent->attach_nested(res);
-}
-
-void Lifetime::operator+=(std::function<void()> action) {
-    actions.push_back(action);
+void Lifetime::operator+=(const std::function<void()> &action) {
+//    actions.push_back(action);
+    add_action(action);
 }
 
 bool Lifetime::is_terminated() {
     return terminated;
 }
+
+Lifetime *Lifetime::eternal = new Lifetime(true);

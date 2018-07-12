@@ -16,12 +16,11 @@ private:
     SignalX<T> change;
 public:
 
-    virtual ISource<T>* get_change() {
+    virtual ISource<T> *get_change() {
         return &change;
     }
-    explicit Property(T const & value) : value(value) {
-//        this->change = new SignalX<T>();
-    }
+
+    explicit Property(T const &value) : value(value) {}
 
     T get() {
         return value;

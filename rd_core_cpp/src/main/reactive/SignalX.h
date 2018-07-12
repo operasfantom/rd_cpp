@@ -11,14 +11,12 @@
 #include <functional>
 #include <iostream>
 #include <atomic>
-#include <cstdint>
-#include <stdint-gcc.h>
 
 template<typename T>
 class SignalX : public ISignal<T> {
 private:
 //    std::vector<std::function<void(T)> > listeners;
-    using counter_t = std::int32_t;
+    using counter_t = int32_t;
 //    std::atomic<counter_t> advise_id = 0;
     counter_t advise_id = 0;
 
@@ -33,7 +31,7 @@ public:
         }
     }
 
-    virtual void advise(Lifetime *lifetime, std::function<void(T)> const &handler) {
+    virtual void advise(Lifetime *lifetime, std::function<void(T)> handler) {
         lifetime->bracket(
                 [this, handler]() { listeners[advise_id] = handler; },
                 [this, advise_id = advise_id, handler]() {

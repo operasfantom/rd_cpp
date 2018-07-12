@@ -20,7 +20,7 @@ private:
     std::unordered_map<K, V> map;
     SignalX<Event> change;
 public:
-    virtual void advise(Lifetime *lifetime, std::function<void(Event)> const &handler) {
+    virtual void advise(Lifetime *lifetime, std::function<void(Event)> handler) {
         change.advise(lifetime, handler);
         for (auto &p : map) {
             catch_([&]() { handler(Event(typename Event::Add(p.first, p.second))); });
