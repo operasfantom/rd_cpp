@@ -7,25 +7,27 @@
 
 SequentialLifetimes::SequentialLifetimes(Lifetime *parent_lifetime) : parent_lifetime(
         parent_lifetime) {
-//    parent_lifetime += set_current_lifetime(lifetime_definition::eternal);
+    *parent_lifetime += [this]() {
+        set_current_lifetime(LifetimeDefinition::eternal);
+    };
 }
 
 Lifetime *SequentialLifetimes::next() {
-    LifetimeDefinition new_def = LifetimeDefinition(parent_lifetime);
+    LifetimeDefinition* new_def = new LifetimeDefinition(parent_lifetime);
     set_current_lifetime(new_def);
-    return new_def.lt;
+    return new_def->lifetime;
 }
 
 void SequentialLifetimes::terminate_current() {
-//    set_current_lifetime(*LifetimeDefinition::eternal);
+    set_current_lifetime(LifetimeDefinition::eternal);
 }
 
 bool SequentialLifetimes::is_terminated() {
     return current_def->is_eternal || current_def->is_terminated();
 }
 
-void SequentialLifetimes::set_current_lifetime(LifetimeDefinition new_def) {
+void SequentialLifetimes::set_current_lifetime(LifetimeDefinition *new_def) {
     LifetimeDefinition prev = *current_def;
-    *current_def = new_def;
+    current_def = new_def;
     prev.terminate();
 }

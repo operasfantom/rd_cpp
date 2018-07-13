@@ -5,18 +5,18 @@
 #include "LifetimeDefinition.h"
 //#include "lifetime.h"
 
-LifetimeDefinition::LifetimeDefinition(bool is_eternal) : is_eternal(is_eternal), lt(new Lifetime(is_eternal)) {}
+LifetimeDefinition::LifetimeDefinition(bool is_eternal) : is_eternal(is_eternal), lifetime(new Lifetime(is_eternal)) {}
 
-LifetimeDefinition::LifetimeDefinition(Lifetime *parent) : LifetimeDefinition() {
-    parent->attach_nested(*this);
+LifetimeDefinition::LifetimeDefinition(Lifetime *parent) : LifetimeDefinition(false) {
+    parent->attach_nested(this->lifetime);
 }
 
-bool LifetimeDefinition::is_terminated() {
-    return lt->terminated;
+bool LifetimeDefinition::is_terminated() const {
+    return lifetime->is_terminated();
 }
 
 void LifetimeDefinition::terminate() {
-    lt->terminate();
+    lifetime->terminate();
 }
 
-
+LifetimeDefinition* LifetimeDefinition::eternal = new LifetimeDefinition(true);

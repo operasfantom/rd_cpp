@@ -16,14 +16,14 @@ TEST(property, advise) {
     property->set(++acc);
 
     std::vector<int> log;
-    Lifetime::use<int>([&property, &acc, &log](Lifetime *lifetime) {
+    Lifetime::use<int>([&property, &acc, &log](Lifetime *lifetime)  {
         property->advise(lifetime, [&log](int x) {
             log.push_back(-x);
         });
-        /*property->view(lifetime, [&](Lifetime *inner, int x) {
+        property->view(lifetime, [&log](Lifetime *inner, int x) {
             inner->bracket(
-                    [&log, &x]() { log.push_back(x); },
-                    [&log, &x]() { log.push_back(10 + x); }
+                    [&log, x]() { log.push_back(x); },
+                    [&log, x]() { log.push_back(10 + x); }
             );
         });
 
@@ -31,7 +31,7 @@ TEST(property, advise) {
 
         property->set(property->get());
         property->set(++acc);
-        property->set(++acc);*/
+        property->set(++acc);
 
         return 0;
     });
@@ -42,12 +42,6 @@ TEST(property, advise) {
     EXPECT_EQ(expected, log);
 }
 /*
-class PropertyTest {
-    @Test
-            fun testAdvise() {
-
-    }
-
     @Test
             fun testWhenTrue() {
         var acc1 = 0

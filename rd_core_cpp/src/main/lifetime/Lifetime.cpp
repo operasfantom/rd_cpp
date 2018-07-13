@@ -5,22 +5,28 @@
 #include "Lifetime.h"
 #include "LifetimeDefinition.h"
 
-Lifetime::Lifetime(bool is_eternal) : is_eternal(is_eternal) {
+Lifetime::Lifetime(bool is_eternal) : eternaled(is_eternal), id(Lifetime::get_id++) {}
+
+
+
+Lifetime::Lifetime(Lifetime *parent) : Lifetime(false) {
+    parent->attach_nested(this);
 }
 
-Lifetime::Lifetime(Lifetime *parent) {
+LifetimeDefinition Lifetime::define(Lifetime *lifetime, std::function<void(LifetimeDefinition, Lifetime*)> f) {
+    LifetimeDefinition nested = create(lifetime);
+    try {
+        f(nested, nested.lifetime);
+    } catch (std::exception const &e){
+        nested.terminate();
+        throw;
+    }
+    return nested;
+}
+
+LifetimeDefinition Lifetime::create(Lifetime *parent) {
     auto res = LifetimeDefinition();
-    parent->attach_nested(res);
-}
-
-
-LifetimeDefinition Lifetime::define(Lifetime lt, std::function<void(LifetimeDefinition, Lifetime)> f) {
-    return LifetimeDefinition(false);
-}
-
-LifetimeDefinition Lifetime::create(Lifetime parent) {
-    auto res = LifetimeDefinition();
-    parent.attach_nested(res);
+    parent->attach_nested(res.lifetime);
     return res;
 }
 
@@ -29,45 +35,27 @@ void Lifetime::bracket(std::function<void()> opening, std::function<void()> clos
     add_action(closing);
 }
 
-void Lifetime::add(std::function<void()> action) {
-    if (is_eternal) return;
-    if (terminated) throw std::invalid_argument("Already Terminated");
-//    actions.push_back(action);
-    add_action(action);
-}
+void Lifetime::attach_nested(Lifetime* nested) {
+    if (nested->is_terminated() || this->is_eternal()) return;
 
-LifetimeDefinition Lifetime::create_nested_def() {
-    return LifetimeDefinition();
-}
-
-Lifetime *Lifetime::create_nested() {
-    if (is_eternal) {
-        return this;
-    } else {
-        return create_nested_def().lt;
-    }
-}
-
-void Lifetime::attach_nested(LifetimeDefinition nested_def) {
-    if (nested_def.lt->terminated || this->is_eternal) return;
-
-    std::function<void()> action = [&nested_def]() { nested_def.terminate(); };
-    add(action);
-    nested_def.lt->add([this, &action]() -> void {
-//        auto it = std::remove_if(actions.begin(), actions.end(), function_comparator(action));
-//        actions.erase(it, actions.end());
+    std::function<void()> action = [nested]() { nested->terminate(); };
+    counter_t action_id = add_action(action);
+    nested->add_action([this, action, action_id]() -> void {
+        actions.erase(action_id);
     });
 }
 
 void Lifetime::terminate() {
-    if (is_eternal) return;
+    if (is_eternal()) return;
 
     terminated = true;
-    //TODO syncronized
-    for (auto &p : actions) {
-        p.second();
+
+    auto actions_copy = actions;
+    for (auto it = actions_copy.rbegin(); it != actions_copy.rend(); ++it){
+        it->second();
     }
     actions.clear();
+    actions_copy.clear();
 }
 
 void Lifetime::operator+=(const std::function<void()> &action) {
@@ -75,8 +63,13 @@ void Lifetime::operator+=(const std::function<void()> &action) {
     add_action(action);
 }
 
-bool Lifetime::is_terminated() {
+bool Lifetime::is_terminated() const {
     return terminated;
 }
 
+bool Lifetime::is_eternal() const {
+    return eternaled;
+}
+
 Lifetime *Lifetime::eternal = new Lifetime(true);
+Lifetime::counter_t Lifetime::get_id = 0;

@@ -20,7 +20,7 @@ enum class AddRemove {
 };
 
 template<typename T>
-class IViewableSet : std::unordered_set<T>, public IViewable<T>/*, ISource<typename IViewableSet<T>::Event>*/ {
+class IViewableSet : /*std::unordered_set<T>,*/public IViewable<T>/*, ISource<typename IViewableSet<T>::Event>*/ {
 public:
     std::unordered_map<Lifetime *, std::unordered_map<T, LifetimeDefinition> > lifetimes;
 
@@ -34,22 +34,21 @@ public:
     };
 
     virtual void advise(Lifetime *lifetime, std::function<void(AddRemove, T)> handler) {
-        advise(lifetime, [&handler](Event const &e){
+        advise(lifetime, [handler](Event const &e) {
             handler(e.kind, e.value);
         });
     }
 
 
     virtual void view(Lifetime *lifetime, std::function<void(Lifetime *, T)> handler) {
-        //TODO
-        advise(lifetime, [this, lifetime, &handler](AddRemove kind, T key){
-            switch (kind){
+        advise(lifetime, [this, lifetime, handler](AddRemove kind, T key) {
+            switch (kind) {
                 case AddRemove::ADD: {
                     LifetimeDefinition def = lifetimes[lifetime][key] = LifetimeDefinition(lifetime);
-                    handler(def.lt, key);
+                    handler(def.lifetime, key);
                     break;
                 }
-                case AddRemove ::REMOVE: {
+                case AddRemove::REMOVE: {
                     LifetimeDefinition def = lifetimes[lifetime][key];
                     lifetimes[lifetime].erase(key);
                     def.terminate();
@@ -66,18 +65,12 @@ template<typename T>
 class IMutableViewableSet : /*public std::unordered_set<T>, */public IViewableSet<T> {
 };
 
-template<typename K, typename V>
-class KeyValuePair {
-    K key;
-    V value;
-};
-
 
 template<typename K, typename V>
 class IViewableMap
         : /*std::unordered_map<K, V>,*/ public IViewable<std::pair<K, V>>/*, ISource<typename IViewableMap<K, V>::Event>*/ {
 private:
-
+    std::unordered_map<Lifetime *, std::unordered_map<K, LifetimeDefinition> > lifetimes;
 public:
     class Event {
     public:
@@ -131,11 +124,24 @@ public:
     };
 
     virtual void view(Lifetime *lifetime, std::function<void(Lifetime *lifetime, std::pair<K, V>)> handler) {
-        //TODO
+        advise_add_remove(lifetime, [this, lifetime, handler](AddRemove kind, K const &key, V const &value) {
+            std::pair<K, V> entry = std::make_pair(key, value);
+            switch (kind) {
+                case AddRemove::ADD: {
+                    LifetimeDefinition def = lifetimes[lifetime][key] = LifetimeDefinition(lifetime);
+                    handler(def.lifetime, entry);
+                }
+                case AddRemove::REMOVE: {
+                    LifetimeDefinition def = lifetimes[lifetime][key];
+                    lifetimes[lifetime].erase(key);
+                    def.terminate();
+                }
+            }
+        });
     }
 
     void advise_add_remove(Lifetime *lifetime, std::function<void(AddRemove, K, V)> handler) {
-        advise(lifetime, [&handler](Event const &e) {
+        advise(lifetime, [handler](Event const &e) {
             size_t i = e.index();
             switch (i) {
                 case 0: //Add
@@ -154,7 +160,7 @@ public:
     }
 
     void view(Lifetime *lifetime, std::function<void(Lifetime *, K, V)> handler) {
-        view(lifetime, [&handler](Lifetime *lf, std::pair<K, V> entry) {
+        view(lifetime, [handler](Lifetime *lf, std::pair<K, V> entry) {
             handler(lf, entry.first, entry.second);
         });
     }
@@ -184,6 +190,8 @@ private:
     };
 
     ISource<typename IViewableList<V>::Event> *change;
+
+    std::unordered_map<Lifetime *, std::vector<LifetimeDefinition> > lifetimes;
 public:
     class Event : protected std::variant<Add, Update, Remove> {
         std::optional<V> new_value_opt() {
@@ -199,15 +207,47 @@ public:
     };
 
     void advise_add_remove(Lifetime *lifetime, std::function<void(AddRemove, int, V)> handler) {
+        advise(lifetime, [handler](Event e) {
+            size_t i = e.index();
+            switch (i) {
+                case 0: //Add
+                    handler(AddRemove::ADD, std::get<0>(e.v).index, std::get<0>(e.v).new_value);
+                    break;
+                case 1: //Update
+                    handler(AddRemove::REMOVE, std::get<1>(e.v).index, std::get<1>(e.v).old_value);
+                    handler(AddRemove::ADD, std::get<1>(e.v).index, std::get<1>(e.v).new_value);
+                    break;
+                case 2: //Remove
+                    handler(AddRemove::REMOVE, std::get<2>(e.v).index, std::get<2>(e.v).old_value);
 
+                    break;
+            }
+        });
     }
 
     void view(Lifetime *lifetime, std::function<void(Lifetime *lifetime, std::pair<int, V>)> handler) {
-
+        view(lifetime, [handler](Lifetime *lt, int idx, V v) {
+            handler(lt, idx, v);
+        });
     }
 
     void view(Lifetime *lifetime, std::function<void(Lifetime *, int, V)> handler) {
-
+        advise_add_remove(lifetime, [this, lifetime, handler](AddRemove kind, int idx, V value) {
+            switch (kind) {
+                case AddRemove::ADD: {
+                    LifetimeDefinition def(lifetime);
+                    std::vector<LifetimeDefinition> &v = lifetimes[lifetime];
+                    v.insert(v.begin() + idx, def);
+                    handler(def.lifetime, idx, value);
+                }
+                case AddRemove::REMOVE: {
+                    LifetimeDefinition def = lifetimes[lifetime];
+                    std::vector<LifetimeDefinition> &v = lifetimes[lifetime];
+                    v.erase(v.begin() + idx);
+                    def.terminate();
+                }
+            }
+        });
     }
 
     virtual void advise(Lifetime *lifetime, std::function<void(Event)> handler) = 0;

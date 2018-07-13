@@ -31,34 +31,32 @@ public:
 };
 
 template<typename T>
-class IPropertyBase : public ISource<T>, public IViewable<T> {
+class IPropertyBase : public virtual ISource<T>, public IViewable<T> {
 public:
     virtual void view(Lifetime *lifetime, std::function<void(Lifetime *, T)> handler) {
         if (lifetime->is_terminated()) return;
 
-        Lifetime *lf = lifetime->create_nested();
-        SequentialLifetimes seq(lf);
+        Lifetime *lf = new Lifetime(lifetime);
+        SequentialLifetimes* seq = new SequentialLifetimes(lf);
 
-        this->advise(lf, [lf, &seq, &handler](T const &v) {
+        this->advise(lf, [lf, seq, handler](T v) {
             if (!lf->is_terminated()) {
-                handler(seq.next(), v);
+                handler(seq->next(), v);
             }
         });
     }
 
+    virtual ISource<T>* get_change() = 0;
 };
 
 template<typename T>
 class IPropertyView : public virtual IPropertyBase<T> {
-private:
+protected:
     T value;
 
 public:
-    ISource<T> *change;
 
-    virtual ISource<T> *get_change() {
-        return change;
-    }
+    IPropertyView(T const& value) : value(value) {}
 
     virtual T get() = 0;
 
@@ -67,18 +65,8 @@ public:
             return;
         }
 
-        get_change()->advise(lifetime, handler);
+        this->get_change()->advise(lifetime, handler);
         handler(value);
-    }
-};
-
-template<typename T>
-class IOptPropertyView : IPropertyBase<T> {
-private:
-    std::optional<T> value_or_null;
-public:
-    void advise(Lifetime lt, std::function<void(T)> handler) {
-        //TODO
     }
 };
 
@@ -89,18 +77,16 @@ public:
 };
 
 template<typename T>
-class IAsyncSignal : ISignal<T>, IAsyncSource<T> {
-};
-
-template<typename T>
 class IMutablePropertyBase : public virtual IPropertyBase<T> {
 public:
     virtual void set(T const &) = 0;
+
 };
 
 template<typename T>
-class IProperty : public IPropertyView<T>, public virtual IMutablePropertyBase<T> {
-
+class IProperty : public virtual IPropertyView<T>, public virtual IMutablePropertyBase<T> {
+public:
+//    IProperty(T const &value) : IPropertyView<T>(value) {}
 };
 
 #endif //RD_CPP_INTERFACES_H

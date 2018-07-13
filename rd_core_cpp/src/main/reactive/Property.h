@@ -9,9 +9,9 @@
 #include "interfaces.h"
 
 template<typename T>
-class Property : public IProperty<T> {
+class Property : public virtual IProperty<T> {
 private:
-    T value;
+//    T value;
 
     SignalX<T> change;
 public:
@@ -20,16 +20,16 @@ public:
         return &change;
     }
 
-    explicit Property(T const &value) : value(value) {}
+    explicit Property(T const &value) : IPropertyView<T>(value) {}
 
     T get() {
-        return value;
+        return this->value;
     }
 
     void set(T const &new_value) {
-        if (value != new_value) {
-            value = new_value;
-            change.fire(new_value);
+        if (this->value != new_value) {
+            this->value = new_value;
+            this->change.fire(new_value);
         }
     }
 };

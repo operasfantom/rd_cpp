@@ -17,7 +17,7 @@ private:
 public:
     using Event = typename IMutableViewableMap<K, V>::Event;
 private:
-    std::unordered_map<K, V> map;
+    std::/*unordered_*/map<K, V> map;
     SignalX<Event> change;
 public:
     virtual void advise(Lifetime *lifetime, std::function<void(Event)> handler) {

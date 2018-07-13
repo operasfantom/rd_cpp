@@ -17,7 +17,7 @@ private:
 
     bool is_eternal = false;
 public:
-    Lifetime* lt;
+    Lifetime* lifetime;
 
     explicit LifetimeDefinition(bool is_eternal = false);
 
@@ -28,12 +28,9 @@ public:
 
 //    static void synchronize(lifetime_definition ... defs);
 
-    bool is_terminated();
+    bool is_terminated() const;
 
     void terminate();
-
-    virtual ~LifetimeDefinition() {};
 };
-
 
 #endif //RD_CPP_LIFETIME_DEFINITION_H

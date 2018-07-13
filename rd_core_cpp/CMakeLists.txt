@@ -23,7 +23,7 @@ target_include_directories(rd_core_cpp PUBLIC src/main/reactive)
 
 add_executable(rd_core_cpp_test
         src/test/SignalTest.cpp
-        src/test/ViewableMapTest.cpp src/test/PropertyTest.cpp src/test/ViewableSetTest.cpp)
+        src/test/ViewableMapTest.cpp src/test/PropertyTest.cpp src/test/ViewableSetTest.cpp src/test/AdviseVsViewTest.cpp)
 
 target_link_libraries(rd_core_cpp_test gtest gtest_main)
 target_link_libraries(rd_core_cpp_test rd_core_cpp)

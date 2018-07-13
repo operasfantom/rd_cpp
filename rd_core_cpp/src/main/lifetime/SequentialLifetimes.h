@@ -9,7 +9,7 @@
 
 class SequentialLifetimes {
 private:
-    LifetimeDefinition* current_def;
+    LifetimeDefinition* current_def = LifetimeDefinition::eternal;
     Lifetime* parent_lifetime;
 public:
     SequentialLifetimes() = delete;
@@ -24,7 +24,7 @@ public:
 
     void define_next(std::function<void(LifetimeDefinition, Lifetime)> f_next);
 
-    void set_current_lifetime(LifetimeDefinition new_def);
+    void set_current_lifetime(LifetimeDefinition *new_def);
 };
 
 
