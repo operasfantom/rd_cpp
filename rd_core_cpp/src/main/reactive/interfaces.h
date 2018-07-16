@@ -20,18 +20,13 @@ public:
 };
 
 template<typename T>
-class IAsyncSource : ISource<T> {
-//    void adviseOn(lifetime lt, scheduler scheduler_, std::function<void(T)>);
-};
-
-template<typename T>
 class IViewable {
 public:
     virtual void view(Lifetime *lifetime, std::function<void(Lifetime *, T)> handler) = 0;
 };
 
 template<typename T>
-class IPropertyBase : public virtual ISource<T>, public IViewable<T> {
+class IPropertyBase : public ISource<T>, public IViewable<T> {
 public:
     virtual void view(Lifetime *lifetime, std::function<void(Lifetime *, T)> handler) {
         if (lifetime->is_terminated()) return;
@@ -50,7 +45,7 @@ public:
 };
 
 template<typename T>
-class IPropertyView : public virtual IPropertyBase<T> {
+class IPropertyView : public IPropertyBase<T> {
 protected:
     T value;
 
@@ -74,19 +69,6 @@ template<typename T>
 class ISignal : public ISource<T> {
 public:
     virtual void fire(T const &value) = 0;
-};
-
-template<typename T>
-class IMutablePropertyBase : public virtual IPropertyBase<T> {
-public:
-    virtual void set(T const &) = 0;
-
-};
-
-template<typename T>
-class IProperty : public virtual IPropertyView<T>, public virtual IMutablePropertyBase<T> {
-public:
-//    IProperty(T const &value) : IPropertyView<T>(value) {}
 };
 
 #endif //RD_CPP_INTERFACES_H

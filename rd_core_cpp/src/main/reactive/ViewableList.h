@@ -11,9 +11,9 @@
 #include "viewable_collections.h"
 
 template<typename T>
-class ViewableList : public IMutableViewableList<T> {
+class ViewableList : public IViewableList<T> {
 public:
-    using Event = typename IMutableViewableList<T>::Event;
+    using Event = typename IViewableList<T>::Event;
 private:
     std::vector<T> list;
     SignalX<Event> change;

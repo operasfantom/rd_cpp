@@ -10,7 +10,7 @@
 #include "util.h"
 
 TEST(viewable_map, advise) {
-    IMutableViewableMap<int, int> *map = new ViewableMap<int, int>();
+    IViewableMap<int, int> *map = new ViewableMap<int, int>();
     map->set(0, 1);
     map->set(1, 1);
     map->set(2, 2);
@@ -63,5 +63,5 @@ TEST(viewable_map, advise) {
         return 0;
     });
 
-    EXPECT_EQ(std::vector<std::string>({"Add 0:0"_s, "Add 10:10", "Remove 0:0", "Remove 10:10"}), log_add_remove);
+    EXPECT_EQ(arrayListOf({"Add 0:0"_s, "Add 10:10"_s, "Remove 0:0"_s, "Remove 10:10"_s}), log_add_remove);
 }

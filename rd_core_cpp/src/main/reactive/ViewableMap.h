@@ -10,12 +10,9 @@
 #include "SignalX.h"
 
 template<typename K, typename V>
-class ViewableMap : public IMutableViewableMap<K, V> {
-private:
-    //TODO linkedMap
-
+class ViewableMap : public IViewableMap<K, V> {
 public:
-    using Event = typename IMutableViewableMap<K, V>::Event;
+    using Event = typename IViewableMap<K, V>::Event;
 private:
     std::/*unordered_*/map<K, V> map;
     SignalX<Event> change;

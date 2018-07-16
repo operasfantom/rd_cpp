@@ -7,7 +7,7 @@
 #include "util.h"
 
 TEST(viewable_list, add_remove_advise) {
-    IMutableViewableList<int> *list = new ViewableList<int>();
+    IViewableList<int> *list = new ViewableList<int>();
     std::vector<std::string> log;
     Lifetime::use<int>([&](Lifetime *lifetime) {
         list->advise_add_remove(lifetime, [&log](AddRemove kind, size_t index, int value) {
@@ -24,7 +24,7 @@ TEST(viewable_list, add_remove_advise) {
 }
 
 TEST(viewable_list, add_remove_view) {
-    IMutableViewableList<int> *list = new ViewableList<int>();
+    IViewableList<int> *list = new ViewableList<int>();
     std::vector<std::string> log;
     Lifetime::use<int>([&](Lifetime *lifetime) {
         list->view(lifetime, [&log](Lifetime *lt, std::pair<size_t, int> value) {
@@ -43,7 +43,7 @@ TEST(viewable_list, add_remove_view) {
 }
 
 TEST(viewable_list, insert_middle) {
-    IMutableViewableList<int> *list = new ViewableList<int>();
+    IViewableList<int> *list = new ViewableList<int>();
     std::vector<std::string> log;
     Lifetime::use<int>([&](Lifetime *lifetime) {
         list->advise_add_remove(lifetime, [&list, &log](AddRemove kind, size_t index, int value) {
@@ -61,7 +61,7 @@ TEST(viewable_list, insert_middle) {
 }
 
 TEST(viewable_list, other_reactive_api) {
-    IMutableViewableList<int> *list = new ViewableList<int>();
+    IViewableList<int> *list = new ViewableList<int>();
     std::vector<std::string> log;
 
     Lifetime::use<int>([&](Lifetime *lifetime) {

@@ -9,7 +9,7 @@
 #include "interfaces.h"
 
 template<typename T>
-class Property : public virtual IProperty<T> {
+class Property : public IPropertyView<T> {
 private:
 //    T value;
 

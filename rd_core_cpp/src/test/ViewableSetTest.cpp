@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 #include "ViewableSet.h"
 
-TEST (set, advise) {
+TEST (viewable_set, advise) {
     IViewableSet<int> *set = new ViewableSet<int>();//TODO omit Interface
 
     std::vector<int> logAdvise;

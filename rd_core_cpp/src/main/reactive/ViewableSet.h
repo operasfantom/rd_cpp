@@ -9,9 +9,9 @@
 #include "SignalX.h"
 
 template<typename T>
-class ViewableSet : public IMutableViewableSet<T> {
+class ViewableSet : public IViewableSet<T> {
 public:
-    using Event = typename IMutableViewableSet<T>::Event;
+    using Event = typename IViewableSet<T>::Event;
 
 private:
     SignalX<Event> change;

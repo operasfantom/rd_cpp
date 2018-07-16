@@ -21,14 +21,14 @@ enum class AddRemove {
 
 template<typename T>
 class IViewableSet : /*std::unordered_set<T>,*/public IViewable<T>/*, ISource<typename IViewableSet<T>::Event>*/ {
-public:
+protected:
     std::unordered_map<Lifetime *, std::unordered_map<T, LifetimeDefinition> > lifetimes;
+public:
 
     class Event {
     public:
         Event(AddRemove kind, T value) : kind(kind), value(value) {}
 
-    public:
         AddRemove kind;
         T value;
     };
@@ -73,15 +73,11 @@ public:
     virtual bool empty() = 0;
 };
 
-template<typename T>
-class IMutableViewableSet : /*public std::unordered_set<T>, */public IViewableSet<T> {
-};
-
 
 template<typename K, typename V>
 class IViewableMap
         : /*std::unordered_map<K, V>,*/ public IViewable<std::pair<K, V>>/*, ISource<typename IViewableMap<K, V>::Event>*/ {
-private:
+protected:
     std::unordered_map<Lifetime *, std::unordered_map<K, LifetimeDefinition> > lifetimes;
 public:
     class Event {
@@ -118,17 +114,6 @@ public:
         Event(Update const &x) : v(x) {}
 
         Event(Remove const &x) : v(x) {}
-
-        /*std::optional<V> new_value_opt() {
-            switch (v.index()) {
-                case 0: //Add
-                    return std::get<0>(v);
-                case 1: //Update
-                    return std::get<1>(v);
-                default: //Remove
-                    return {};
-            }
-        }*/
 
         size_t index() const {
             return v.index();
@@ -185,6 +170,12 @@ public:
     }
 
     virtual void advise(Lifetime *lifetime, std::function<void(Event)> handler) = 0;
+
+    virtual std::optional<V> set(K const &, V const &) = 0;
+
+    virtual std::optional<V> remove(K const &) = 0;
+
+    virtual void clear() = 0;
 };
 
 template<typename V>
@@ -228,19 +219,9 @@ public:
         size_t index() {
             return v.index();
         }
-        /*std::optional<V> new_value_opt() {
-            switch ((*this).index()) {
-                case 0: //Add
-                    return std::get<0>;
-                case 1: //Update
-                    return std::get<1>;
-                default: //Remove
-                    return {};
-            }
-        }*/
     };
 
-private:
+protected:
     ISource<typename IViewableList<V>::Event> *change;
 
     std::unordered_map<Lifetime *, std::vector<LifetimeDefinition> > lifetimes;
@@ -311,20 +292,6 @@ public:
     virtual bool empty() = 0;
 
     virtual std::vector<V> toList() = 0;
-};
-
-template<typename K, typename V>
-class IMutableViewableMap :/* public std::unordered_map<K, V>,*/ public IViewableMap<K, V> {
-public:
-    virtual std::optional<V> set(K const &key, V const &value) = 0;
-
-    virtual std::optional<V> remove(K const &key) = 0;
-
-    virtual void clear() = 0;
-};
-
-template<typename V>
-class IMutableViewableList : /*std::list<V>, */public IViewableList<V> {
 };
 
 
