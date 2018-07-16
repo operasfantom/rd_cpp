@@ -33,15 +33,17 @@ public:
         }
     }
 
-    std::optional<V> put(K const &key, V const &value) {
+    std::optional<V> set(K const &key, V const &value) {
         if (map.count(key) == 0) {
-            map.insert(std::make_pair(key, value));
+            map[key] = value;
             change.fire(typename Event::Add(key, value));
             return {};
         } else {
             V old_value = map[key];
-            map.insert(std::make_pair(key, value));
-            change.fire(typename Event::Update(key, old_value, value));
+            if (map[key] != value) {
+                map[key] = value;
+                change.fire(typename Event::Update(key, old_value, value));
+            }
             return old_value;
         }
     }
@@ -49,16 +51,17 @@ public:
     std::optional<V> remove(K const &key) {
         if (map.count(key) > 0) {
             V old_value = map[key];
+            map.erase(key);
             change.fire(typename Event::Remove(key, old_value));
             return old_value;
         }
         return {};
     }
 
-    void clear() {
+    virtual void clear() {
         std::vector<Event> changes;
         for (auto &p : map) {
-            changes.push_back(Event::Remove(p.first, p.second));
+            changes.push_back(typename Event::Remove(p.first, p.second));
         }
         map.clear();
         for (auto &it : changes) {

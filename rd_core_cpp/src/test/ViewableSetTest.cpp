@@ -5,49 +5,55 @@
 #include <gtest/gtest.h>
 #include "ViewableSet.h"
 
-TEST (set, advise){
-    IViewableSet<int>* set = new ViewableSet<int>();
+TEST (set, advise) {
+    IViewableSet<int> *set = new ViewableSet<int>();//TODO omit Interface
 
     std::vector<int> logAdvise;
     std::vector<int> logView1;
     std::vector<int> logView2;
-    Lifetime::use<int>([&](Lifetime *lt){
-        set->advise(lt, [&](AddRemove kind, int v){
+    Lifetime::use<int>([&](Lifetime *lt) {
+        set->advise(lt, [&](AddRemove kind, int v) {
             logAdvise.push_back(kind == AddRemove::ADD ? v : -v);
         });
+        set->view(lt, [&logView1](Lifetime *inner, int v) {
+            logView1.push_back(v);
+            *inner += [&logView1, v]() { logView1.push_back(-v); };
+        });
+        set->view(Lifetime::eternal, [&logView2](Lifetime *inner, int v) {
+            logView2.push_back(v);
+            *inner += [&logView2, v]() { logView2.push_back(-v); };
+        });
 
+        EXPECT_TRUE(set->add(1));//1
+        //EXPECT_TRUE(set.add(arrayOf(1, 2)) } //1, 2
+        EXPECT_FALSE(set->add(1)); //1
+        EXPECT_TRUE(set->add(2)); //1, 2
+
+        //EXPECT_TRUE(set.add(arrayOf(1, 2)) } //1, 2
+        EXPECT_FALSE(set->add(1)); //1, 2
+        EXPECT_FALSE(set->add(2)); //1, 2
+
+//        EXPECT_TRUE{set.removeAll(arrayOf(2, 3))} // 1
+        EXPECT_TRUE(set->remove(2)); // 1
+        EXPECT_FALSE(set->remove(3)); // 1
+
+        EXPECT_TRUE(set->add(2)); // 1, 2
+        EXPECT_FALSE(set->add(2)); // 1, 2
+
+//        EXPECT_TRUE(set.retainAll(arrayOf(2, 3)) // 2
+        EXPECT_TRUE(set->remove(1)); // 2
+        EXPECT_FALSE(set->remove(3)); // 2
         return 0;
     });
+
+    EXPECT_TRUE(set->add(1));
+
+    std::vector<int> expectedAdvise{1, 2, -2, 2, -1};
+    EXPECT_EQ(expectedAdvise, logAdvise);
+
+    std::vector<int> expectedView1{1, 2, -2, 2, -1, -2};
+    EXPECT_EQ(expectedView1, logView1);
+
+    std::vector<int> expectedView2{1, 2, -2, 2, -1, 1};
+    EXPECT_EQ(expectedView2, logView2);
 }
-//        Lifetime.using { lt ->
-//
-//            set.advise(lt) {kind, v -> logAdvise.add(if (kind == AddRemove.Add) v else -v)}
-//
-//            set.view(lt) { inner, v ->
-//                logView1.add(v)
-//                inner += {logView1.add(-v)}
-//            }
-//
-//            set.view(Lifetime.Eternal) {
-//                inner, v ->
-//                logView2.add(v)
-//                inner += {logView2.add(-v)}
-//            }
-//
-//            assertTrue { set.add(1) } //1
-//            assertTrue { set.addAll(arrayOf(1, 2)) } //1, 2
-//            assertFalse { set.addAll(arrayOf(1, 2)) } // 1, 2
-//            assertTrue { set.removeAll(arrayOf(2, 3)) } // 1
-//
-//            assertTrue { set.add(2) } // 1, 2
-//            assertFalse { set.add(2) } // 1, 2
-//
-//            assertTrue { set.retainAll(arrayOf(2, 3)) } // 2
-//        }
-//
-//        assertTrue { set.add(1) }
-//
-//        assertEquals(listOf(1, 2, -2, 2, -1), logAdvise)
-//        assertEquals(listOf(1, 2, -2, 2, -1, -2), logView1)
-//        assertEquals(listOf(1, 2, -2, 2, -1, 1), logView2)
-//    }

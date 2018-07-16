@@ -8,16 +8,15 @@
 Lifetime::Lifetime(bool is_eternal) : eternaled(is_eternal), id(Lifetime::get_id++) {}
 
 
-
 Lifetime::Lifetime(Lifetime *parent) : Lifetime(false) {
     parent->attach_nested(this);
 }
 
-LifetimeDefinition Lifetime::define(Lifetime *lifetime, std::function<void(LifetimeDefinition, Lifetime*)> f) {
+LifetimeDefinition Lifetime::define(Lifetime *lifetime, std::function<void(LifetimeDefinition, Lifetime *)> f) {
     LifetimeDefinition nested = create(lifetime);
     try {
         f(nested, nested.lifetime);
-    } catch (std::exception const &e){
+    } catch (std::exception const &e) {
         nested.terminate();
         throw;
     }
@@ -31,11 +30,12 @@ LifetimeDefinition Lifetime::create(Lifetime *parent) {
 }
 
 void Lifetime::bracket(std::function<void()> opening, std::function<void()> closing) {
+    if (is_terminated()) return;
     opening();
     add_action(closing);
 }
 
-void Lifetime::attach_nested(Lifetime* nested) {
+void Lifetime::attach_nested(Lifetime *nested) {
     if (nested->is_terminated() || this->is_eternal()) return;
 
     std::function<void()> action = [nested]() { nested->terminate(); };
@@ -51,7 +51,7 @@ void Lifetime::terminate() {
     terminated = true;
 
     auto actions_copy = actions;
-    for (auto it = actions_copy.rbegin(); it != actions_copy.rend(); ++it){
+    for (auto it = actions_copy.rbegin(); it != actions_copy.rend(); ++it) {
         it->second();
     }
     actions.clear();
