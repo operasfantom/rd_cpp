@@ -13,10 +13,12 @@ class ViewableSet : public IViewableSet<T> {
 public:
     using Event = typename IViewableSet<T>::Event;
 
+    using IViewableSet<T>::advise;
 private:
     SignalX<Event> change;
 
     std::set<T> set;
+
 public:
     virtual bool add(T const &element) {
         auto p = set.insert(element);

@@ -91,5 +91,4 @@ public:
     }
 };
 
-
 #endif //RD_CPP_VIEWABLELIST_H

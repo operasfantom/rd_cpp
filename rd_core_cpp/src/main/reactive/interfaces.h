@@ -51,7 +51,7 @@ protected:
 
 public:
 
-    IPropertyView(T const& value) : value(value) {}
+    explicit IPropertyView(T const& value) : value(value) {}
 
     virtual T get() = 0;
 

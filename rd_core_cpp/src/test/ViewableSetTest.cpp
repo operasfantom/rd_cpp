@@ -6,7 +6,7 @@
 #include "ViewableSet.h"
 
 TEST (viewable_set, advise) {
-    IViewableSet<int> *set = new ViewableSet<int>();//TODO omit Interface
+    ViewableSet<int> *set = new ViewableSet<int>();
 
     std::vector<int> logAdvise;
     std::vector<int> logView1;

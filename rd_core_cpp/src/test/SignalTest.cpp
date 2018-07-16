@@ -12,7 +12,6 @@
 TEST(signal, advice) {
     int acc = 0;
     ISignal<int> *s = new SignalX<int>();
-//    rd_signal<int> *s = new rd_signal<int>();
 
     s->fire(++acc);
 
@@ -35,10 +34,21 @@ TEST(signal, advice) {
     EXPECT_EQ(expected, log);
 }
 
-/*
-TEST(signal, priority_advise) {
-    auto *s = new rd_signal<int>();
+/*TEST(signal, priority_advise) {
+    SignalX *s = new SignalX<int>();
     std::vector<int> log;
-    s->advise_eternal(static_cast<std::function<void(int)> >( [&](int _) { log.push_back(1); }));
-    s->advise_eternal(static_cast<std::function<void(int)> >( [&](int _) { log.push_back(2); }));
+
+    s->advise_eternal([&](int _) { log.push_back(1); }));
+    s->advise_eternal([&](int _) { log.push_back(2); }););
+
+    *//*SignalX::priority_advise_section([](){
+
+    });*//*
+
+    signal->advise_eternal([&](int _) { log.push_back(5)});
+
+    signal->fire();
+
+    EXPECT_EQ(arrayListOf({3, 4, 1, 2, 5}), log);
 }*/
+

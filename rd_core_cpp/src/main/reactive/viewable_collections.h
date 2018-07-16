@@ -20,7 +20,7 @@ enum class AddRemove {
 };
 
 template<typename T>
-class IViewableSet : /*std::unordered_set<T>,*/public IViewable<T>/*, ISource<typename IViewableSet<T>::Event>*/ {
+class IViewableSet : public IViewable<T>/*, ISource<typename IViewableSet<T>::Event>*/ {
 protected:
     std::unordered_map<Lifetime *, std::unordered_map<T, LifetimeDefinition> > lifetimes;
 public:
@@ -33,8 +33,8 @@ public:
         T value;
     };
 
-    void advise(Lifetime *lifetime, std::function<void(AddRemove, T)> handler) {
-        advise(lifetime, [handler](Event const &e) {
+    virtual void advise(Lifetime *lifetime, std::function<void(AddRemove, T)> handler) {
+        this->advise(lifetime, [handler](Event e) {
             handler(e.kind, e.value);
         });
     }
@@ -254,10 +254,10 @@ public:
         advise_add_remove(lifetime, [this, lifetime, handler](AddRemove kind, size_t idx, V value) {
             switch (kind) {
                 case AddRemove::ADD: {
-                    LifetimeDefinition* def = new LifetimeDefinition(lifetime);
+                    LifetimeDefinition def(lifetime);
                     std::vector<LifetimeDefinition> &v = lifetimes[lifetime];
-                    v.insert(v.begin() + idx, *def);
-                    handler(def->lifetime, idx, value);
+                    v.insert(v.begin() + idx, def);
+                    handler(def.lifetime, idx, value);
                     break;
                 }
                 case AddRemove::REMOVE: {

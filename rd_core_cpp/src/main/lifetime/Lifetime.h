@@ -52,6 +52,9 @@ public:
         Lifetime* lt = new Lifetime(Lifetime::eternal);
         T result = block(lt);
         lt->terminate();
+
+//        delete lt;
+
         return result;
     }
 
