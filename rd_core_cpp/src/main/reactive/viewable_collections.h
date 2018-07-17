@@ -27,7 +27,7 @@ public:
 
     class Event {
     public:
-        Event(AddRemove kind, T value) : kind(kind), value(value) {}
+        Event(AddRemove kind, T const& value) : kind(kind), value(value) {}
 
         AddRemove kind;
         T value;
@@ -87,7 +87,7 @@ public:
             K key;
             V new_value;
 
-            Add(K key, V new_value) : key(key), new_value(new_value) {}
+            Add(K const& key, V const& new_value) : key(key), new_value(new_value) {}
         };
 
         class Update {
@@ -96,7 +96,7 @@ public:
             V old_value;
             V new_value;
 
-            Update(K key, V old_value, V new_value) : key(key), old_value(old_value), new_value(new_value) {}
+            Update(K const& key, V const& old_value, V const& new_value) : key(key), old_value(old_value), new_value(new_value) {}
         };
 
         class Remove {
@@ -104,7 +104,7 @@ public:
             K key;
             V old_value;
 
-            Remove(K key, V old_value) : key(key), old_value(old_value) {}
+            Remove(K const& key, V const& old_value) : key(key), old_value(old_value) {}
         };
 
         std::variant<Add, Update, Remove> v;
@@ -188,7 +188,7 @@ public:
             size_t index;
             V new_value;
 
-            Add(size_t index, V new_value) : index(index), new_value(new_value) {}
+            Add(size_t index, V const& new_value) : index(index), new_value(new_value) {}
         };
 
         class Update {
@@ -197,7 +197,7 @@ public:
             V old_value;
             V new_value;
 
-            Update(size_t index, V old_value, V new_value) : index(index), old_value(old_value), new_value(new_value) {}
+            Update(size_t index, V const&  old_value, V const& new_value) : index(index), old_value(old_value), new_value(new_value) {}
         };
 
         class Remove {
@@ -205,7 +205,7 @@ public:
             size_t index;
             V old_value;
 
-            Remove(size_t index, V old_value) : index(index), old_value(old_value) {}
+            Remove(size_t index, V const& old_value) : index(index), old_value(old_value) {}
         };
 
         std::variant<Add, Update, Remove> v;

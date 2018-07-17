@@ -34,7 +34,7 @@ public:
         Lifetime *lf = new Lifetime(lifetime);
         SequentialLifetimes* seq = new SequentialLifetimes(lf);
 
-        this->advise(lf, [lf, seq, handler](T v) {
+        this->advise(lf, [lf, seq, handler](T const &v) {
             if (!lf->is_terminated()) {
                 handler(seq->next(), v);
             }
@@ -63,6 +63,8 @@ public:
         this->get_change()->advise(lifetime, handler);
         handler(value);
     }
+
+    virtual void set(T const&) = 0;
 };
 
 template<typename T>
