@@ -11,7 +11,7 @@
 
 TEST(signal, advice) {
     int acc = 0;
-    ISignal<int> *s = new SignalX<int>();
+    std::unique_ptr<ISignal<int> > s(new SignalX<int>());
 
     s->fire(++acc);
 

@@ -27,20 +27,20 @@ public:
 
     class Event {
     public:
-        Event(AddRemove kind, T const& value) : kind(kind), value(value) {}
+        Event(AddRemove kind, T const &value) : kind(kind), value(value) {}
 
         AddRemove kind;
         T value;
     };
 
-    virtual void advise(std::shared_ptr<Lifetime>lifetime, std::function<void(AddRemove, T)> handler) {
+    virtual void advise(std::shared_ptr<Lifetime> lifetime, std::function<void(AddRemove, T)> handler) {
         this->advise(lifetime, [handler](Event e) {
             handler(e.kind, e.value);
         });
     }
 
 
-    virtual void view(std::shared_ptr<Lifetime>lifetime, std::function<void(std::shared_ptr<Lifetime>, T)> handler) {
+    virtual void view(std::shared_ptr<Lifetime> lifetime, std::function<void(std::shared_ptr<Lifetime>, T)> handler) {
         advise(lifetime, [this, lifetime, handler](AddRemove kind, T key) {
             switch (kind) {
                 case AddRemove::ADD: {
@@ -58,7 +58,7 @@ public:
         });
     }
 
-    virtual void advise(std::shared_ptr<Lifetime>lifetime, std::function<void(Event)> handler) = 0;
+    virtual void advise(std::shared_ptr<Lifetime> lifetime, std::function<void(Event)> handler) = 0;
 
     virtual bool add(T const &) = 0;
 
@@ -87,7 +87,7 @@ public:
             K key;
             V new_value;
 
-            Add(K const& key, V const& new_value) : key(key), new_value(new_value) {}
+            Add(K const &key, V const &new_value) : key(key), new_value(new_value) {}
         };
 
         class Update {
@@ -96,7 +96,8 @@ public:
             V old_value;
             V new_value;
 
-            Update(K const& key, V const& old_value, V const& new_value) : key(key), old_value(old_value), new_value(new_value) {}
+            Update(K const &key, V const &old_value, V const &new_value) : key(key), old_value(old_value),
+                                                                           new_value(new_value) {}
         };
 
         class Remove {
@@ -104,7 +105,7 @@ public:
             K key;
             V old_value;
 
-            Remove(K const& key, V const& old_value) : key(key), old_value(old_value) {}
+            Remove(K const &key, V const &old_value) : key(key), old_value(old_value) {}
         };
 
         std::variant<Add, Update, Remove> v;
@@ -120,19 +121,20 @@ public:
         }
     };
 
-    virtual void view(std::shared_ptr<Lifetime>lifetime, std::function<void(std::shared_ptr<Lifetime>lifetime, std::pair<K, V>)> handler) {
+    virtual void view(std::shared_ptr<Lifetime> lifetime,
+                      std::function<void(std::shared_ptr<Lifetime> lifetime, std::pair<K, V>)> handler) {
         advise_add_remove(lifetime, [this, lifetime, handler](AddRemove kind, K const &key, V const &value) {
             std::pair<K, V> entry = std::make_pair(key, value);
             switch (kind) {
                 case AddRemove::ADD: {
-                    if (lifetimes[lifetime].count(key) == 0){
+                    if (lifetimes[lifetime].count(key) == 0) {
                         LifetimeDefinition def = lifetimes[lifetime][key] = LifetimeDefinition(lifetime);
                         handler(def.lifetime, entry);
                     }
                     break;
                 }
                 case AddRemove::REMOVE: {
-                    if (lifetimes[lifetime].count(key) == 0){
+                    if (lifetimes[lifetime].count(key) == 0) {
                         throw std::invalid_argument("attempting to remove non-existing item");
                     }
                     LifetimeDefinition def = lifetimes[lifetime][key];
@@ -144,7 +146,7 @@ public:
         });
     }
 
-    void advise_add_remove(std::shared_ptr<Lifetime>lifetime, std::function<void(AddRemove, K, V)> handler) {
+    void advise_add_remove(std::shared_ptr<Lifetime> lifetime, std::function<void(AddRemove, K, V)> handler) {
         advise(lifetime, [handler](Event const &e) {
             size_t i = e.index();
             switch (i) {
@@ -163,13 +165,13 @@ public:
         });
     }
 
-    void view(std::shared_ptr<Lifetime>lifetime, std::function<void(std::shared_ptr<Lifetime>, K, V)> handler) {
-        view(lifetime, [handler](std::shared_ptr<Lifetime>lf, std::pair<K, V> entry) {
+    void view(std::shared_ptr<Lifetime> lifetime, std::function<void(std::shared_ptr<Lifetime>, K, V)> handler) {
+        view(lifetime, [handler](std::shared_ptr<Lifetime> lf, std::pair<K, V> entry) {
             handler(lf, entry.first, entry.second);
         });
     }
 
-    virtual void advise(std::shared_ptr<Lifetime>lifetime, std::function<void(Event)> handler) = 0;
+    virtual void advise(std::shared_ptr<Lifetime> lifetime, std::function<void(Event)> handler) = 0;
 
     virtual std::optional<V> set(K const &, V const &) = 0;
 
@@ -179,7 +181,8 @@ public:
 };
 
 template<typename V>
-class IViewableList /*std::list<V>, */: public IViewable<std::pair<size_t, V>>/*, ISource<typename IViewableList<V>::Event>*/ {
+class IViewableList /*std::list<V>, */
+        : public IViewable<std::pair<size_t, V>>/*, ISource<typename IViewableList<V>::Event>*/ {
 public:
     class Event {
     public:
@@ -188,7 +191,7 @@ public:
             size_t index;
             V new_value;
 
-            Add(size_t index, V const& new_value) : index(index), new_value(new_value) {}
+            Add(size_t index, V const &new_value) : index(index), new_value(new_value) {}
         };
 
         class Update {
@@ -197,7 +200,8 @@ public:
             V old_value;
             V new_value;
 
-            Update(size_t index, V const&  old_value, V const& new_value) : index(index), old_value(old_value), new_value(new_value) {}
+            Update(size_t index, V const &old_value, V const &new_value) : index(index), old_value(old_value),
+                                                                           new_value(new_value) {}
         };
 
         class Remove {
@@ -205,7 +209,7 @@ public:
             size_t index;
             V old_value;
 
-            Remove(size_t index, V const& old_value) : index(index), old_value(old_value) {}
+            Remove(size_t index, V const &old_value) : index(index), old_value(old_value) {}
         };
 
         std::variant<Add, Update, Remove> v;
@@ -226,7 +230,7 @@ protected:
 
     std::unordered_map<std::shared_ptr<Lifetime>, std::vector<LifetimeDefinition> > lifetimes;
 public:
-    void advise_add_remove(std::shared_ptr<Lifetime>lifetime, std::function<void(AddRemove, size_t, V)> handler) {
+    void advise_add_remove(std::shared_ptr<Lifetime> lifetime, std::function<void(AddRemove, size_t, V)> handler) {
         advise(lifetime, [handler](Event e) {
             size_t i = e.index();
             switch (i) {
@@ -244,13 +248,14 @@ public:
         });
     }
 
-    void view(std::shared_ptr<Lifetime>lifetime, std::function<void(std::shared_ptr<Lifetime>lifetime, std::pair<size_t, V>)> handler) {
-        view(lifetime, [handler](std::shared_ptr<Lifetime>lt, size_t idx, V v) {
+    void view(std::shared_ptr<Lifetime> lifetime,
+              std::function<void(std::shared_ptr<Lifetime> lifetime, std::pair<size_t, V>)> handler) {
+        view(lifetime, [handler](std::shared_ptr<Lifetime> lt, size_t idx, V v) {
             handler(lt, std::make_pair(idx, v));
         });
     }
 
-    void view(std::shared_ptr<Lifetime>lifetime, std::function<void(std::shared_ptr<Lifetime>, size_t, V)> handler) {
+    void view(std::shared_ptr<Lifetime> lifetime, std::function<void(std::shared_ptr<Lifetime>, size_t, V)> handler) {
         advise_add_remove(lifetime, [this, lifetime, handler](AddRemove kind, size_t idx, V value) {
             switch (kind) {
                 case AddRemove::ADD: {
@@ -271,7 +276,7 @@ public:
         });
     }
 
-    virtual void advise(std::shared_ptr<Lifetime>lifetime, std::function<void(Event)> handler) = 0;
+    virtual void advise(std::shared_ptr<Lifetime> lifetime, std::function<void(Event)> handler) = 0;
 
     virtual bool add(V const &element) = 0;
 

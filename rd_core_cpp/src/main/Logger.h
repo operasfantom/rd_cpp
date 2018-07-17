@@ -24,7 +24,7 @@ public:
     return SwitchLogger(category);
 }*/
 
-void catch_(std::optional<std::string> comment, const std::function<void()> &action){
+void catch_(std::optional<std::string> comment, const std::function<void()> &action) {
     try {
         action();
     } catch (std::exception const &e) {
@@ -33,7 +33,7 @@ void catch_(std::optional<std::string> comment, const std::function<void()> &act
     }
 }
 
-void catch_(const std::function<void()> &action){
+void catch_(const std::function<void()> &action) {
     catch_({}, action);
 }
 

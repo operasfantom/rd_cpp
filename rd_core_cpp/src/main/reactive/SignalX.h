@@ -20,7 +20,7 @@ private:
 //    std::atomic<counter_t> advise_id = 0;
     counter_t advise_id = 0;
 
-    std::/*unordered_*/map<counter_t ,std::function<void(T)> > listeners;
+    std::/*unordered_*/map<counter_t, std::function<void(T)> > listeners;
 public:
 
 //    rd_signal(rd_signal const & other) = delete;

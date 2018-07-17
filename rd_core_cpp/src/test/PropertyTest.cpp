@@ -9,16 +9,16 @@
 TEST(property, advise) {
     int acc = 0;
 
-    IPropertyView<int> *property = new Property<int>(acc);
+    std::unique_ptr<IPropertyView<int> > property(new Property<int>(acc));
 
     property->set(++acc);
 
     std::vector<int> log;
-    Lifetime::use<int>([&property, &acc, &log](std::shared_ptr<Lifetime>lifetime) {
+    Lifetime::use<int>([&property, &acc, &log](std::shared_ptr<Lifetime> lifetime) {
         property->advise(lifetime, [&log](int x) {
             log.push_back(-x);
         });
-        property->view(lifetime, [&log](std::shared_ptr<Lifetime>inner, int x) {
+        property->view(lifetime, [&log](std::shared_ptr<Lifetime> inner, int x) {
             inner->bracket(
                     [&log, x]() { log.push_back(x); },
                     [&log, x]() { log.push_back(10 + x); }
@@ -44,16 +44,16 @@ TEST(property, when_true) {
     int acc1 = 0;
     int acc2 = 0;
 
-    IPropertyView<bool> *property = new Property(false);
+    std::unique_ptr<IPropertyView<bool>> property(new Property(false));
     property->set(true);
-    Lifetime::use<int>([&](std::shared_ptr<Lifetime>lifetime) {
-        property->view(lifetime, [&acc1](std::shared_ptr<Lifetime>lt, bool flag) {
+    Lifetime::use<int>([&](std::shared_ptr<Lifetime> lifetime) {
+        property->view(lifetime, [&acc1](std::shared_ptr<Lifetime> lt, bool flag) {
             if (flag) {
                 acc1++;
             }
         });
 
-        property->view(lifetime, [&](std::shared_ptr<Lifetime>lt, bool flag) {
+        property->view(lifetime, [&](std::shared_ptr<Lifetime> lt, bool flag) {
             if (flag) {
                 lt->bracket(
                         [&acc2]() { acc2 += 2; },
@@ -84,11 +84,11 @@ TEST(property, when_true) {
 }
 
 TEST(property, view) {
-    IPropertyView<int> *property = new Property<int>(1);
+    std::unique_ptr<IPropertyView<int>> property(new Property<int>(1));
     int save = 0;
 
-    Lifetime::use<int>([&](std::shared_ptr<Lifetime>lifetime) {
-        property->view(lifetime, [&](std::shared_ptr<Lifetime>lt, int value) {
+    Lifetime::use<int>([&](std::shared_ptr<Lifetime> lifetime) {
+        property->view(lifetime, [&](std::shared_ptr<Lifetime> lt, int value) {
             save = value;
         });
         property->set(2);

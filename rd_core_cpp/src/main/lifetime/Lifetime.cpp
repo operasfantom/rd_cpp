@@ -17,7 +17,7 @@ void Lifetime::bracket(std::function<void()> opening, std::function<void()> clos
     add_action(closing);
 }
 
-void Lifetime:: attach_nested(std::shared_ptr<Lifetime>nested) {
+void Lifetime::attach_nested(std::shared_ptr<Lifetime> nested) {
     if (nested->is_terminated() || this->is_eternal()) return;
 
     std::function<void()> action = [nested]() { nested->terminate(); };

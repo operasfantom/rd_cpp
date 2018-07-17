@@ -22,16 +22,17 @@ public:
 template<typename T>
 class IViewable {
 public:
-    virtual void view(std::shared_ptr<Lifetime> lifetime, std::function<void(std::shared_ptr<Lifetime>, T)> handler) = 0;
+    virtual void
+    view(std::shared_ptr<Lifetime> lifetime, std::function<void(std::shared_ptr<Lifetime>, T)> handler) = 0;
 };
 
 template<typename T>
 class IPropertyBase : public ISource<T>, public IViewable<T> {
 public:
-    virtual void view(std::shared_ptr<Lifetime>lifetime, std::function<void(std::shared_ptr<Lifetime>, T)> handler) {
+    virtual void view(std::shared_ptr<Lifetime> lifetime, std::function<void(std::shared_ptr<Lifetime>, T)> handler) {
         if (lifetime->is_terminated()) return;
 
-        std::shared_ptr<Lifetime>lf(new Lifetime(lifetime));
+        std::shared_ptr<Lifetime> lf(new Lifetime(lifetime));
         std::shared_ptr<SequentialLifetimes> seq(new SequentialLifetimes(lf));
 
         this->advise(lf, [lf, seq, handler](T const &v) {
@@ -41,7 +42,7 @@ public:
         });
     }
 
-    virtual ISource<T>* get_change() = 0;
+    virtual ISource<T> *get_change() = 0;
 };
 
 template<typename T>
@@ -51,7 +52,7 @@ protected:
 
 public:
 
-    explicit IPropertyView(T const& value) : value(value) {}
+    explicit IPropertyView(T const &value) : value(value) {}
 
     virtual T get() = 0;
 
@@ -64,7 +65,7 @@ public:
         handler(value);
     }
 
-    virtual void set(T const&) = 0;
+    virtual void set(T const &) = 0;
 };
 
 template<typename T>

@@ -60,7 +60,7 @@ public:
 
     void bracket(std::function<void()> opening, std::function<void()> closing);
 
-    void attach_nested(std::shared_ptr<Lifetime>nested);
+    void attach_nested(std::shared_ptr<Lifetime> nested);
 
     void operator+=(const std::function<void()> &action);
 

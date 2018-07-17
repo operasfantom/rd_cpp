@@ -10,7 +10,7 @@
 TEST(advise_vs_view, advise_behaviour1) {
     LifetimeDefinition lifetimeDef(Lifetime::eternal);
     Property property(false);
-    std::shared_ptr<Lifetime>lifetime = lifetimeDef.lifetime;
+    std::shared_ptr<Lifetime> lifetime = lifetimeDef.lifetime;
 
     std::vector<bool> log;
 
@@ -27,12 +27,12 @@ TEST(advise_vs_view, advise_behaviour1) {
 TEST(advise_vs_view, view_behaviour1) {
     LifetimeDefinition lifetimeDef(Lifetime::eternal);
     Property property(false);
-    std::shared_ptr<Lifetime>lifetime = lifetimeDef.lifetime;
+    std::shared_ptr<Lifetime> lifetime = lifetimeDef.lifetime;
 
     std::vector<bool> log;
 
     lifetime->add_action([&property]() { property.set(true); });
-    property.view(lifetime, [&log](std::shared_ptr<Lifetime>_, bool value) {
+    property.view(lifetime, [&log](std::shared_ptr<Lifetime> _, bool value) {
         log.push_back(value);
     });
     lifetimeDef.terminate();
@@ -44,7 +44,7 @@ TEST(advise_vs_view, view_behaviour1) {
 TEST(advise_vs_view, advise_behaviour2) {
     LifetimeDefinition lifetimeDef(Lifetime::eternal);
     Property property(false);
-    std::shared_ptr<Lifetime>lifetime = lifetimeDef.lifetime;
+    std::shared_ptr<Lifetime> lifetime = lifetimeDef.lifetime;
 
     std::vector<bool> log;
 
@@ -62,11 +62,11 @@ TEST(advise_vs_view, advise_behaviour2) {
 TEST(advise_vs_view, view_behaviour2) {
     LifetimeDefinition lifetimeDef(Lifetime::eternal);
     Property property(false);
-    std::shared_ptr<Lifetime>lifetime = lifetimeDef.lifetime;
+    std::shared_ptr<Lifetime> lifetime = lifetimeDef.lifetime;
 
     std::vector<bool> log;
 
-    property.view(lifetime, [&log](std::shared_ptr<Lifetime>_, bool value) {
+    property.view(lifetime, [&log](std::shared_ptr<Lifetime> _, bool value) {
         log.push_back(value);
     });
     lifetime->add_action([&property]() { property.set(true); });
@@ -81,7 +81,7 @@ TEST(advise_vs_view, advise_behaviour3) {
     Property property_a(0);
     Property property_b(0);
 
-    std::shared_ptr<Lifetime>lifetime = lifetimeDef.lifetime;
+    std::shared_ptr<Lifetime> lifetime = lifetimeDef.lifetime;
 
     std::vector<int> log_a;
     std::vector<int> log_b;
@@ -114,17 +114,17 @@ TEST(advise_vs_view, view_behaviour3) {
     Property property_a(0);
     Property property_b(0);
 
-    std::shared_ptr<Lifetime>lifetime = lifetimeDef.lifetime;
+    std::shared_ptr<Lifetime> lifetime = lifetimeDef.lifetime;
 
     std::vector<int> log_a;
     std::vector<int> log_b;
 
 
-    property_a.view(lifetime, [&log_a](std::shared_ptr<Lifetime>_, int value) {
+    property_a.view(lifetime, [&log_a](std::shared_ptr<Lifetime> _, int value) {
         log_a.push_back(value);
     });
 
-    property_b.view(lifetime, [&log_b](std::shared_ptr<Lifetime>_, int value) {
+    property_b.view(lifetime, [&log_b](std::shared_ptr<Lifetime> _, int value) {
         log_b.push_back(value);
     });
 
