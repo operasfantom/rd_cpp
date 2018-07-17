@@ -11,15 +11,15 @@ TEST (viewable_set, advise) {
     std::vector<int> logAdvise;
     std::vector<int> logView1;
     std::vector<int> logView2;
-    Lifetime::use<int>([&](Lifetime *lt) {
+    Lifetime::use<int>([&](std::shared_ptr<Lifetime> lt) {
         set->advise(lt, [&](AddRemove kind, int v) {
             logAdvise.push_back(kind == AddRemove::ADD ? v : -v);
         });
-        set->view(lt, [&logView1](Lifetime *inner, int v) {
+        set->view(lt, [&logView1](std::shared_ptr<Lifetime> inner, int v) {
             logView1.push_back(v);
             *inner += [&logView1, v]() { logView1.push_back(-v); };
         });
-        set->view(Lifetime::eternal, [&logView2](Lifetime *inner, int v) {
+        set->view(Lifetime::eternal, [&logView2](std::shared_ptr<Lifetime> inner, int v) {
             logView2.push_back(v);
             *inner += [&logView2, v]() { logView2.push_back(-v); };
         });

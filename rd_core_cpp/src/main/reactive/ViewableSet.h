@@ -44,7 +44,7 @@ public:
         return true;
     }
 
-    virtual void advise(Lifetime *lifetime, std::function<void(Event)> handler) {
+    virtual void advise(std::shared_ptr<Lifetime>lifetime, std::function<void(Event)> handler) {
         for (auto &x : set) {
             handler(Event(AddRemove::ADD, x));
         }

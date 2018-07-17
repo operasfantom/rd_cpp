@@ -9,7 +9,7 @@
 TEST(viewable_list, add_remove_advise) {
     IViewableList<int> *list = new ViewableList<int>();
     std::vector<std::string> log;
-    Lifetime::use<int>([&](Lifetime *lifetime) {
+    Lifetime::use<int>([&](std::shared_ptr<Lifetime>lifetime) {
         list->advise_add_remove(lifetime, [&log](AddRemove kind, size_t index, int value) {
             log.push_back(to_string(kind) + " " + std::to_string(index) + " " + std::to_string(value));
         });
@@ -26,8 +26,8 @@ TEST(viewable_list, add_remove_advise) {
 TEST(viewable_list, add_remove_view) {
     IViewableList<int> *list = new ViewableList<int>();
     std::vector<std::string> log;
-    Lifetime::use<int>([&](Lifetime *lifetime) {
-        list->view(lifetime, [&log](Lifetime *lt, std::pair<size_t, int> value) {
+    Lifetime::use<int>([&](std::shared_ptr<Lifetime>lifetime) {
+        list->view(lifetime, [&log](std::shared_ptr<Lifetime>lt, std::pair<size_t, int> value) {
             log.push_back("View " + to_string(value));
             *lt += [&log, value]() { log.push_back("UnView " + to_string(value)); };
         });
@@ -45,7 +45,7 @@ TEST(viewable_list, add_remove_view) {
 TEST(viewable_list, insert_middle) {
     IViewableList<int> *list = new ViewableList<int>();
     std::vector<std::string> log;
-    Lifetime::use<int>([&](Lifetime *lifetime) {
+    Lifetime::use<int>([&](std::shared_ptr<Lifetime>lifetime) {
         list->advise_add_remove(lifetime, [&list, &log](AddRemove kind, size_t index, int value) {
             log.push_back(to_string(kind) + " " + std::to_string(index) + " " + std::to_string(value));
             list->add(0);
@@ -64,7 +64,7 @@ TEST(viewable_list, other_reactive_api) {
     IViewableList<int> *list = new ViewableList<int>();
     std::vector<std::string> log;
 
-    Lifetime::use<int>([&](Lifetime *lifetime) {
+    Lifetime::use<int>([&](std::shared_ptr<Lifetime>lifetime) {
 
         list->advise_add_remove(lifetime, [&list, &log](AddRemove kind, size_t index, int value) {
             log.push_back(to_string(kind) + " " + std::to_string(index) + " " + std::to_string(value));

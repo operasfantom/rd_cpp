@@ -16,23 +16,23 @@
 template<typename T>
 class ISource {
 public:
-    virtual void advise(Lifetime *lifetime, std::function<void(T)> handler) = 0;
+    virtual void advise(std::shared_ptr<Lifetime> lifetime, std::function<void(T)> handler) = 0;
 };
 
 template<typename T>
 class IViewable {
 public:
-    virtual void view(Lifetime *lifetime, std::function<void(Lifetime *, T)> handler) = 0;
+    virtual void view(std::shared_ptr<Lifetime> lifetime, std::function<void(std::shared_ptr<Lifetime>, T)> handler) = 0;
 };
 
 template<typename T>
 class IPropertyBase : public ISource<T>, public IViewable<T> {
 public:
-    virtual void view(Lifetime *lifetime, std::function<void(Lifetime *, T)> handler) {
+    virtual void view(std::shared_ptr<Lifetime>lifetime, std::function<void(std::shared_ptr<Lifetime>, T)> handler) {
         if (lifetime->is_terminated()) return;
 
-        Lifetime *lf = new Lifetime(lifetime);
-        SequentialLifetimes* seq = new SequentialLifetimes(lf);
+        std::shared_ptr<Lifetime>lf(new Lifetime(lifetime));
+        std::shared_ptr<SequentialLifetimes> seq(new SequentialLifetimes(lf));
 
         this->advise(lf, [lf, seq, handler](T const &v) {
             if (!lf->is_terminated()) {
@@ -55,7 +55,7 @@ public:
 
     virtual T get() = 0;
 
-    virtual void advise(Lifetime *lifetime, std::function<void(T)> handler) {
+    virtual void advise(std::shared_ptr<Lifetime> lifetime, std::function<void(T)> handler) {
         if (lifetime->is_terminated()) {
             return;
         }

@@ -5,9 +5,9 @@
 #include "LifetimeDefinition.h"
 //#include "lifetime.h"
 
-LifetimeDefinition::LifetimeDefinition(bool is_eternal) : is_eternal(is_eternal), lifetime(new Lifetime(is_eternal)) {}
+LifetimeDefinition::LifetimeDefinition(bool eternaled) : eternaled(eternaled), lifetime(new Lifetime(eternaled)) {}
 
-LifetimeDefinition::LifetimeDefinition(Lifetime *parent) : LifetimeDefinition(false) {
+LifetimeDefinition::LifetimeDefinition(std::shared_ptr<Lifetime> parent) : LifetimeDefinition(false) {
     parent->attach_nested(this->lifetime);
 }
 
@@ -19,4 +19,8 @@ void LifetimeDefinition::terminate() {
     lifetime->terminate();
 }
 
-LifetimeDefinition* LifetimeDefinition::eternal = new LifetimeDefinition(true);
+std::shared_ptr<LifetimeDefinition> LifetimeDefinition::eternal = std::make_shared<LifetimeDefinition>(LifetimeDefinition(true));
+
+bool LifetimeDefinition::is_eternal() const {
+    return lifetime->is_eternal();
+}

@@ -19,7 +19,7 @@ private:
     SignalX<Event> change;
 
 public:
-    virtual void advise(Lifetime *lifetime, std::function<void(Event)> handler) {
+    virtual void advise(std::shared_ptr<Lifetime> lifetime, std::function<void(Event)> handler) {
         if (lifetime->is_terminated()) return;
         change.advise(lifetime, handler);
         auto it = list.begin();
@@ -86,7 +86,7 @@ public:
         return list.empty();
     }
 
-    virtual std::vector<T> toList(){
+    virtual std::vector<T> toList() {
         return list;
     }
 };

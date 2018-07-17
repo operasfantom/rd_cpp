@@ -5,16 +5,18 @@
 #include "SequentialLifetimes.h"
 #include "LifetimeDefinition.h"
 
-SequentialLifetimes::SequentialLifetimes(Lifetime *parent_lifetime) : parent_lifetime(
+SequentialLifetimes::SequentialLifetimes(std::shared_ptr<Lifetime> parent_lifetime) : parent_lifetime(
         parent_lifetime) {
     *parent_lifetime += [this]() {
         set_current_lifetime(LifetimeDefinition::eternal);
     };
 }
 
-Lifetime *SequentialLifetimes::next() {
+std::shared_ptr<Lifetime> SequentialLifetimes::next() {
+    //TODO
+//    std::shared_ptr<LifetimeDefinition> new_def(new LifetimeDefinition(parent_lifetime));
     LifetimeDefinition* new_def = new LifetimeDefinition(parent_lifetime);
-    set_current_lifetime(new_def);
+    set_current_lifetime(std::shared_ptr<LifetimeDefinition>(new_def));
     return new_def->lifetime;
 }
 
@@ -23,11 +25,15 @@ void SequentialLifetimes::terminate_current() {
 }
 
 bool SequentialLifetimes::is_terminated() {
-    return current_def->is_eternal || current_def->is_terminated();
+    return current_def->is_eternal() || current_def->is_terminated();
 }
 
-void SequentialLifetimes::set_current_lifetime(LifetimeDefinition *new_def) {
-    LifetimeDefinition prev = *current_def;
+void SequentialLifetimes::set_current_lifetime(std::shared_ptr<LifetimeDefinition> new_def) {
+    std::shared_ptr<LifetimeDefinition> prev = current_def;
     current_def = new_def;
-    prev.terminate();
+    prev->terminate();
+
+    /*if (!prev->is_eternal()){
+        delete prev.get();
+    }*/
 }

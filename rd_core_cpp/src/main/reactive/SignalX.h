@@ -31,7 +31,7 @@ public:
         }
     }
 
-    virtual void advise(Lifetime *lifetime, std::function<void(T)> handler) {
+    virtual void advise(std::shared_ptr<Lifetime> lifetime, std::function<void(T)> handler) {
         lifetime->bracket(
                 [this, handler]() { listeners[advise_id] = handler; },
                 [this, advise_id = advise_id, handler]() {

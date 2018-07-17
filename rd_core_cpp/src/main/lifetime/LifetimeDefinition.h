@@ -15,20 +15,22 @@ private:
 //    friend class lifetime;
     friend class SequentialLifetimes;
 
-    bool is_eternal = false;
+    bool eternaled = false;
 public:
-    Lifetime* lifetime;
+    std::shared_ptr<Lifetime> lifetime;
 
     explicit LifetimeDefinition(bool is_eternal = false);
 
-    explicit LifetimeDefinition(Lifetime *parent);
+    explicit LifetimeDefinition(std::shared_ptr<Lifetime> parent);
 //    lifetime_definition(lifetime_definition const & other) = delete;
 
-    static LifetimeDefinition* eternal;
+    static std::shared_ptr<LifetimeDefinition> eternal;
 
 //    static void synchronize(lifetime_definition ... defs);
 
     bool is_terminated() const;
+
+    bool is_eternal() const;
 
     void terminate();
 };

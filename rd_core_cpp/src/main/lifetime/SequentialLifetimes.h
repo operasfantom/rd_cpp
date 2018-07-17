@@ -9,22 +9,20 @@
 
 class SequentialLifetimes {
 private:
-    LifetimeDefinition* current_def = LifetimeDefinition::eternal;
-    Lifetime* parent_lifetime;
+    std::shared_ptr<LifetimeDefinition> current_def = LifetimeDefinition::eternal;
+    std::shared_ptr<Lifetime>parent_lifetime;
 public:
     SequentialLifetimes() = delete;
 
-    SequentialLifetimes(Lifetime *parent_lifetime);
+    explicit SequentialLifetimes(std::shared_ptr<Lifetime> parent_lifetime);
 
-    Lifetime * next();
+    std::shared_ptr<Lifetime> next();
 
     void terminate_current();
 
     bool is_terminated();
 
-    void define_next(std::function<void(LifetimeDefinition, Lifetime)> f_next);
-
-    void set_current_lifetime(LifetimeDefinition *new_def);
+    void set_current_lifetime(std::shared_ptr<LifetimeDefinition> new_def);
 };
 
 
