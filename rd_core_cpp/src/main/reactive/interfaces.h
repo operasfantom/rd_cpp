@@ -53,16 +53,16 @@ public:
 };
 
 template<typename T>
-class IPropertyView : public IPropertyBase<T> {
+class IProperty : public IPropertyBase<T> {
 protected:
     T value;
 
 public:
-    virtual ~IPropertyView() {
+    virtual ~IProperty() {
 
     }
 
-    explicit IPropertyView(T const &value) : value(value) {}
+    explicit IProperty(T const &value) : value(value) {}
 
     virtual T get() = 0;
 

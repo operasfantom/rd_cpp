@@ -9,7 +9,7 @@
 TEST(property, advise) {
     int acc = 0;
 
-    std::unique_ptr<IPropertyView<int> > property(new Property<int>(acc));
+    std::unique_ptr<IProperty<int> > property(new Property<int>(acc));
 
     property->set(++acc);
 
@@ -44,7 +44,7 @@ TEST(property, when_true) {
     int acc1 = 0;
     int acc2 = 0;
 
-    std::unique_ptr<IPropertyView<bool>> property(new Property(false));
+    std::unique_ptr<IProperty<bool>> property(new Property(false));
     property->set(true);
     Lifetime::use<int>([&](std::shared_ptr<Lifetime> lifetime) {
         property->view(lifetime, [&acc1](std::shared_ptr<Lifetime> lt, bool flag) {
@@ -84,7 +84,7 @@ TEST(property, when_true) {
 }
 
 TEST(property, view) {
-    std::unique_ptr<IPropertyView<int>> property(new Property<int>(1));
+    std::unique_ptr<IProperty<int>> property(new Property<int>(1));
     int save = 0;
 
     Lifetime::use<int>([&](std::shared_ptr<Lifetime> lifetime) {

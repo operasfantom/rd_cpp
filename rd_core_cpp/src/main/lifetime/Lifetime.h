@@ -27,7 +27,7 @@ private:
     counter_t id = 0;
 
     counter_t action_id_in_map = 0;
-    std::/*unordered_*/map<counter_t, std::function<void()>> actions;
+    std::map<counter_t, std::function<void()>> actions;
 
     void terminate();
 
@@ -60,13 +60,13 @@ public:
 
     void bracket(std::function<void()> opening, std::function<void()> closing);
 
-    void attach_nested(Lifetime* nested);
-
     void operator+=(std::function<void()> action);
 
     bool is_terminated() const;
 
     bool is_eternal() const;
+
+    void attach_parent(std::shared_ptr<Lifetime> parent);
 };
 
 #endif //RD_CPP_LIFETIME_H

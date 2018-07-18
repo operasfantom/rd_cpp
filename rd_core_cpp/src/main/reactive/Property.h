@@ -9,7 +9,7 @@
 #include "interfaces.h"
 
 template<typename T>
-class Property : public IPropertyView<T> {
+class Property : public IProperty<T> {
 private:
 //    T value;
 
@@ -19,7 +19,7 @@ public:
 
     }
 
-    explicit Property(T const &value) : IPropertyView<T>(value) {}
+    explicit Property(T const &value) : IProperty<T>(value) {}
 
     T get() {
         return this->value;

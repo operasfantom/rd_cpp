@@ -17,7 +17,6 @@ public:
 private:
     std::vector<T> list;
     SignalX<Event> change;
-
 public:
     virtual ~ViewableList() {}
 

@@ -14,7 +14,7 @@ void f()
 }*/
 
 TEST(advise_vs_view, advise_behaviour1) {
-	//int* p = new int(1);
+    //int* p = new int(1);
     LifetimeDefinition lifetimeDef(Lifetime::eternal);
     Property property(false);
     std::shared_ptr<Lifetime> lifetime = lifetimeDef.lifetime;

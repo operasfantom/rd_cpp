@@ -6,7 +6,7 @@
 #include "ViewableSet.h"
 
 TEST (viewable_set, advise) {
-    std::unique_ptr<ViewableSet<int>> set(new ViewableSet<int>());
+    std::unique_ptr<IViewableSet<int>> set(new ViewableSet<int>());
 
     std::vector<int> logAdvise;
     std::vector<int> logView1;

@@ -14,7 +14,7 @@ class ViewableMap : public IViewableMap<K, V> {
 public:
     using Event = typename IViewableMap<K, V>::Event;
 private:
-    std::/*unordered_*/map<K, V> map;
+    std::map<K, V> map;
     SignalX<Event> change;
 public:
     virtual ~ViewableMap() {}
@@ -22,7 +22,7 @@ public:
     virtual void advise(std::shared_ptr<Lifetime> lifetime, std::function<void(Event)> handler) {
         change.advise(lifetime, handler);
         for (auto p : map) {
-            /*catch_([&]() { */handler(Event(typename Event::Add(p.first, p.second))); /*})*/;
+            handler(Event(typename Event::Add(p.first, p.second))); /*})*/;
         }
     }
 
@@ -67,15 +67,6 @@ public:
             change.fire(it);
         }
     }
-
-    /*override val keys: MutableSet<K> get() = map.keys
-    override val values: MutableCollection<V> get() = map.values
-    override val entries: MutableSet<MutableMap.MutableEntry<K, V>> get() = map.entries
-    override val size: Int get() = map.size
-    override fun isEmpty(): Boolean = map.isEmpty()
-    override fun containsKey(key: K): Boolean = map.containsKey(key)
-    override fun containsValue(value: V): Boolean = map.containsValue(value)
-    override fun get(key: K): V? = map[key]*/
 };
 
 #endif //RD_CPP_VIEWABLE_MAP_H

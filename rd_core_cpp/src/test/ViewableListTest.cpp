@@ -1,6 +1,3 @@
-//
-
-
 #include <gtest/gtest.h>
 #include <main/reactive/viewable_collections.h>
 #include <main/reactive/ViewableList.h>
