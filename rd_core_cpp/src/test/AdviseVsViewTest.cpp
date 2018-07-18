@@ -7,7 +7,14 @@
 #include <main/lifetime/LifetimeDefinition.h>
 #include <main/reactive/Property.h>
 
+/*#include <crtdbg.h>
+void f()
+{
+	_CrtSetDbgFlag(_CrtSetDbgFlag(_CRTDBG_REPORT_FLAG) | _CRTDBG_LEAK_CHECK_DF);
+}*/
+
 TEST(advise_vs_view, advise_behaviour1) {
+	//int* p = new int(1);
     LifetimeDefinition lifetimeDef(Lifetime::eternal);
     Property property(false);
     std::shared_ptr<Lifetime> lifetime = lifetimeDef.lifetime;
@@ -35,6 +42,7 @@ TEST(advise_vs_view, view_behaviour1) {
     property.view(lifetime, [&log](std::shared_ptr<Lifetime> _, bool value) {
         log.push_back(value);
     });
+	int c = lifetime.use_count();
     lifetimeDef.terminate();
 
     std::vector<bool> expected{false};

@@ -15,7 +15,7 @@
 
 class LifetimeDefinition;
 
-class Lifetime : std::enable_shared_from_this<Lifetime> {
+class Lifetime/* : std::enable_shared_from_this<Lifetime>*/ {
 private:
     friend class LifetimeDefinition;
 
@@ -60,9 +60,9 @@ public:
 
     void bracket(std::function<void()> opening, std::function<void()> closing);
 
-    void attach_nested(std::shared_ptr<Lifetime> nested);
+    void attach_nested(Lifetime* nested);
 
-    void operator+=(const std::function<void()> &action);
+    void operator+=(std::function<void()> action);
 
     bool is_terminated() const;
 

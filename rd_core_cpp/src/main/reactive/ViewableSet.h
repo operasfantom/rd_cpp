@@ -45,7 +45,7 @@ public:
     }
 
     virtual void advise(std::shared_ptr<Lifetime> lifetime, std::function<void(Event)> handler) {
-        for (auto &x : set) {
+        for (auto x : set) {
             handler(Event(AddRemove::ADD, x));
         }
         change.advise(lifetime, handler);

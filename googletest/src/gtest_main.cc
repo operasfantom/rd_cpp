@@ -31,8 +31,17 @@
 #include <stdio.h>
 #include "gtest/gtest.h"
 
+#include <crtdbg.h>
+void f()
+{
+	_CrtSetDbgFlag(_CrtSetDbgFlag(_CRTDBG_REPORT_FLAG) | _CRTDBG_LEAK_CHECK_DF);
+}
+
 GTEST_API_ int main(int argc, char **argv) {
+	
+
   printf("Running main() from gtest_main.cc\n");
   testing::InitGoogleTest(&argc, argv);
+  f();
   return RUN_ALL_TESTS();
 }

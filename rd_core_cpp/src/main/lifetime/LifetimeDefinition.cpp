@@ -8,7 +8,7 @@
 LifetimeDefinition::LifetimeDefinition(bool eternaled) : eternaled(eternaled), lifetime(new Lifetime(eternaled)) {}
 
 LifetimeDefinition::LifetimeDefinition(std::shared_ptr<Lifetime> parent) : LifetimeDefinition(false) {
-    parent->attach_nested(this->lifetime);
+    parent->attach_nested(this->lifetime.get());
 }
 
 bool LifetimeDefinition::is_terminated() const {

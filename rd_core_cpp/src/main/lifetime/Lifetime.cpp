@@ -8,7 +8,7 @@
 Lifetime::Lifetime(bool is_eternal) : eternaled(is_eternal), id(Lifetime::get_id++) {}
 
 Lifetime::Lifetime(std::shared_ptr<Lifetime> parent) : Lifetime(false) {
-    parent->attach_nested(std::shared_ptr<Lifetime>(this));
+    parent->attach_nested(this);
 }
 
 void Lifetime::bracket(std::function<void()> opening, std::function<void()> closing) {
@@ -17,7 +17,7 @@ void Lifetime::bracket(std::function<void()> opening, std::function<void()> clos
     add_action(closing);
 }
 
-void Lifetime::attach_nested(std::shared_ptr<Lifetime> nested) {
+void Lifetime::attach_nested(Lifetime* nested) {
     if (nested->is_terminated() || this->is_eternal()) return;
 
     std::function<void()> action = [nested]() { nested->terminate(); };
@@ -33,13 +33,14 @@ void Lifetime::terminate() {
     terminated = true;
 
     auto actions_copy = actions;
-    for (auto it = actions_copy.rbegin(); it != actions_copy.rend(); ++it) {
-        it->second();
-    }
-    actions.clear();
+	
+	for (auto it = actions_copy.rbegin(); it != actions_copy.rend(); ++it) {
+		it->second();
+	}
+	actions.clear();
 }
 
-void Lifetime::operator+=(const std::function<void()> &action) {
+void Lifetime::operator+=(std::function<void()> action) {
 //    actions.push_back(action);
     add_action(action);
 }

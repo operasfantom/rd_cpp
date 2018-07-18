@@ -19,13 +19,13 @@ private:
 public:
     virtual void advise(std::shared_ptr<Lifetime> lifetime, std::function<void(Event)> handler) {
         change.advise(lifetime, handler);
-        for (auto &p : map) {
-            catch_([&]() { handler(Event(typename Event::Add(p.first, p.second))); });
+        for (auto p : map) {
+            /*catch_([&]() { */handler(Event(typename Event::Add(p.first, p.second))); /*})*/;
         }
     }
 
     void put_all(std::unordered_map<K, V> const &from) {
-        for (auto &p : from) {
+        for (auto p : from) {
             map.insert(p);
         }
     }
@@ -57,11 +57,11 @@ public:
 
     virtual void clear() {
         std::vector<Event> changes;
-        for (auto &p : map) {
+        for (auto p : map) {
             changes.push_back(typename Event::Remove(p.first, p.second));
         }
         map.clear();
-        for (auto &it : changes) {
+        for (auto it : changes) {
             change.fire(it);
         }
     }

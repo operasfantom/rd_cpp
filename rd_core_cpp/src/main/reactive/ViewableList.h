@@ -73,7 +73,7 @@ public:
             changes.push_back(typename Event::Remove(i - 1, list[i - 1]));
         }
         list.clear();
-        for (auto &e : changes) {
+        for (auto e : changes) {
             change.fire(e);
         }
     }
