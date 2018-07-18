@@ -42,7 +42,7 @@ TEST(advise_vs_view, view_behaviour1) {
     property.view(lifetime, [&log](std::shared_ptr<Lifetime> _, bool value) {
         log.push_back(value);
     });
-	int c = lifetime.use_count();
+//	int c = lifetime.use_count();
     lifetimeDef.terminate();
 
     std::vector<bool> expected{false};

@@ -20,11 +20,10 @@ enum class AddRemove {
 };
 
 template<typename T>
-class IViewableSet : public IViewable<T>/*, ISource<typename IViewableSet<T>::Event>*/ {
+class IViewableSet : public IViewable<T> {
 protected:
     std::unordered_map<std::shared_ptr<Lifetime>, std::unordered_map<T, LifetimeDefinition> > lifetimes;
 public:
-
     class Event {
     public:
         Event(AddRemove kind, T const &value) : kind(kind), value(value) {}
@@ -32,6 +31,8 @@ public:
         AddRemove kind;
         T value;
     };
+
+    virtual ~IViewableSet() {}
 
     virtual void advise(std::shared_ptr<Lifetime> lifetime, std::function<void(AddRemove, T)> handler) {
         this->advise(lifetime, [handler](Event e) {
@@ -76,7 +77,7 @@ public:
 
 template<typename K, typename V>
 class IViewableMap
-        : /*std::unordered_map<K, V>,*/ public IViewable<std::pair<K, V>>/*, ISource<typename IViewableMap<K, V>::Event>*/ {
+        : public IViewable<std::pair<K, V>> {
 protected:
     std::unordered_map<std::shared_ptr<Lifetime>, std::unordered_map<K, LifetimeDefinition> > lifetimes;
 public:
@@ -120,6 +121,10 @@ public:
             return v.index();
         }
     };
+
+    virtual ~IViewableMap() {
+
+    }
 
     virtual void view(std::shared_ptr<Lifetime> lifetime,
                       std::function<void(std::shared_ptr<Lifetime> lifetime, std::pair<K, V>)> handler) {
@@ -181,8 +186,7 @@ public:
 };
 
 template<typename V>
-class IViewableList /*std::list<V>, */
-        : public IViewable<std::pair<size_t, V>>/*, ISource<typename IViewableList<V>::Event>*/ {
+class IViewableList : public IViewable<std::pair<size_t, V>> {
 public:
     class Event {
     public:
@@ -230,6 +234,8 @@ protected:
 
     std::unordered_map<std::shared_ptr<Lifetime>, std::vector<LifetimeDefinition> > lifetimes;
 public:
+    virtual ~IViewableList() {}
+
     void advise_add_remove(std::shared_ptr<Lifetime> lifetime, std::function<void(AddRemove, size_t, V)> handler) {
         advise(lifetime, [handler](Event e) {
             size_t i = e.index();

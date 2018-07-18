@@ -17,6 +17,8 @@ private:
     std::/*unordered_*/map<K, V> map;
     SignalX<Event> change;
 public:
+    virtual ~ViewableMap() {}
+
     virtual void advise(std::shared_ptr<Lifetime> lifetime, std::function<void(Event)> handler) {
         change.advise(lifetime, handler);
         for (auto p : map) {

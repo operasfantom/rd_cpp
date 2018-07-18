@@ -20,6 +20,10 @@ private:
     std::set<T> set;
 
 public:
+    virtual ~ViewableSet() {
+
+    }
+
     virtual bool add(T const &element) {
         auto p = set.insert(element);
         if (!p.second) {

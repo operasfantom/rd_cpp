@@ -22,8 +22,11 @@ private:
 
     std::/*unordered_*/map<counter_t, std::function<void(T)> > listeners;
 public:
+    SignalX() {}
 
-//    rd_signal(rd_signal const & other) = delete;
+    SignalX(SignalX const & other) = delete;
+
+    virtual ~SignalX() {}
 
     virtual void fire(T const &value) {
         for (auto p : listeners) {

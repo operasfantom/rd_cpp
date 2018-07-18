@@ -19,6 +19,8 @@ private:
     SignalX<Event> change;
 
 public:
+    virtual ~ViewableList() {}
+
     virtual void advise(std::shared_ptr<Lifetime> lifetime, std::function<void(Event)> handler) {
         if (lifetime->is_terminated()) return;
         change.advise(lifetime, handler);

@@ -15,15 +15,18 @@ private:
 
     SignalX<T> change;
 public:
+    virtual ~Property() {
 
-    virtual ISource<T> *get_change() {
-        return &change;
     }
 
     explicit Property(T const &value) : IPropertyView<T>(value) {}
 
     T get() {
         return this->value;
+    }
+
+    virtual ISource<T> *get_change() {
+        return &change;
     }
 
     void set(T const &new_value) {

@@ -16,12 +16,17 @@
 template<typename T>
 class ISource {
 public:
+    virtual ~ISource() {
+    }
+
     virtual void advise(std::shared_ptr<Lifetime> lifetime, std::function<void(T)> handler) = 0;
 };
 
 template<typename T>
 class IViewable {
 public:
+    virtual ~IViewable() {}
+
     virtual void
     view(std::shared_ptr<Lifetime> lifetime, std::function<void(std::shared_ptr<Lifetime>, T)> handler) = 0;
 };
@@ -29,6 +34,8 @@ public:
 template<typename T>
 class IPropertyBase : public ISource<T>, public IViewable<T> {
 public:
+    virtual ~IPropertyBase() {}
+
     virtual void view(std::shared_ptr<Lifetime> lifetime, std::function<void(std::shared_ptr<Lifetime>, T)> handler) {
         if (lifetime->is_terminated()) return;
 
@@ -51,6 +58,9 @@ protected:
     T value;
 
 public:
+    virtual ~IPropertyView() {
+
+    }
 
     explicit IPropertyView(T const &value) : value(value) {}
 
@@ -71,6 +81,8 @@ public:
 template<typename T>
 class ISignal : public ISource<T> {
 public:
+    virtual ~ISignal() {}
+
     virtual void fire(T const &value) = 0;
 };
 
