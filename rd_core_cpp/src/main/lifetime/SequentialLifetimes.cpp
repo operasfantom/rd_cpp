@@ -3,7 +3,6 @@
 //
 
 #include "SequentialLifetimes.h"
-#include "LifetimeDefinition.h"
 
 SequentialLifetimes::SequentialLifetimes(std::shared_ptr<Lifetime> parent_lifetime) : parent_lifetime(
         parent_lifetime) {

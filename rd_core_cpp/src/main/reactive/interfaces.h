@@ -16,8 +16,7 @@
 template<typename T>
 class ISource {
 public:
-    virtual ~ISource() {
-    }
+    virtual ~ISource() {}
 
     virtual void advise(std::shared_ptr<Lifetime> lifetime, std::function<void(T)> handler) = 0;
 };
@@ -58,9 +57,7 @@ protected:
     T value;
 
 public:
-    virtual ~IProperty() {
-
-    }
+    virtual ~IProperty() {}
 
     explicit IProperty(T const &value) : value(value) {}
 

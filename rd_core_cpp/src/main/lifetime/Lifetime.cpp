@@ -3,7 +3,6 @@
 //
 
 #include "Lifetime.h"
-#include "LifetimeDefinition.h"
 
 Lifetime::Lifetime(bool is_eternal) : eternaled(is_eternal), id(Lifetime::get_id++) {}
 

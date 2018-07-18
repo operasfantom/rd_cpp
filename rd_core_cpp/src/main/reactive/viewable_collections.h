@@ -122,9 +122,7 @@ public:
         }
     };
 
-    virtual ~IViewableMap() {
-
-    }
+    virtual ~IViewableMap() {}
 
     virtual void view(std::shared_ptr<Lifetime> lifetime,
                       std::function<void(std::shared_ptr<Lifetime> lifetime, std::pair<K, V>)> handler) {

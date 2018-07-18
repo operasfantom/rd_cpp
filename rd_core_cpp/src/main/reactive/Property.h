@@ -15,9 +15,7 @@ private:
 
     SignalX<T> change;
 public:
-    virtual ~Property() {
-
-    }
+    virtual ~Property() {}
 
     explicit Property(T const &value) : IProperty<T>(value) {}
 
