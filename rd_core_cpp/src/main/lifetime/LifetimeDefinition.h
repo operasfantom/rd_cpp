@@ -25,12 +25,15 @@ public:
 
     LifetimeDefinition(LifetimeDefinition const &other) = delete;
 
-    LifetimeDefinition(LifetimeDefinition &&other) : eternaled(other.eternaled), lifetime(std::move(other.lifetime)) {}
+    LifetimeDefinition &operator=(LifetimeDefinition const &other) = delete;
 
-    LifetimeDefinition&operator=(LifetimeDefinition && other){
-        if (this != &other){
+    LifetimeDefinition(LifetimeDefinition &&other) noexcept : eternaled(other.eternaled),
+                                                              lifetime(std::move(other.lifetime)) {}
+
+    LifetimeDefinition &operator=(LifetimeDefinition &&other) noexcept {
+        if (this != &other) {
             eternaled = other.eternaled;
-            lifetime = other.lifetime;
+            lifetime = std::move(other.lifetime);
         }
         return *this;
     }

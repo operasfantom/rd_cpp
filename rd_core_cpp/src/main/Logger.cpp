@@ -6,6 +6,14 @@
 
 SwitchLogger::SwitchLogger(const std::string &category) {}
 
+/*void SwitchLogger::log(LogLevel level, std::string message, std::exception const &e) {
+    realLogger.log(level, message, e);
+}
+
+bool SwitchLogger::is_enabled(LogLevel level) {
+    return realLogger.isEnabled(level);
+}*/
+
 void catch_(std::optional<std::string> comment, const std::function<void()> &action) {
     try {
         action();

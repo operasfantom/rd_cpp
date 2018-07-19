@@ -11,18 +11,31 @@
 #include <string>
 #include <exception>
 
-class Logger {
+enum class LogLevel {
+    Trace,
+    Debug,
+    Info,
+    Warn,
+    Error,
+    Fatal
+};
 
+class Logger {
+    virtual void log(LogLevel level, std::string message, std::exception const &e) = 0;
+
+    virtual bool is_enabled(LogLevel level) = 0;
 };
 
 class SwitchLogger : Logger {
-public:
+
+    public:
     SwitchLogger(const std::string &category);
+
+    void log(LogLevel level, std::string message, std::exception const &e) override;
+
+    bool is_enabled(LogLevel level) override;
 };
 
-/*SwitchLogger get_logger(std::string const &category){
-    return SwitchLogger(category);
-}*/
 
 void catch_(std::optional<std::string> comment, const std::function<void()> &action);
 

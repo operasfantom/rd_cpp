@@ -46,6 +46,8 @@ public:
 
     Lifetime(Lifetime const &other) = delete;
 
+    Lifetime &operator=(Lifetime const &other) = delete;
+
     static counter_t get_id;
 
     static std::shared_ptr<Lifetime> eternal;
