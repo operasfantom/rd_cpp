@@ -22,7 +22,18 @@ public:
     explicit LifetimeDefinition(bool is_eternal = false);
 
     explicit LifetimeDefinition(std::shared_ptr<Lifetime> parent);
-//    lifetime_definition(lifetime_definition const & other) = delete;
+
+    LifetimeDefinition(LifetimeDefinition const &other) = delete;
+
+    LifetimeDefinition(LifetimeDefinition &&other) : eternaled(other.eternaled), lifetime(std::move(other.lifetime)) {}
+
+    LifetimeDefinition&operator=(LifetimeDefinition && other){
+        if (this != &other){
+            eternaled = other.eternaled;
+            lifetime = other.lifetime;
+        }
+        return *this;
+    }
 
     static std::shared_ptr<LifetimeDefinition> eternal;
 

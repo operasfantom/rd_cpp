@@ -45,12 +45,14 @@ public:
         advise(lifetime, [this, lifetime, handler](AddRemove kind, T key) {
             switch (kind) {
                 case AddRemove::ADD: {
-                    LifetimeDefinition def = lifetimes[lifetime][key] = LifetimeDefinition(lifetime);
+                    //todo move
+                    LifetimeDefinition& def = lifetimes[lifetime][key] = std::move(LifetimeDefinition(lifetime));
                     handler(def.lifetime, key);
                     break;
                 }
                 case AddRemove::REMOVE: {
-                    LifetimeDefinition def = lifetimes[lifetime][key];
+                    //todo move
+                    LifetimeDefinition def = std::move(lifetimes[lifetime][key]);
                     lifetimes[lifetime].erase(key);
                     def.terminate();
                     break;
@@ -131,7 +133,7 @@ public:
             switch (kind) {
                 case AddRemove::ADD: {
                     if (lifetimes[lifetime].count(key) == 0) {
-                        LifetimeDefinition def = lifetimes[lifetime][key] = LifetimeDefinition(lifetime);
+                        LifetimeDefinition& def = lifetimes[lifetime][key] = LifetimeDefinition(lifetime);
                         handler(def.lifetime, entry);
                     }
                     break;
@@ -140,7 +142,8 @@ public:
                     if (lifetimes[lifetime].count(key) == 0) {
                         throw std::invalid_argument("attempting to remove non-existing item");
                     }
-                    LifetimeDefinition def = lifetimes[lifetime][key];
+                    //todo move
+                    LifetimeDefinition def = std::move(lifetimes[lifetime][key]);
                     lifetimes[lifetime].erase(key);
                     def.terminate();
                     break;
@@ -265,12 +268,14 @@ public:
                 case AddRemove::ADD: {
                     LifetimeDefinition def(lifetime);
                     std::vector<LifetimeDefinition> &v = lifetimes[lifetime];
-                    v.insert(v.begin() + idx, def);
-                    handler(def.lifetime, idx, value);
+                    //todo move(v.emplace)
+                    auto it = v.emplace(v.begin() + idx, std::move(def));
+                    handler(it->lifetime, idx, value);
                     break;
                 }
                 case AddRemove::REMOVE: {
-                    LifetimeDefinition def = lifetimes[lifetime][idx];
+                    //todo move
+                    LifetimeDefinition def = std::move(lifetimes[lifetime][idx]);
                     std::vector<LifetimeDefinition> &v = lifetimes[lifetime];
                     v.erase(v.begin() + idx);
                     def.terminate();
