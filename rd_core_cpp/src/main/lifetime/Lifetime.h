@@ -8,12 +8,6 @@
 #include <functional>
 #include <map>
 #include <memory>
-//#include "LifetimeDefinition.h"
-//#include "LifetimeDefinition.h"
-//#include "LifetimeDefinition.h"
-//#include "LifetimeDefinition.h"
-
-class LifetimeDefinition;
 
 class Lifetime/* : std::enable_shared_from_this<Lifetime>*/ {
 private:
