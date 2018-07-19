@@ -3,12 +3,11 @@
 //
 
 #include "LifetimeDefinition.h"
-//#include "lifetime.h"
 
-LifetimeDefinition::LifetimeDefinition(bool eternaled) : eternaled(eternaled), lifetime(new Lifetime(eternaled)) {}
+LifetimeDefinition::LifetimeDefinition(bool eternaled) : eternaled(eternaled), lifetime(eternaled) {}
 
-LifetimeDefinition::LifetimeDefinition(std::shared_ptr<Lifetime> parent) : LifetimeDefinition(false) {
-    this->lifetime->attach_parent(parent);
+LifetimeDefinition::LifetimeDefinition(const LifetimeWrapper &parent) : LifetimeDefinition(false) {
+    parent->attach_nested(lifetime.ptr);
 }
 
 bool LifetimeDefinition::is_terminated() const {

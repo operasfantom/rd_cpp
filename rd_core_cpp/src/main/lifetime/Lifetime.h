@@ -1,68 +1,69 @@
 //
-// Created by jetbrains on 09.07.2018.
+// Created by operasfantom on 19.07.18.
 //
 
-#ifndef RD_CPP_LIFETIME_H
-#define RD_CPP_LIFETIME_H
+#ifndef RD_CPP_LIFETIMEWRAPPER_H
+#define RD_CPP_LIFETIMEWRAPPER_H
 
-#include <functional>
-#include <map>
+
 #include <memory>
+#include "LifetimeImpl.h"
 
-class Lifetime/* : std::enable_shared_from_this<Lifetime>*/ {
+class LifetimeWrapper {
 private:
     friend class LifetimeDefinition;
 
-    bool eternaled = false;
-    bool terminated = false;
-
-//    std::vector<std::function<void()> > actions;
-    using counter_t = int32_t;
-    counter_t id = 0;
-
-    counter_t action_id_in_map = 0;
-    std::map<counter_t, std::function<void()>> actions;
-
-    void terminate();
-
+    std::shared_ptr<LifetimeImpl> ptr;
 public:
+    struct Hash {
+        size_t operator()(LifetimeWrapper const &lw) const noexcept {
+            return std::hash<std::shared_ptr<LifetimeImpl> >()(lw.ptr);
+        }
+    };
 
-    explicit Lifetime(bool is_eternal = false);
+    static std::unique_ptr<LifetimeWrapper> eternal;
 
-    explicit Lifetime(std::shared_ptr<Lifetime> parent);
+    LifetimeWrapper() = delete;
 
-    counter_t add_action(std::function<void()> action) {
-        if (is_eternal()) return -1;
-        if (is_terminated()) throw std::invalid_argument("Already Terminated");
-        actions[action_id_in_map] = action;
-        return action_id_in_map++;
+    LifetimeWrapper(LifetimeWrapper const &other) = default;
+
+    LifetimeWrapper &operator=(LifetimeWrapper const &other)  = default;
+
+    LifetimeWrapper(LifetimeWrapper &&other) noexcept : ptr(std::move(other.ptr)) {}
+
+    LifetimeWrapper &operator=(LifetimeWrapper &&other) noexcept {
+        if (this != &other) {
+            ptr = std::move(other.ptr);
+        }
+        return *this;
     }
 
-    Lifetime(Lifetime const &other) = delete;
+    bool operator==(LifetimeWrapper const &other) {
+        return ptr == other.ptr;
+    }
 
-    Lifetime &operator=(Lifetime const &other) = delete;
+    bool operator<(LifetimeWrapper const &other) {
+        return ptr < other.ptr;
+    }
 
-    static counter_t get_id;
+    friend bool operator==(LifetimeWrapper const &lw1, LifetimeWrapper const &lw2) {
+        return lw1.ptr == lw2.ptr;
+    }
 
-    static std::shared_ptr<Lifetime> eternal;
+    explicit LifetimeWrapper(bool is_eternal = false);
+
+    LifetimeImpl *operator->() const;
+
+    LifetimeWrapper create_nested();
 
     template<typename T>
-    static T use(std::function<T(std::shared_ptr<Lifetime>)> block) {
-        std::shared_ptr<Lifetime> lt(new Lifetime(Lifetime::eternal));
-        T result = block(lt);
-        lt->terminate();
+    static T use(std::function<T(LifetimeWrapper)> block) {
+        LifetimeWrapper lw = LifetimeWrapper::eternal->create_nested();
+        T result = block(lw);
+        lw->terminate();
         return result;
     }
-
-    void bracket(std::function<void()> opening, std::function<void()> closing);
-
-    void operator+=(std::function<void()> action);
-
-    bool is_terminated() const;
-
-    bool is_eternal() const;
-
-    void attach_parent(std::shared_ptr<Lifetime> parent);
 };
 
-#endif //RD_CPP_LIFETIME_H
+
+#endif //RD_CPP_LIFETIMEWRAPPER_H

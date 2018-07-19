@@ -2,7 +2,7 @@
 
 add_library(rd_core_cpp STATIC
         src/main/lifetime/LifetimeDefinition.cpp src/main/lifetime/LifetimeDefinition.h
-        src/main/lifetime/Lifetime.cpp src/main/lifetime/Lifetime.h
+        src/main/lifetime/LifetimeImpl.cpp src/main/lifetime/LifetimeImpl.h
         src/main/lifetime/SequentialLifetimes.cpp src/main/lifetime/SequentialLifetimes.h
         src/main/reactive/SignalX.cpp src/main/reactive/SignalX.h
         src/main/reactive/interfaces.cpp src/main/reactive/interfaces.h
@@ -11,7 +11,7 @@ add_library(rd_core_cpp STATIC
         src/main/reactive/ViewableMap.cpp src/main/reactive/ViewableMap.h
         src/main/reactive/ViewableSet.cpp src/main/reactive/ViewableSet.h
         src/main/reactive/ViewableList.cpp src/main/reactive/ViewableList.h
-        src/main/Logger.cpp src/main/Logger.h)
+        src/main/Logger.cpp src/main/Logger.h src/main/lifetime/Lifetime.cpp src/main/lifetime/Lifetime.h)
 
 target_include_directories(rd_core_cpp PUBLIC src/)
 target_include_directories(rd_core_cpp PUBLIC src/main)

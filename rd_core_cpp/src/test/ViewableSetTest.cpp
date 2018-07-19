@@ -11,17 +11,17 @@ TEST (viewable_set, advise) {
     std::vector<int> logAdvise;
     std::vector<int> logView1;
     std::vector<int> logView2;
-    Lifetime::use<int>([&](std::shared_ptr<Lifetime> lt) {
+    LifetimeWrapper::use<int>([&](LifetimeWrapper lt) {
         set->advise(lt, [&](AddRemove kind, int v) {
             logAdvise.push_back(kind == AddRemove::ADD ? v : -v);
         });
-        set->view(lt, [&logView1](std::shared_ptr<Lifetime> inner, int v) {
+        set->view(lt, [&logView1](LifetimeWrapper inner, int v) {
             logView1.push_back(v);
-            *inner += [&logView1, v]() { logView1.push_back(-v); };
+            inner->add_action([&logView1, v]() { logView1.push_back(-v); });
         });
-        set->view(Lifetime::eternal, [&logView2](std::shared_ptr<Lifetime> inner, int v) {
+        set->view(*LifetimeWrapper::eternal, [&logView2](LifetimeWrapper inner, int v) {
             logView2.push_back(v);
-            *inner += [&logView2, v]() { logView2.push_back(-v); };
+            inner->add_action([&logView2, v]() { logView2.push_back(-v); });
         });
 
         EXPECT_TRUE(set->add(1));//1

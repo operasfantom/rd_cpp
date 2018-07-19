@@ -20,7 +20,7 @@ private:
 public:
     virtual ~ViewableList() {}
 
-    virtual void advise(std::shared_ptr<Lifetime> lifetime, std::function<void(Event)> handler) {
+    virtual void advise(LifetimeWrapper lifetime, std::function<void(Event)> handler) {
         if (lifetime->is_terminated()) return;
         change.advise(lifetime, handler);
         auto it = list.begin();

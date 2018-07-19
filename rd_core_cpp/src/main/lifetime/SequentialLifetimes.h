@@ -6,17 +6,18 @@
 #define RD_CPP_SEQUENTIAL_LIFETIMES_H
 
 #include "LifetimeDefinition.h"
+#include "Lifetime.h"
 
 class SequentialLifetimes {
 private:
     std::shared_ptr<LifetimeDefinition> current_def = LifetimeDefinition::eternal;
-    std::shared_ptr<Lifetime> parent_lifetime;
+    LifetimeWrapper parent_lifetime;
 public:
     SequentialLifetimes() = delete;
 
-    explicit SequentialLifetimes(std::shared_ptr<Lifetime> parent_lifetime);
+    explicit SequentialLifetimes(LifetimeWrapper parent_lifetime);
 
-    std::shared_ptr<Lifetime> next();
+    LifetimeWrapper next();
 
     void terminate_current();
 

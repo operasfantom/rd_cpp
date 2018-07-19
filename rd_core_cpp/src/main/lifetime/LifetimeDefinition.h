@@ -6,22 +6,22 @@
 #define RD_CPP_LIFETIME_DEFINITION_H
 
 
+#include "LifetimeImpl.h"
 #include "Lifetime.h"
 
 #include <functional>
 
 class LifetimeDefinition {
 private:
-//    friend class lifetime;
     friend class SequentialLifetimes;
 
     bool eternaled = false;
 public:
-    std::shared_ptr<Lifetime> lifetime;
+    LifetimeWrapper lifetime;
 
     explicit LifetimeDefinition(bool is_eternal = false);
 
-    explicit LifetimeDefinition(std::shared_ptr<Lifetime> parent);
+    explicit LifetimeDefinition(const LifetimeWrapper &parent);
 
     LifetimeDefinition(LifetimeDefinition const &other) = delete;
 
@@ -39,8 +39,6 @@ public:
     }
 
     static std::shared_ptr<LifetimeDefinition> eternal;
-
-//    static void synchronize(lifetime_definition ... defs);
 
     bool is_terminated() const;
 

@@ -5,7 +5,7 @@
 #ifndef RD_CPP_SIGNAL_H
 #define RD_CPP_SIGNAL_H
 
-#include <Lifetime.h>
+#include <LifetimeImpl.h>
 #include "interfaces.h"
 
 #include <functional>
@@ -34,7 +34,7 @@ public:
         }
     }
 
-    virtual void advise(std::shared_ptr<Lifetime> lifetime, std::function<void(T)> handler) {
+    virtual void advise(LifetimeWrapper lifetime, std::function<void(T)> handler) {
         lifetime->bracket(
                 [this, handler]() { listeners[advise_id] = handler; },
                 [this, advise_id = advise_id, handler]() {
@@ -45,7 +45,7 @@ public:
     }
 
     void advise_eternal(std::function<void(T)> handler) {
-        advise(Lifetime::eternal, handler);
+        advise(LifetimeImpl::eternal, handler);
     }
 };
 

@@ -4,14 +4,14 @@
 
 #include "SequentialLifetimes.h"
 
-SequentialLifetimes::SequentialLifetimes(std::shared_ptr<Lifetime> parent_lifetime) : parent_lifetime(
+SequentialLifetimes::SequentialLifetimes(LifetimeWrapper parent_lifetime) : parent_lifetime(
         parent_lifetime) {
-    *parent_lifetime += [this]() {
+    parent_lifetime->add_action([this]() {
         set_current_lifetime(LifetimeDefinition::eternal);
-    };
+    });
 }
 
-std::shared_ptr<Lifetime> SequentialLifetimes::next() {
+LifetimeWrapper SequentialLifetimes::next() {
     std::shared_ptr<LifetimeDefinition> new_def(new LifetimeDefinition(parent_lifetime));
     set_current_lifetime(new_def);
     return current_def->lifetime;

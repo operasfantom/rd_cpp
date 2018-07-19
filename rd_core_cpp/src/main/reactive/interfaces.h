@@ -9,8 +9,9 @@
 #include <functional>
 #include <optional>
 #include <main/lifetime/SequentialLifetimes.h>
+#include <main/lifetime/Lifetime.h>
 
-#include "Lifetime.h"
+#include "LifetimeImpl.h"
 //#include "SignalX.h"
 
 template<typename T>
@@ -18,7 +19,7 @@ class ISource {
 public:
     virtual ~ISource() {}
 
-    virtual void advise(std::shared_ptr<Lifetime> lifetime, std::function<void(T)> handler) = 0;
+    virtual void advise(LifetimeWrapper lifetime, std::function<void(T)> handler) = 0;
 };
 
 template<typename T>
@@ -27,7 +28,7 @@ public:
     virtual ~IViewable() {}
 
     virtual void
-    view(std::shared_ptr<Lifetime> lifetime, std::function<void(std::shared_ptr<Lifetime>, T)> handler) = 0;
+    view(LifetimeWrapper lifetime, std::function<void(LifetimeWrapper, T)> handler) = 0;
 };
 
 template<typename T>
@@ -35,10 +36,10 @@ class IPropertyBase : public ISource<T>, public IViewable<T> {
 public:
     virtual ~IPropertyBase() {}
 
-    virtual void view(std::shared_ptr<Lifetime> lifetime, std::function<void(std::shared_ptr<Lifetime>, T)> handler) {
+    virtual void view(LifetimeWrapper lifetime, std::function<void(LifetimeWrapper, T)> handler) {
         if (lifetime->is_terminated()) return;
 
-        std::shared_ptr<Lifetime> lf(new Lifetime(lifetime));
+        LifetimeWrapper lf = lifetime.create_nested();
         std::shared_ptr<SequentialLifetimes> seq(new SequentialLifetimes(lf));
 
         this->advise(lf, [lf, seq, handler](T const &v) {
@@ -63,7 +64,7 @@ public:
 
     virtual T get() = 0;
 
-    virtual void advise(std::shared_ptr<Lifetime> lifetime, std::function<void(T)> handler) {
+    virtual void advise(LifetimeWrapper lifetime, std::function<void(T)> handler) {
         if (lifetime->is_terminated()) {
             return;
         }

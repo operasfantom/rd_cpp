@@ -17,11 +17,11 @@ TEST(signal, advice) {
 
     std::vector<int> log;
 
-    Lifetime::use<int>([&](std::shared_ptr<Lifetime> lf) {
+    LifetimeWrapper::use<int>([&](LifetimeWrapper lf) {
                            s->advise(lf,
                                      [&log](int x) { log.push_back(x); }
                            );
-                           *lf += [&log]() { log.push_back(0); };
+                           lf->add_action([&log]() { log.push_back(0); });
                            s->fire(++acc);
                            s->fire(++acc);
                            return 0;
@@ -31,4 +31,20 @@ TEST(signal, advice) {
 
     std::vector<int> expected = {2, 3, 0};
     EXPECT_EQ(expected, log);
+}
+
+TEST(signal, bamboo) {
+    std::unique_ptr<ISignal<int> > s(new SignalX<int>());
+    std::vector<int> log;
+
+    LifetimeDefinition definition(*LifetimeWrapper::eternal);
+    {
+        LifetimeDefinition definition_son(definition.lifetime);
+//        std::cerr << definition_son.lifetime.use_count();
+    }
+//    LifetimeDefinition definition_grand_son(definition_son.lifetime);
+
+    int acc = 0;
+    s->advise(definition.lifetime, [&](int) { ++acc; });
+    definition.terminate();
 }

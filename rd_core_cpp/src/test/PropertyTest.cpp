@@ -14,18 +14,18 @@ TEST(property, advise) {
     property->set(++acc);
 
     std::vector<int> log;
-    Lifetime::use<int>([&property, &acc, &log](std::shared_ptr<Lifetime> lifetime) {
+    LifetimeWrapper::use<int>([&property, &acc, &log](LifetimeWrapper lifetime) {
         property->advise(lifetime, [&log](int x) {
             log.push_back(-x);
         });
-        property->view(lifetime, [&log](std::shared_ptr<Lifetime> inner, int x) {
+        property->view(lifetime, [&log](LifetimeWrapper inner, int x) {
             inner->bracket(
                     [&log, x]() { log.push_back(x); },
                     [&log, x]() { log.push_back(10 + x); }
             );
         });
 
-        *lifetime += [&log]() { log.push_back(0); };
+        lifetime->add_action([&log]() { log.push_back(0); });
 
         property->set(property->get());
         property->set(++acc);
@@ -46,14 +46,14 @@ TEST(property, when_true) {
 
     std::unique_ptr<IProperty<bool>> property(new Property(false));
     property->set(true);
-    Lifetime::use<int>([&](std::shared_ptr<Lifetime> lifetime) {
-        property->view(lifetime, [&acc1](std::shared_ptr<Lifetime> lt, bool flag) {
+    LifetimeWrapper::use<int>([&](LifetimeWrapper lifetime) {
+        property->view(lifetime, [&acc1](LifetimeWrapper lt, bool flag) {
             if (flag) {
                 acc1++;
             }
         });
 
-        property->view(lifetime, [&](std::shared_ptr<Lifetime> lt, bool flag) {
+        property->view(lifetime, [&](LifetimeWrapper lt, bool flag) {
             if (flag) {
                 lt->bracket(
                         [&acc2]() { acc2 += 2; },
@@ -87,13 +87,13 @@ TEST(property, view) {
     std::unique_ptr<IProperty<int>> property(new Property<int>(1));
     int save = 0;
 
-    Lifetime::use<int>([&](std::shared_ptr<Lifetime> lifetime) {
-        property->view(lifetime, [&](std::shared_ptr<Lifetime> lt, int value) {
+    LifetimeWrapper::use<int>([&](LifetimeWrapper lifetime) {
+        property->view(lifetime, [&](LifetimeWrapper lt, int value) {
             save = value;
         });
         property->set(2);
         EXPECT_EQ(2, save);
-        *lifetime += [&property]() { property->set(-1); };
+        lifetime->add_action([&property]() { property->set(-1); });
         EXPECT_EQ(2, save);
 
         return 0;
