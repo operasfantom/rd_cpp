@@ -19,7 +19,7 @@ class ISource {
 public:
     virtual ~ISource() {}
 
-    virtual void advise(LifetimeWrapper lifetime, std::function<void(T)> handler) = 0;
+    virtual void advise(Lifetime lifetime, std::function<void(T)> handler) = 0;
 };
 
 template<typename T>
@@ -28,7 +28,7 @@ public:
     virtual ~IViewable() {}
 
     virtual void
-    view(LifetimeWrapper lifetime, std::function<void(LifetimeWrapper, T)> handler) = 0;
+    view(Lifetime lifetime, std::function<void(Lifetime, T)> handler) = 0;
 };
 
 template<typename T>
@@ -36,10 +36,10 @@ class IPropertyBase : public ISource<T>, public IViewable<T> {
 public:
     virtual ~IPropertyBase() {}
 
-    virtual void view(LifetimeWrapper lifetime, std::function<void(LifetimeWrapper, T)> handler) {
+    virtual void view(Lifetime lifetime, std::function<void(Lifetime, T)> handler) {
         if (lifetime->is_terminated()) return;
 
-        LifetimeWrapper lf = lifetime.create_nested();
+        Lifetime lf = lifetime.create_nested();
         std::shared_ptr<SequentialLifetimes> seq(new SequentialLifetimes(lf));
 
         this->advise(lf, [lf, seq, handler](T const &v) {
@@ -64,7 +64,7 @@ public:
 
     virtual T get() = 0;
 
-    virtual void advise(LifetimeWrapper lifetime, std::function<void(T)> handler) {
+    virtual void advise(Lifetime lifetime, std::function<void(T)> handler) {
         if (lifetime->is_terminated()) {
             return;
         }

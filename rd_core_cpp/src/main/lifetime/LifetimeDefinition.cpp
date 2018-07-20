@@ -6,7 +6,7 @@
 
 LifetimeDefinition::LifetimeDefinition(bool eternaled) : eternaled(eternaled), lifetime(eternaled) {}
 
-LifetimeDefinition::LifetimeDefinition(const LifetimeWrapper &parent) : LifetimeDefinition(false) {
+LifetimeDefinition::LifetimeDefinition(const Lifetime &parent) : LifetimeDefinition(false) {
     parent->attach_nested(lifetime.ptr);
 }
 

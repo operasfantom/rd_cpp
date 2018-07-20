@@ -11,13 +11,13 @@
 class SequentialLifetimes {
 private:
     std::shared_ptr<LifetimeDefinition> current_def = LifetimeDefinition::eternal;
-    LifetimeWrapper parent_lifetime;
+    Lifetime parent_lifetime;
 public:
     SequentialLifetimes() = delete;
 
-    explicit SequentialLifetimes(LifetimeWrapper parent_lifetime);
+    explicit SequentialLifetimes(Lifetime parent_lifetime);
 
-    LifetimeWrapper next();
+    Lifetime next();
 
     void terminate_current();
 

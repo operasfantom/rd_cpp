@@ -11,15 +11,15 @@ TEST (viewable_set, advise) {
     std::vector<int> logAdvise;
     std::vector<int> logView1;
     std::vector<int> logView2;
-    LifetimeWrapper::use<int>([&](LifetimeWrapper lt) {
+    Lifetime::use<int>([&](Lifetime lt) {
         set->advise(lt, [&](AddRemove kind, int v) {
             logAdvise.push_back(kind == AddRemove::ADD ? v : -v);
         });
-        set->view(lt, [&logView1](LifetimeWrapper inner, int v) {
+        set->view(lt, [&logView1](Lifetime inner, int v) {
             logView1.push_back(v);
             inner->add_action([&logView1, v]() { logView1.push_back(-v); });
         });
-        set->view(*LifetimeWrapper::eternal, [&logView2](LifetimeWrapper inner, int v) {
+        set->view(*Lifetime::eternal, [&logView2](Lifetime inner, int v) {
             logView2.push_back(v);
             inner->add_action([&logView2, v]() { logView2.push_back(-v); });
         });

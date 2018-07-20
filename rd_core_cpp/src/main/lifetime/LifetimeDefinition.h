@@ -17,11 +17,11 @@ private:
 
     bool eternaled = false;
 public:
-    LifetimeWrapper lifetime;
+    Lifetime lifetime;
 
     explicit LifetimeDefinition(bool is_eternal = false);
 
-    explicit LifetimeDefinition(const LifetimeWrapper &parent);
+    explicit LifetimeDefinition(const Lifetime &parent);
 
     LifetimeDefinition(LifetimeDefinition const &other) = delete;
 

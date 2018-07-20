@@ -12,7 +12,8 @@
 class LifetimeImpl/* : std::enable_shared_from_this<LifetimeImpl>*/ {
 private:
     friend class LifetimeDefinition;
-    friend class LifetimeWrapper;
+
+    friend class Lifetime;
 
     bool eternaled = false;
     bool terminated = false;

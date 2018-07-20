@@ -28,7 +28,7 @@ class Logger {
 
 class SwitchLogger : Logger {
 
-    public:
+public:
     SwitchLogger(const std::string &category);
 
     void log(LogLevel level, std::string message, std::exception const &e) override;

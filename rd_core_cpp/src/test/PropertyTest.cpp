@@ -4,7 +4,6 @@
 
 #include <gtest/gtest.h>
 #include <main/reactive/Property.h>
-#include "interfaces.h"
 
 TEST(property, advise) {
     int acc = 0;
@@ -14,11 +13,11 @@ TEST(property, advise) {
     property->set(++acc);
 
     std::vector<int> log;
-    LifetimeWrapper::use<int>([&property, &acc, &log](LifetimeWrapper lifetime) {
+    Lifetime::use<int>([&property, &acc, &log](Lifetime lifetime) {
         property->advise(lifetime, [&log](int x) {
             log.push_back(-x);
         });
-        property->view(lifetime, [&log](LifetimeWrapper inner, int x) {
+        property->view(lifetime, [&log](Lifetime inner, int x) {
             inner->bracket(
                     [&log, x]() { log.push_back(x); },
                     [&log, x]() { log.push_back(10 + x); }
@@ -46,14 +45,14 @@ TEST(property, when_true) {
 
     std::unique_ptr<IProperty<bool>> property(new Property(false));
     property->set(true);
-    LifetimeWrapper::use<int>([&](LifetimeWrapper lifetime) {
-        property->view(lifetime, [&acc1](LifetimeWrapper lt, bool flag) {
+    Lifetime::use<int>([&](Lifetime lifetime) {
+        property->view(lifetime, [&acc1](Lifetime lt, bool flag) {
             if (flag) {
                 acc1++;
             }
         });
 
-        property->view(lifetime, [&](LifetimeWrapper lt, bool flag) {
+        property->view(lifetime, [&](Lifetime lt, bool flag) {
             if (flag) {
                 lt->bracket(
                         [&acc2]() { acc2 += 2; },
@@ -87,8 +86,8 @@ TEST(property, view) {
     std::unique_ptr<IProperty<int>> property(new Property<int>(1));
     int save = 0;
 
-    LifetimeWrapper::use<int>([&](LifetimeWrapper lifetime) {
-        property->view(lifetime, [&](LifetimeWrapper lt, int value) {
+    Lifetime::use<int>([&](Lifetime lifetime) {
+        property->view(lifetime, [&](Lifetime lt, int value) {
             save = value;
         });
         property->set(2);

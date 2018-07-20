@@ -46,7 +46,7 @@ public:
         return true;
     }
 
-    virtual void advise(LifetimeWrapper lifetime, std::function<void(Event)> handler) {
+    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) {
         for (auto x : set) {
             handler(Event(AddRemove::ADD, x));
         }

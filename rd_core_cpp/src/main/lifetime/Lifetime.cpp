@@ -4,16 +4,16 @@
 
 #include "Lifetime.h"
 
-LifetimeImpl *LifetimeWrapper::operator->() const {
+LifetimeImpl *Lifetime::operator->() const {
     return ptr.operator->();
 }
 
-LifetimeWrapper::LifetimeWrapper(bool is_eternal) : ptr(new LifetimeImpl(is_eternal)) {}
+Lifetime::Lifetime(bool is_eternal) : ptr(new LifetimeImpl(is_eternal)) {}
 
-LifetimeWrapper LifetimeWrapper::create_nested() {
-    LifetimeWrapper lw(false);
+Lifetime Lifetime::create_nested() {
+    Lifetime lw(false);
     ptr->attach_nested(lw.ptr);
     return lw;
 }
 
-std::unique_ptr<LifetimeWrapper> LifetimeWrapper::eternal(new LifetimeWrapper(true));
+std::unique_ptr<Lifetime> Lifetime::eternal(new Lifetime(true));

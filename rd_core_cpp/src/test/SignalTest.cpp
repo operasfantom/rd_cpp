@@ -7,8 +7,6 @@
 #include "interfaces.h"
 #include "SignalX.h"
 
-#include <vector>
-
 TEST(signal, advice) {
     int acc = 0;
     std::unique_ptr<ISignal<int> > s(new SignalX<int>());
@@ -17,7 +15,7 @@ TEST(signal, advice) {
 
     std::vector<int> log;
 
-    LifetimeWrapper::use<int>([&](LifetimeWrapper lf) {
+    Lifetime::use<int>([&](Lifetime lf) {
                            s->advise(lf,
                                      [&log](int x) { log.push_back(x); }
                            );
@@ -33,18 +31,39 @@ TEST(signal, advice) {
     EXPECT_EQ(expected, log);
 }
 
+TEST(signal, temporary_definition) {
+    std::unique_ptr<ISignal<int> > s(new SignalX<int>());
+    std::vector<int> log;
+
+    LifetimeDefinition definition(*Lifetime::eternal);
+    {
+        LifetimeDefinition definition_son(definition.lifetime);
+    }
+
+    int acc = 0;
+    s->advise(definition.lifetime, [&](int) { ++acc; });
+    s->fire(0);
+    EXPECT_EQ(1, acc);
+    definition.terminate();
+    s->fire(0);
+    EXPECT_EQ(1, acc);
+}
+
 TEST(signal, bamboo) {
     std::unique_ptr<ISignal<int> > s(new SignalX<int>());
     std::vector<int> log;
 
-    LifetimeDefinition definition(*LifetimeWrapper::eternal);
-    {
-        LifetimeDefinition definition_son(definition.lifetime);
-//        std::cerr << definition_son.lifetime.use_count();
-    }
-//    LifetimeDefinition definition_grand_son(definition_son.lifetime);
+    LifetimeDefinition definition(*Lifetime::eternal);
+    LifetimeDefinition definition_son(definition.lifetime);
+    LifetimeDefinition definition_grand_son(definition_son.lifetime);
 
     int acc = 0;
-    s->advise(definition.lifetime, [&](int) { ++acc; });
-    definition.terminate();
+    s->advise(definition_grand_son.lifetime, [&](int) { ++acc; });
+    s->fire(0);
+    EXPECT_EQ(1, acc);
+    definition_son.terminate();
+    s->fire(0);
+    EXPECT_EQ(1, acc);
+    s->fire(0);
+    EXPECT_EQ(1, acc);
 }
