@@ -228,8 +228,6 @@ public:
     };
 
 protected:
-    ISource<typename IViewableList<V>::Event> *change;
-
     std::unordered_map<Lifetime, std::vector<LifetimeDefinition>, Lifetime::Hash> lifetimes;
 public:
     virtual ~IViewableList() {}
