@@ -7,7 +7,7 @@
 SequentialLifetimes::SequentialLifetimes(Lifetime parent_lifetime) : parent_lifetime(
         parent_lifetime) {
     parent_lifetime->add_action([this]() {
-        set_current_lifetime(LifetimeDefinition::eternal);
+        set_current_lifetime(LifetimeDefinition::get_shared_eternal());
     });
 }
 
@@ -18,7 +18,7 @@ Lifetime SequentialLifetimes::next() {
 }
 
 void SequentialLifetimes::terminate_current() {
-    set_current_lifetime(LifetimeDefinition::eternal);
+    set_current_lifetime(LifetimeDefinition::get_shared_eternal());
 }
 
 bool SequentialLifetimes::is_terminated() {

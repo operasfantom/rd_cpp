@@ -15,7 +15,7 @@ void f()
 
 TEST(advise_vs_view, advise_behaviour1) {
     //int* p = new int(1);
-    LifetimeDefinition lifetimeDef(*Lifetime::eternal);
+    LifetimeDefinition lifetimeDef(Lifetime::get_eternal());
     Property property(false);
     Lifetime lifetime = lifetimeDef.lifetime;
 
@@ -32,7 +32,7 @@ TEST(advise_vs_view, advise_behaviour1) {
 }
 
 TEST(advise_vs_view, view_behaviour1) {
-    LifetimeDefinition lifetimeDef(*Lifetime::eternal);
+    LifetimeDefinition lifetimeDef(Lifetime::get_eternal());
     Property property(false);
     Lifetime lifetime = lifetimeDef.lifetime;
 
@@ -50,7 +50,7 @@ TEST(advise_vs_view, view_behaviour1) {
 }
 
 TEST(advise_vs_view, advise_behaviour2) {
-    LifetimeDefinition lifetimeDef(*Lifetime::eternal);
+    LifetimeDefinition lifetimeDef(Lifetime::get_eternal());
     Property property(false);
     Lifetime lifetime = lifetimeDef.lifetime;
 
@@ -68,7 +68,7 @@ TEST(advise_vs_view, advise_behaviour2) {
 }
 
 TEST(advise_vs_view, view_behaviour2) {
-    LifetimeDefinition lifetimeDef(*Lifetime::eternal);
+    LifetimeDefinition lifetimeDef(Lifetime::get_eternal());
     Property property(false);
     Lifetime lifetime = lifetimeDef.lifetime;
 
@@ -85,7 +85,7 @@ TEST(advise_vs_view, view_behaviour2) {
 }
 
 TEST(advise_vs_view, advise_behaviour3) {
-    LifetimeDefinition lifetimeDef(*Lifetime::eternal);
+    LifetimeDefinition lifetimeDef(Lifetime::get_eternal());
     Property property_a(0);
     Property property_b(0);
 
@@ -118,7 +118,7 @@ TEST(advise_vs_view, advise_behaviour3) {
 }
 
 TEST(advise_vs_view, view_behaviour3) {
-    LifetimeDefinition lifetimeDef(*Lifetime::eternal);
+    LifetimeDefinition lifetimeDef(Lifetime::get_eternal());
     Property property_a(0);
     Property property_b(0);
 

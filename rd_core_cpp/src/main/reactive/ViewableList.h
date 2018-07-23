@@ -16,7 +16,7 @@ public:
     using Event = typename IViewableList<T>::Event;
 private:
     std::vector<T> list;
-    SignalX<Event> change;
+    Signal<Event> change;
 public:
     virtual ~ViewableList() {}
 

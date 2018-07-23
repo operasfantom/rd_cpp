@@ -9,7 +9,7 @@
 #include <map>
 #include <memory>
 
-class LifetimeImpl/* : std::enable_shared_from_this<LifetimeImpl>*/ {
+class LifetimeImpl {
 private:
     friend class LifetimeDefinition;
 

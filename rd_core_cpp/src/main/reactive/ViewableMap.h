@@ -15,7 +15,7 @@ public:
     using Event = typename IViewableMap<K, V>::Event;
 private:
     std::map<K, V> map;
-    SignalX<Event> change;
+    Signal<Event> change;
 public:
     virtual ~ViewableMap() {}
 

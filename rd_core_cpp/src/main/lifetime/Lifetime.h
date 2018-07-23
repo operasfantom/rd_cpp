@@ -21,7 +21,7 @@ public:
         }
     };
 
-    static std::unique_ptr<Lifetime> eternal;
+    static Lifetime const& get_eternal();
 
     Lifetime() = delete;
 
@@ -46,11 +46,11 @@ public:
 
     LifetimeImpl *operator->() const;
 
-    Lifetime create_nested();
+    Lifetime create_nested() const;
 
     template<typename T>
     static T use(std::function<T(Lifetime)> block) {
-        Lifetime lw = Lifetime::eternal->create_nested();
+        Lifetime lw = get_eternal().create_nested();
         T result = block(lw);
         lw->terminate();
         return result;

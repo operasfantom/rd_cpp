@@ -24,7 +24,7 @@ TEST(viewable_list, add_remove_view) {
     std::unique_ptr<IViewableList<int> > list(new ViewableList<int>());
     std::vector<std::string> log;
     Lifetime::use<int>([&](Lifetime lifetime) {
-        list->view(lifetime, [&log](Lifetime lt, std::pair<size_t, int> value) {
+        list->view(lifetime, [&log](Lifetime lt, const std::pair<size_t, int> value) {
             log.push_back("View " + to_string(value));
             lt->add_action([&log, value]() { log.push_back("UnView " + to_string(value)); });
         });
@@ -67,7 +67,8 @@ TEST(viewable_list, other_reactive_api) {
             log.push_back(to_string(kind) + " " + std::to_string(index) + " " + std::to_string(value));
             list->add(0);
             list->add(0, 1);
-            EXPECT_EQ(log, arrayListOf({"Add 0 0"_s, "Add 0 1"_s}));
+            //EXPECT_EQ(log, arrayListOf({"Add 0 0"_s, "Add 0 1"_s}));
+			EXPECT_EQ(log, (std::vector<std::string>{"Add 0 0", "Add 0 1"}));
 
 
             EXPECT_EQ(list->toList(), arrayListOf({1, 0}));

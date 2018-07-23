@@ -15,7 +15,7 @@ public:
 
     using IViewableSet<T>::advise;
 private:
-    SignalX<Event> change;
+    Signal<Event> change;
 
     std::set<T> set;
 

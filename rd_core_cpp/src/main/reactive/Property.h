@@ -13,7 +13,7 @@ class Property : public IProperty<T> {
 private:
 //    T value;
 
-    SignalX<T> change;
+    Signal<T> change;
 public:
     virtual ~Property() {}
 

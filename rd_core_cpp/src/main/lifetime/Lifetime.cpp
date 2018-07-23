@@ -10,10 +10,16 @@ LifetimeImpl *Lifetime::operator->() const {
 
 Lifetime::Lifetime(bool is_eternal) : ptr(new LifetimeImpl(is_eternal)) {}
 
-Lifetime Lifetime::create_nested() {
+Lifetime Lifetime::create_nested() const {
     Lifetime lw(false);
     ptr->attach_nested(lw.ptr);
     return lw;
 }
 
-std::unique_ptr<Lifetime> Lifetime::eternal(new Lifetime(true));
+namespace {
+    Lifetime eternal(true);
+}
+
+Lifetime const &Lifetime::get_eternal() {
+    return eternal;
+}

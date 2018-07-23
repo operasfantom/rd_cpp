@@ -26,7 +26,6 @@ void LifetimeImpl::terminate() {
 }
 
 void LifetimeImpl::operator+=(std::function<void()> action) {
-//    actions.push_back(action);
     add_action(action);
 }
 

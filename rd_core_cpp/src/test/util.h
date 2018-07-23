@@ -17,31 +17,33 @@ constexpr std::vector<T> arrayListOf(std::initializer_list<T> args) {
 }
 
 template<typename F, typename S>
-std::string to_string(std::pair<F, S> p) {
+std::string to_string(const std::pair<F, S> p) {
     return "(" + std::to_string(p.first) + ", " + std::to_string(p.second) + ")";
 }
 
 std::string to_string(AddRemove kind);
 
 template<typename K, typename V>
-std::string to_string(typename IViewableMap<K, V>::Event e) {
-    size_t i = e.index();
-    switch (i) {
-        case 0: //Add
-            return "Add " +
-                   std::to_string(std::get<0>(e.v).key) + ":" +
-                   std::to_string(std::get<0>(e.v).new_value);
-        case 1: //Update
-            return "Update " +
-                   std::to_string(std::get<1>(e.v).key) + ":" +
-                   /*std::to_string(std::get<1>(e.v).old_value) + ":" +*/
-                   std::to_string(std::get<1>(e.v).new_value);
-        case 2: //Remove
-            return "Remove " +
-                   std::to_string(std::get<2>(e.v).key);
-        default:
-            return "";
-    }
+std::string to_string(typename IViewableMap<K, V>::Event const &e) {
+    using Event = typename IViewableMap<K, V>::Event;
+    std::string res = std::visit(overloaded{
+            [](typename Event::Add const &e) {
+                return "Add " +
+                       std::to_string(e.key) + ":" +
+                       std::to_string(e.new_value);
+            },
+            [](typename Event::Update const &e) {
+                return "Update " +
+                       std::to_string(e.key) + ":" +
+                       /*std::to_string(e.old_value) + ":" +*/
+                       std::to_string(e.new_value);
+            },
+            [](typename Event::Remove const &e) {
+                return "Remove " +
+                       std::to_string(e.key);
+            },
+    }, e.v);
+    return res;
 }
 
 #endif //RD_CPP_UTIL_H

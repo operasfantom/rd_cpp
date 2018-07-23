@@ -36,6 +36,7 @@ public:
     bool is_enabled(LogLevel level) override;
 };
 
+SwitchLogger get_logger(std::string category);
 
 void catch_(std::optional<std::string> comment, const std::function<void()> &action);
 

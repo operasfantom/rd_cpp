@@ -9,7 +9,7 @@
 
 TEST(signal, advice) {
     int acc = 0;
-    std::unique_ptr<ISignal<int> > s(new SignalX<int>());
+    std::unique_ptr<ISignal<int> > s(new Signal<int>());
 
     s->fire(++acc);
 
@@ -32,10 +32,10 @@ TEST(signal, advice) {
 }
 
 TEST(signal, temporary_definition) {
-    std::unique_ptr<ISignal<int> > s(new SignalX<int>());
+    std::unique_ptr<ISignal<int> > s(new Signal<int>());
     std::vector<int> log;
 
-    LifetimeDefinition definition(*Lifetime::eternal);
+    LifetimeDefinition definition(Lifetime::get_eternal());
     {
         LifetimeDefinition definition_son(definition.lifetime);
     }
@@ -50,10 +50,10 @@ TEST(signal, temporary_definition) {
 }
 
 TEST(signal, bamboo) {
-    std::unique_ptr<ISignal<int> > s(new SignalX<int>());
+    std::unique_ptr<ISignal<int> > s(new Signal<int>());
     std::vector<int> log;
 
-    LifetimeDefinition definition(*Lifetime::eternal);
+    LifetimeDefinition definition(Lifetime::get_eternal());
     LifetimeDefinition definition_son(definition.lifetime);
     LifetimeDefinition definition_grand_son(definition_son.lifetime);
 

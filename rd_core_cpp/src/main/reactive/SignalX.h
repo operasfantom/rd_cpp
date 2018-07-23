@@ -13,7 +13,7 @@
 #include <atomic>
 
 template<typename T>
-class SignalX : public ISignal<T> {
+class Signal : public ISignal<T> {
 private:
 //    std::vector<std::function<void(T)> > listeners;
     using counter_t = int32_t;
@@ -22,11 +22,11 @@ private:
 
     std::map<counter_t, std::function<void(T)> > listeners;
 public:
-    SignalX() {}
+    Signal() {}
 
-    SignalX(SignalX const &other) = delete;
+    Signal(Signal const &other) = delete;
 
-    virtual ~SignalX() {}
+    virtual ~Signal() {}
 
     virtual void fire(T const &value) {
         for (auto p : listeners) {

@@ -30,7 +30,7 @@ TEST(viewable_map, advise) {
         map->advise(lifetime, [&log_update](typename IViewableMap<int, int>::Event entry) {
             log_update.push_back(to_string<int, int>(entry));
         });
-        map->view(lifetime, [&](Lifetime inner, std::pair<int, int> x) {
+        map->view(lifetime, [&](Lifetime inner, const std::pair<int, int> x) {
             inner->bracket(
                     [&log_view, x]() { log_view.push_back(x.first); },
                     [&log_view, x]() { log_view.push_back(-x.second); }

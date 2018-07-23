@@ -18,8 +18,16 @@ void LifetimeDefinition::terminate() {
     lifetime->terminate();
 }
 
-std::shared_ptr<LifetimeDefinition> LifetimeDefinition::eternal(new LifetimeDefinition(true));
-
 bool LifetimeDefinition::is_eternal() const {
     return lifetime->is_eternal();
 }
+
+namespace {
+    LifetimeDefinition eternal(true);
+}
+
+std::shared_ptr<LifetimeDefinition> LifetimeDefinition::get_shared_eternal() {
+    return std::shared_ptr<LifetimeDefinition>(&eternal, [](LifetimeDefinition *ld){});
+}
+
+//std::shared_ptr<LifetimeDefinition> LifetimeDefinition::eternal(new LifetimeDefinition(true));

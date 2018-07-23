@@ -1,0 +1,111 @@
+//
+// Created by jetbrains on 20.07.2018.
+//
+
+#ifndef RD_CPP_IDENTITIES_H
+#define RD_CPP_IDENTITIES_H
+
+
+#include <string>
+#include <memory>
+
+
+#include "interfaces.h"
+
+enum class IdKind {
+    Client,
+    Server
+};
+
+using hash_t = int64_t;
+
+const hash_t DEFAULT_HASH = 19;
+const hash_t HASH_FACTOR = 31;
+
+//PLEASE DO NOT CHANGE IT!!! IT'S EXACTLY THE SAME ON C# SIDE
+template<typename T>
+inline hash_t getPlatformIndependentHash(T that, hash_t initial = DEFAULT_HASH);
+
+template<>
+inline hash_t getPlatformIndependentHash<std::string>(std::string that, hash_t initial) {
+    for (char c : that) {
+        initial = initial * HASH_FACTOR + static_cast<int>(c);
+    }
+    return initial;
+}
+
+template<>
+inline hash_t getPlatformIndependentHash<int32_t>(int32_t that, hash_t initial) {
+    return initial * HASH_FACTOR + (that + 1);
+}
+
+template<>
+inline hash_t getPlatformIndependentHash<int64_t>(int64_t that, hash_t initial) {
+    return initial * HASH_FACTOR + (that + 1);
+}
+
+class RdId {
+private:
+    hash_t hash;
+public:
+    explicit RdId(hash_t hash);
+
+    static std::shared_ptr<RdId> Null;
+
+    static const int32_t MAX_STATIC_ID = 1000000;
+
+    /*static RdId read(AbstractBuffer& buffer){
+        int64_t number = buffer.readLong();
+        return RdId(number);
+    }*/
+
+    hash_t get_hash() {
+        return hash;
+    }
+
+//    void write(AbstractBufefer& bufefer);
+
+    bool isNull() {
+        return get_hash() == Null->get_hash();
+    };
+
+    std::string toString() {
+        return std::to_string(hash);
+    }
+
+    RdId notNull() {
+//        require(!isNull) { "id is null" }
+        return *this;
+    }
+
+    RdId mix(const std::string &tail) {
+        return RdId(getPlatformIndependentHash(tail, hash));
+    }
+
+    RdId mix(int32_t tail) {
+        return RdId(getPlatformIndependentHash(tail, hash));
+    }
+
+    RdId mix(int64_t tail) {
+        return RdId(getPlatformIndependentHash(tail, hash));
+    }
+};
+
+class Identities : IIdentities {
+private:
+    //todo atomicy
+    int32_t id_acc;
+public:
+    static const int32_t BASE_CLIENT_ID = RdId::MAX_STATIC_ID;
+
+    static const int32_t BASE_SERVER_ID = RdId::MAX_STATIC_ID + 1;
+    explicit Identities(IdKind dynamicKind = IdKind::Client) : id_acc(
+            dynamicKind == IdKind::Client ? BASE_CLIENT_ID : BASE_SERVER_ID) {}
+
+    RdId next(RdId parent) {
+        return parent.mix(id_acc += 2);
+    }
+};
+
+
+#endif //RD_CPP_IDENTITIES_H

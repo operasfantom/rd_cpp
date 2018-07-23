@@ -10,7 +10,7 @@
 
 class SequentialLifetimes {
 private:
-    std::shared_ptr<LifetimeDefinition> current_def = LifetimeDefinition::eternal;
+    std::shared_ptr<LifetimeDefinition> current_def = LifetimeDefinition::get_shared_eternal();
     Lifetime parent_lifetime;
 public:
     SequentialLifetimes() = delete;
