@@ -17,9 +17,9 @@ Lifetime Lifetime::create_nested() const {
 }
 
 namespace {
-    Lifetime eternal(true);
+    Lifetime ETERNAL(true);
 }
 
-Lifetime const &Lifetime::get_eternal() {
-    return eternal;
+Lifetime const &Lifetime::Eternal() {
+    return ETERNAL;
 }

@@ -38,9 +38,9 @@ class IWire {
 
 template<typename T>
 class ISerializer {
-    T read(SerializationCtx ctx, AbstractBuffer& buffer);
+    virtual T read(SerializationCtx ctx, AbstractBuffer& buffer) = 0;
 
-    void write(SerializationCtx ctx, AbstractBuffer &buffer, T const &value);
+    virtual void write(SerializationCtx ctx, AbstractBuffer &buffer, T const &value) = 0;
 };
 
 class ISerializers {

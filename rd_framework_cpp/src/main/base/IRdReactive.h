@@ -9,7 +9,7 @@
 #include "IRdBindable.h"
 #include "AbstractBuffer.h"
 
-class IRdReactive : public IRdBindable {
+class IRdReactive : public virtual IRdBindable {
 protected:
     bool async = false;
 public:
@@ -17,7 +17,7 @@ public:
 
     IScheduler* wire_scheduler = nullptr;
 
-    virtual void onWireReceived(AbstractBuffer& buffer) = 0;
+    virtual void on_wire_received(AbstractBuffer& buffer) = 0;
 };
 
 

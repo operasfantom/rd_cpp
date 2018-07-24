@@ -19,7 +19,7 @@ TEST (viewable_set, advise) {
             logView1.push_back(v);
             inner->add_action([&logView1, v]() { logView1.push_back(-v); });
         });
-        set->view(Lifetime::get_eternal(), [&logView2](Lifetime inner, int v) {
+        set->view(Lifetime::Eternal(), [&logView2](Lifetime inner, int v) {
             logView2.push_back(v);
             inner->add_action([&logView2, v]() { logView2.push_back(-v); });
         });

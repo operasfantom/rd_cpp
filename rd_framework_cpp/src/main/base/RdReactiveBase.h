@@ -49,7 +49,7 @@ public:
     }
 
     template<typename T>
-    T localChange(std::function<void(T)> action) {
+    T local_change(std::function<T()> action) {
         if (is_bound() && !async) {
 //            assertThreading();
         }

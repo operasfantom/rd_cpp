@@ -14,15 +14,32 @@
 template<typename T>
 class RdPropertyBase : public RdReactiveBase, public IProperty<T> {
 protected:
-    int32_t master_version = 0;
-
-    bool optimize_nested = false;
-    ISerializer<T> *value_serializer;
-    bool default_value_changed = false;
+    //mastering
     bool is_master = true;
-public:
-    explicit RdPropertyBase(const T &value) : IProperty<T>(value) {}
+    int32_t master_version = 0;
+    bool default_value_changed = false;
 
+    //init
+    bool optimize_nested = false;
+    std::unique_ptr<IProperty<T>> property;
+
+//    override val change : ISource<T> get() = property.change
+    ISerializer<T> *value_serializer;
+public:
+    explicit RdPropertyBase(const T &value) : IProperty<T>(value) {
+        this->change = std::unique_ptr<Signal<T>>(new Signal<T>());
+    }
+
+    virtual void on_wire_received(AbstractBuffer &buffer) {
+
+    }
+
+    virtual void advise(Lifetime lifetime, std::function<void(T)> handler) {
+        if (is_bound()) {
+//            assertThreading();
+        }
+        IProperty<T>::advise(lifetime, handler);
+    }
 //    explicit RdPropertyBase(ISerializer<T> *value_serializer) : value_serializer(value_serializer) {}
 
 };
@@ -30,7 +47,9 @@ public:
 template<typename T>
 class RdProperty : public RdPropertyBase<T>/*, public IProperty<T> */{
 public:
-    explicit RdProperty(T const &value) : RdPropertyBase<T>(value) {}
+    explicit RdProperty(T const &value) : RdPropertyBase<T>(value) {
+        this->property = std::unique_ptr<Property<T>>(new Property<T>(value));
+    }
 
     void advise(Lifetime lifetime, std::function<void(T)> handler) {
         RdPropertyBase<T>::advise(lifetime, handler);
@@ -40,19 +59,21 @@ public:
         return this->value;
     }
 
-    virtual void set(T const &value) {
-        this->localChange([this](T) {
+    virtual void set(T const &new_value) {
+        this->template local_change<T>([this, new_value]() -> T {
             this->default_value_changed = true;
+            this->property->set(new_value);
+            return {};
         });
     }
 
-    RdProperty<T> slave() {
+    RdProperty<T> *slave() {
         this->is_master = false;
-        return *this;
+        return this;
     }
 
     void identify(IIdentities &ids, RdId id) {
-        /*super.identify(ids, id)
+        /*RdPropertyBase<T>::identify(ids, id);
         if (!optimizeNested)
             value?.identifyPolymorphic(ids, ids.next(id))*/
     }

@@ -23,11 +23,11 @@ bool LifetimeDefinition::is_eternal() const {
 }
 
 namespace {
-    LifetimeDefinition eternal(true);
+    LifetimeDefinition ETERNAL(true);
 }
 
 std::shared_ptr<LifetimeDefinition> LifetimeDefinition::get_shared_eternal() {
-    return std::shared_ptr<LifetimeDefinition>(&eternal, [](LifetimeDefinition *ld){});
+    return std::shared_ptr<LifetimeDefinition>(&ETERNAL, [](LifetimeDefinition *ld){});
 }
 
 //std::shared_ptr<LifetimeDefinition> LifetimeDefinition::eternal(new LifetimeDefinition(true));

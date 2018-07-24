@@ -21,7 +21,7 @@ public:
         }
     };
 
-    static Lifetime const& get_eternal();
+    static Lifetime const& Eternal();
 
     Lifetime() = delete;
 
@@ -50,7 +50,7 @@ public:
 
     template<typename T>
     static T use(std::function<T(Lifetime)> block) {
-        Lifetime lw = get_eternal().create_nested();
+        Lifetime lw = Eternal().create_nested();
         T result = block(lw);
         lw->terminate();
         return result;

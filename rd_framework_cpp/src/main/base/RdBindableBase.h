@@ -9,7 +9,7 @@
 #include <any>
 #include "IRdBindable.h"
 
-class RdBindableBase : public IRdBindable/*, IPrintable*/ {
+class RdBindableBase : public virtual IRdBindable/*, IPrintable*/ {
 protected:
     //bound state: main
 
@@ -58,24 +58,28 @@ public:
         printer.print(rdid.toString())
         printer.print(")")
     }*/
+};
 
-    RdBindableBase *withId(RdId id) {
+//T : RdBindableBase
+template<typename T>
+T* withId(T* that, RdId id) {
 //        require(this->rd_id == RdId::get_null()) {"this.id != RdId.NULL_ID, but ${this.rdid}"}
 //        require(id != RdId.NULL_ID) {"id != RdId.NULL_ID"}
 
-        this->rd_id = id;
-        return this;
-    }
+    that->rd_id = id;
+    return that;
+}
 
-    RdBindableBase *statics(int32_t id) {
+template<typename T>
+T* statics(T* that, int32_t id) {
 //        require(id > 0 && id < RdId.MAX_STATIC_ID) { "Expected id > 0 && id < RdId.MaxStaticId, got $id" }
-        return withId(RdId(static_cast<int64_t >(id)));
-    }
+    return withId(that, RdId(static_cast<int64_t >(id)));
+}
 
-    RdBindableBase *withIdFromName(std::string const &name) {
-        return withId(RdId::Null().mix(name));
-    }
-};
+template<typename T>
+T* withIdFromName(T* that, std::string const &name) {
+    return withId(that, RdId::Null().mix(name));
+}
 
 
 #endif //RD_CPP_RDBINDABLEBASE_H

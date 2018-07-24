@@ -35,7 +35,7 @@ TEST(signal, temporary_definition) {
     std::unique_ptr<ISignal<int> > s(new Signal<int>());
     std::vector<int> log;
 
-    LifetimeDefinition definition(Lifetime::get_eternal());
+    LifetimeDefinition definition(Lifetime::Eternal());
     {
         LifetimeDefinition definition_son(definition.lifetime);
     }
@@ -53,7 +53,7 @@ TEST(signal, bamboo) {
     std::unique_ptr<ISignal<int> > s(new Signal<int>());
     std::vector<int> log;
 
-    LifetimeDefinition definition(Lifetime::get_eternal());
+    LifetimeDefinition definition(Lifetime::Eternal());
     LifetimeDefinition definition_son(definition.lifetime);
     LifetimeDefinition definition_grand_son(definition_son.lifetime);
 
