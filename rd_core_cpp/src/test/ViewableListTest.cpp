@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include <main/reactive/viewable_collections.h>
-#include <main/reactive/ViewableList.h>
+#include "viewable_collections.h"
+#include "ViewableList.h"
 #include "util.h"
 
 TEST(viewable_list, add_remove_advise) {

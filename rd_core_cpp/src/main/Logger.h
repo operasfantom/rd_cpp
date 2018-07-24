@@ -2,8 +2,8 @@
 // Created by jetbrains on 11.07.2018.
 //
 
-#ifndef RD_CPP_LOGGER_H
-#define RD_CPP_LOGGER_H
+#ifndef RD_CPP_CORE_LOGGER_H
+#define RD_CPP_CORE_LOGGER_H
 
 
 #include <functional>
@@ -43,4 +43,4 @@ void catch_(std::optional<std::string> comment, const std::function<void()> &act
 void catch_(const std::function<void()> &action);
 
 
-#endif //RD_CPP_LOGGER_H
+#endif //RD_CPP_CORE_LOGGER_H

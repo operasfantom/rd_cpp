@@ -2,11 +2,11 @@
 // Created by jetbrains on 16.07.2018.
 //
 
-#ifndef RD_CPP_UTIL_H
-#define RD_CPP_UTIL_H
+#ifndef RD_CPP_CORE_UTIL_H
+#define RD_CPP_CORE_UTIL_H
 
 #include <vector>
-#include <main/reactive/viewable_collections.h>
+#include "viewable_collections.h"
 
 std::string operator "" _s(char const *str, size_t len);
 
@@ -46,4 +46,4 @@ std::string to_string(typename IViewableMap<K, V>::Event const &e) {
     return res;
 }
 
-#endif //RD_CPP_UTIL_H
+#endif //RD_CPP_CORE_UTIL_H

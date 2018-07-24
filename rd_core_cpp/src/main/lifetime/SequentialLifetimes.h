@@ -2,8 +2,8 @@
 // Created by jetbrains on 09.07.2018.
 //
 
-#ifndef RD_CPP_SEQUENTIAL_LIFETIMES_H
-#define RD_CPP_SEQUENTIAL_LIFETIMES_H
+#ifndef RD_CPP_CORE_SEQUENTIAL_LIFETIMES_H
+#define RD_CPP_CORE_SEQUENTIAL_LIFETIMES_H
 
 #include "LifetimeDefinition.h"
 #include "Lifetime.h"
@@ -27,4 +27,4 @@ public:
 };
 
 
-#endif //RD_CPP_SEQUENTIAL_LIFETIMES_H
+#endif //RD_CPP_CORE_SEQUENTIAL_LIFETIMES_H

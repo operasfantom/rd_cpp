@@ -1,8 +1,23 @@
+project(rd_cpp)
+
 #lib
 
+link_libraries(rd_core_cpp)
+
 add_library(rd_framework_cpp STATIC
+        src/main/interfaces.h
+        src/main/SerializationCtx.cpp src/main/SerializationCtx.h
         src/main/Identities.cpp src/main/Identities.h
-        )
+        src/main/impl/RName.cpp src/main/impl/RName.h
+        src/main/AbstractBuffer.cpp src/main/AbstractBuffer.h
+        src/main/base/IRdBindable.cpp src/main/base/IRdBindable.h
+        src/main/base/IRdReactive.cpp src/main/base/IRdReactive.h
+        src/main/RdId.cpp src/main/RdId.h
+        src/main/impl/RdSignal.cpp src/main/impl/RdSignal.h
+        src/main/base/RdReactiveBase.cpp src/main/base/RdReactiveBase.h
+        src/main/base/RdBindableBase.cpp src/main/base/RdBindableBase.h
+        src/main/impl/RdProperty.cpp src/main/impl/RdProperty.h
+        src/main/base/RdExtBase.cpp src/main/base/RdExtBase.h)
 
 target_include_directories(rd_framework_cpp PUBLIC src/)
 target_include_directories(rd_framework_cpp PUBLIC src/main)
@@ -13,7 +28,7 @@ target_include_directories(rd_framework_cpp PUBLIC src/main/impl)
 
 add_executable(rd_framework_cpp_test
         src/test/RdIdTest.cpp
-        )
+        src/test/RdPropertyTest.cpp)
 
 target_link_libraries(rd_framework_cpp_test gtest gtest_main)
 target_link_libraries(rd_framework_cpp_test rd_framework_cpp)

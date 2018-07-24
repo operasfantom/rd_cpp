@@ -2,10 +2,10 @@
 // Created by jetbrains on 10.07.2018.
 //
 
-#ifndef RD_CPP_VIEWABLE_MAP_H
-#define RD_CPP_VIEWABLE_MAP_H
+#ifndef RD_CPP_CORE_VIEWABLE_MAP_H
+#define RD_CPP_CORE_VIEWABLE_MAP_H
 
-#include "Logger.h"
+//#include "Logger.h"
 #include "viewable_collections.h"
 #include "SignalX.h"
 
@@ -69,4 +69,4 @@ public:
     }
 };
 
-#endif //RD_CPP_VIEWABLE_MAP_H
+#endif //RD_CPP_CORE_VIEWABLE_MAP_H

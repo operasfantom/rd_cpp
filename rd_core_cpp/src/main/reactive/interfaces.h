@@ -2,16 +2,15 @@
 // Created by jetbrains on 09.07.2018.
 //
 
-#ifndef RD_CPP_INTERFACES_H
-#define RD_CPP_INTERFACES_H
+#ifndef RD_CPP_CORE_INTERFACES_H
+#define RD_CPP_CORE_INTERFACES_H
 
 
 #include <functional>
 #include <optional>
-#include <main/lifetime/SequentialLifetimes.h>
-#include <main/lifetime/Lifetime.h>
+#include "SequentialLifetimes.h"
 
-#include "LifetimeImpl.h"
+#include "Lifetime.h"
 //#include "SignalX.h"
 
 template<typename T>
@@ -48,8 +47,6 @@ public:
             }
         });
     }
-
-    virtual ISource<T> *get_change() = 0;
 };
 
 template<typename T>
@@ -57,6 +54,7 @@ class IProperty : public IPropertyBase<T> {
 protected:
     T value;
 
+    std::unique_ptr<ISource<T>> change;
 public:
     virtual ~IProperty() {}
 
@@ -69,7 +67,7 @@ public:
             return;
         }
 
-        this->get_change()->advise(lifetime, handler);
+        change->advise(lifetime, handler);
         handler(value);
     }
 
@@ -84,4 +82,4 @@ public:
     virtual void fire(T const &value) = 0;
 };
 
-#endif //RD_CPP_INTERFACES_H
+#endif //RD_CPP_CORE_INTERFACES_H

@@ -2,8 +2,8 @@
 // Created by jetbrains on 09.07.2018.
 //
 
-#ifndef RD_CPP_LIFETIME_H
-#define RD_CPP_LIFETIME_H
+#ifndef RD_CPP_CORE_LIFETIME_H
+#define RD_CPP_CORE_LIFETIME_H
 
 #include <functional>
 #include <map>
@@ -57,4 +57,4 @@ public:
     void attach_nested(std::shared_ptr<LifetimeImpl> nested);
 };
 
-#endif //RD_CPP_LIFETIME_H
+#endif //RD_CPP_CORE_LIFETIME_H

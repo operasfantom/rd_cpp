@@ -3,7 +3,7 @@
 //
 
 #include <gtest/gtest.h>
-#include <main/reactive/Property.h>
+#include "Property.h"
 
 TEST(property, advise) {
     int acc = 0;

@@ -2,8 +2,8 @@
 // Created by jetbrains on 10.07.2018.
 //
 
-#ifndef RD_CPP_VIEWABLE_COLLECTIONS_H
-#define RD_CPP_VIEWABLE_COLLECTIONS_H
+#ifndef RD_CPP_CORE_VIEWABLE_COLLECTIONS_H
+#define RD_CPP_CORE_VIEWABLE_COLLECTIONS_H
 
 #include "interfaces.h"
 
@@ -297,4 +297,4 @@ public:
 };
 
 
-#endif //RD_CPP_VIEWABLE_COLLECTIONS_H
+#endif //RD_CPP_CORE_VIEWABLE_COLLECTIONS_H

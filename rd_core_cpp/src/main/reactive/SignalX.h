@@ -2,8 +2,8 @@
 // Created by jetbrains on 09.07.2018.
 //
 
-#ifndef RD_CPP_SIGNAL_H
-#define RD_CPP_SIGNAL_H
+#ifndef RD_CPP_CORE_SIGNAL_H
+#define RD_CPP_CORE_SIGNAL_H
 
 #include <LifetimeImpl.h>
 #include "interfaces.h"
@@ -50,4 +50,4 @@ public:
 };
 
 
-#endif //RD_CPP_SIGNAL_H
+#endif //RD_CPP_CORE_SIGNAL_H

@@ -2,8 +2,8 @@
 // Created by operasfantom on 19.07.18.
 //
 
-#ifndef RD_CPP_LIFETIMEWRAPPER_H
-#define RD_CPP_LIFETIMEWRAPPER_H
+#ifndef RD_CPP_CORE_LIFETIMEWRAPPER_H
+#define RD_CPP_CORE_LIFETIMEWRAPPER_H
 
 
 #include <memory>
@@ -58,4 +58,4 @@ public:
 };
 
 
-#endif //RD_CPP_LIFETIMEWRAPPER_H
+#endif //RD_CPP_CORE_LIFETIMEWRAPPER_H

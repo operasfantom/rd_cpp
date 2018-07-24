@@ -2,8 +2,8 @@
 // Created by jetbrains on 09.07.2018.
 //
 
-#ifndef RD_CPP_LIFETIME_DEFINITION_H
-#define RD_CPP_LIFETIME_DEFINITION_H
+#ifndef RD_CPP_CORE_LIFETIME_DEFINITION_H
+#define RD_CPP_CORE_LIFETIME_DEFINITION_H
 
 
 #include "LifetimeImpl.h"
@@ -48,4 +48,4 @@ public:
     void terminate();
 };
 
-#endif //RD_CPP_LIFETIME_DEFINITION_H
+#endif //RD_CPP_CORE_LIFETIME_DEFINITION_H

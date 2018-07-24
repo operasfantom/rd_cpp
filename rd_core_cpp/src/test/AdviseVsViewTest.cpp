@@ -4,8 +4,8 @@
 
 
 #include <gtest/gtest.h>
-#include <main/lifetime/LifetimeDefinition.h>
-#include <main/reactive/Property.h>
+#include "LifetimeDefinition.h"
+#include "Property.h"
 
 /*#include <crtdbg.h>
 void f()

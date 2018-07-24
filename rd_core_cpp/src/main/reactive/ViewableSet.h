@@ -2,8 +2,8 @@
 // Created by jetbrains on 10.07.2018.
 //
 
-#ifndef RD_CPP_VIEWABLESET_H
-#define RD_CPP_VIEWABLESET_H
+#ifndef RD_CPP_CORE_VIEWABLESET_H
+#define RD_CPP_CORE_VIEWABLESET_H
 
 #include "viewable_collections.h"
 #include "SignalX.h"
@@ -17,7 +17,7 @@ public:
 private:
     Signal<Event> change;
 
-    std::set<T> set;
+    std::unordered_set<T> set;
 
 public:
     virtual ~ViewableSet() {}
@@ -67,4 +67,4 @@ public:
 };
 
 
-#endif //RD_CPP_VIEWABLESET_H
+#endif //RD_CPP_CORE_VIEWABLESET_H
