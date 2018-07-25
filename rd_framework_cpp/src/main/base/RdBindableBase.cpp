@@ -66,3 +66,4 @@ RdBindableBase::RdBindableBase(Lifetime lifetime) {
         }
     }
 }
+

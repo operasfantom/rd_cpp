@@ -11,8 +11,6 @@
 
 class RdBindableBase : public virtual IRdBindable/*, IPrintable*/ {
 protected:
-    //bound state: main
-
     IRdDynamic *parent = nullptr;
 
     std::optional<Lifetime> bind_lifetime;
@@ -42,6 +40,8 @@ public:
 
     //need to implement in subclasses
     RdBindableBase(Lifetime lifetime);
+
+    virtual ~RdBindableBase() = default;
 
     virtual void bind(Lifetime lf, IRdDynamic *parent, const std::string &name);
 

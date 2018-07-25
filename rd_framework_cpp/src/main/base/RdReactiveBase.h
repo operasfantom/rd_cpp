@@ -12,6 +12,7 @@
 class RdReactiveBase : public virtual RdBindableBase, public virtual IRdReactive {
 public:
 
+    virtual ~RdReactiveBase() = default;
     /*static logReceived = Protocol.sublogger("RECV")
     static logSend = Protocol.sublogger("SEND")
     static logAssert = getLogger<RdReactiveBase>()*/

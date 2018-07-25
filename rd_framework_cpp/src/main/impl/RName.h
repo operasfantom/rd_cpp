@@ -22,6 +22,8 @@ public:
     RName sub(std::string localName, std::string separator);
 
     std::string toString();
+
+    static RName Empty();
 };
 
 #endif //RD_CPP_FRAMEWORK_RNAME_H

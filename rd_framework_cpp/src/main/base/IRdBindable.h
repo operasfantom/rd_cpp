@@ -15,6 +15,8 @@ public:
 
     IRdBindable() = default;
 
+    virtual ~IRdBindable() = default;
+
     virtual void bind(Lifetime lf, IRdDynamic *parent, std::string const &name) = 0;
 
     virtual void identify(IIdentities *identities, RdId id) = 0;

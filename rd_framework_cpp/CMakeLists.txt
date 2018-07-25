@@ -17,7 +17,7 @@ add_library(rd_framework_cpp STATIC
         src/main/base/RdReactiveBase.cpp src/main/base/RdReactiveBase.h
         src/main/base/RdBindableBase.cpp src/main/base/RdBindableBase.h
         src/main/impl/RdProperty.cpp src/main/impl/RdProperty.h
-        src/main/base/RdExtBase.cpp src/main/base/RdExtBase.h)
+        src/main/base/RdExtBase.cpp src/main/base/RdExtBase.h src/main/Serializers.cpp src/main/Serializers.h src/main/base/WireBase.cpp src/main/base/WireBase.h src/main/Protocol.cpp src/main/Protocol.h)
 
 target_include_directories(rd_framework_cpp PUBLIC src/)
 target_include_directories(rd_framework_cpp PUBLIC src/main)
@@ -28,7 +28,7 @@ target_include_directories(rd_framework_cpp PUBLIC src/main/impl)
 
 add_executable(rd_framework_cpp_test
         src/test/RdIdTest.cpp
-        src/test/RdPropertyTest.cpp src/test/RdFrameworkTestBase.cpp src/test/RdFrameworkTestBase.h)
+        src/test/RdPropertyTest.cpp src/test/RdFrameworkTestBase.cpp src/test/RdFrameworkTestBase.h src/test/TestWire.cpp src/test/TestWire.h)
 
 target_link_libraries(rd_framework_cpp_test gtest gtest_main)
 target_link_libraries(rd_framework_cpp_test rd_framework_cpp)

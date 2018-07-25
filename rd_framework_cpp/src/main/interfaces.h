@@ -24,6 +24,8 @@ public:
     RName location;
 
     IRdDynamic() = default;
+
+    virtual ~IRdDynamic() = default;
 };
 
 class IRdReactive;
@@ -31,14 +33,17 @@ class IRdReactive;
 class IWire {
     IProperty<bool> *connected;
 
-    virtual void send(RdId id, AbstractBuffer &writer) = 0;
+public:
 
     virtual void advise(Lifetime lifetime, IRdReactive &entity) = 0;
+
+    virtual void send(RdId id, std::function<void(AbstractBuffer &)> writer) = 0;
 };
 
 template<typename T>
 class ISerializer {
-    virtual T read(SerializationCtx ctx, AbstractBuffer& buffer) = 0;
+public:
+    virtual T read(SerializationCtx ctx, AbstractBuffer &buffer) = 0;
 
     virtual void write(SerializationCtx ctx, AbstractBuffer &buffer, T const &value) = 0;
 };
@@ -46,27 +51,30 @@ class ISerializer {
 class ISerializers {
 //        val toplevels: MutableSet<KClass<out ISerializersOwner>>
 
-        /*template <typename T>
-        void register(IMarshaller<T> serializer);
+    /*template <typename T>
+    void register(IMarshaller<T> serializer);
 
-        fun <T> readPolymorphicNullable(ctx: SerializationCtx, stream: AbstractBuffer, abstractDeclaration: IAbstractDeclaration<T>? = null): T?
-        fun <T> writePolymorphicNullable(ctx: SerializationCtx, stream: AbstractBuffer, value: T)
-        fun <T : Any> readPolymorphic(ctx: SerializationCtx, stream: AbstractBuffer, abstractDeclaration: IAbstractDeclaration<T>? = null): T
-        fun <T : Any> writePolymorphic(ctx: SerializationCtx, stream: AbstractBuffer, value: T)*/
+    fun <T> readPolymorphicNullable(ctx: SerializationCtx, stream: AbstractBuffer, abstractDeclaration: IAbstractDeclaration<T>? = null): T?
+    fun <T> writePolymorphicNullable(ctx: SerializationCtx, stream: AbstractBuffer, value: T)
+    fun <T : Any> readPolymorphic(ctx: SerializationCtx, stream: AbstractBuffer, abstractDeclaration: IAbstractDeclaration<T>? = null): T
+    fun <T : Any> writePolymorphic(ctx: SerializationCtx, stream: AbstractBuffer, value: T)*/
 };
 
 class IIdentities {
     virtual RdId next(RdId parent) = 0;
 };
 
-class IProtocol : IRdDynamic {
-    IIdentities *identity;
-
-//    ViewableSet <RdExtBase> out_of_sync_models;
+class IProtocol : public IRdDynamic {
 public:
+
+    ISerializers *serializers;
+    IIdentities *identity;
     IScheduler *scheduler;
-    ISerializers* serializers;
     IWire *wire;
+
+    IProtocol(ISerializers *serializers, IIdentities *identity, IScheduler *scheduler, IWire *wire) : serializers(
+            serializers), identity(identity), scheduler(scheduler), wire(wire) {}
+    //    ViewableSet <RdExtBase> out_of_sync_models;
 };
 
 template<typename T>

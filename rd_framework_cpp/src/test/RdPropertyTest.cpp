@@ -4,43 +4,50 @@
 
 #include <gtest/gtest.h>
 #include <main/impl/RdProperty.h>
+#include "RdFrameworkTestBase.h"
 
 using vi = std::vector<int>;
 
 TEST(rd_property, statics) {
-    int property_id = 1;
+    class Start : public RdFrameworkTestBase {
+    public:
+        Start() {
+            RdFrameworkTestBase baseTest;
 
-    RdProperty<int>* client_property = statics(new RdProperty(1), (property_id));
-    RdProperty<int>* server_property = statics(new RdProperty(1), (property_id))->slave();
+            int property_id = 1;
 
-    std::vector<int> clientLog;
-    std::vector<int> serverLog;
+            RdProperty client_property_storage = RdProperty(1);
+            RdProperty server_property_storage = RdProperty(1);
 
-    client_property->advise(Lifetime::Eternal(), [&clientLog](int v) { clientLog.push_back(v); });
-    server_property->advise(Lifetime::Eternal(), [&serverLog](int v) { serverLog.push_back(v); });
+            RdProperty<int> *client_property = statics(&client_property_storage, (property_id));
+            RdProperty<int> *server_property = statics(&server_property_storage, (property_id))->slave();
 
-    //not bound
-    EXPECT_EQ(vi{1}, clientLog);
-    EXPECT_EQ(vi{1}, clientLog);
+            std::vector<int> client_log;
+            std::vector<int> server_log;
 
+            client_property->advise(Lifetime::Eternal(), [&client_log](int v) { client_log.push_back(v); });
+            server_property->advise(Lifetime::Eternal(), [&server_log](int v) { server_log.push_back(v); });
 
-    /*
-    //bound
-    serverProtocol.bindStatic(server_property, "top");
-    clientProtocol.bindStatic(client_property, "top");
+            //not bound
+            EXPECT_EQ((vi{1}), client_log);
+            EXPECT_EQ((vi{1}), client_log);
 
-    EXPECT_EQ((vi{1}), clientLog);
-    EXPECT_EQ((vi{1}), serverLog);
+            //bound
+            bindStatic(serverProtocol.get(), *server_property, "top");
+            bindStatic(clientProtocol.get(), *client_property, "top");
 
-    //set from client
-    client_property.intue = 2;
-    EXPECT_EQ((vi{1, 2}), clientLog);
-    EXPECT_EQ((vi{1, 2}), serverLog);
+            EXPECT_EQ((vi{1}), client_log);
+            EXPECT_EQ((vi{1}), server_log);
 
-    //set from server
-    server_property.intue = 3;
-    EXPECT_EQ((vi{1, 2, 3}), clientLog);
-    EXPECT_EQ((vi{1, 2, 3}), serverLog);
+            //set from client
+            client_property->set(2);
+            EXPECT_EQ((vi{1, 2}), client_log);
+            EXPECT_EQ((vi{1, 2}), server_log);
 
-     */
+            //set from client
+            server_property->set(2);
+            EXPECT_EQ((vi{1, 2, 3}), client_log);
+            EXPECT_EQ((vi{1, 2, 3}), server_log);
+        }
+    } S;
 }

@@ -30,6 +30,8 @@ public:
         this->change = std::unique_ptr<Signal<T>>(new Signal<T>());
     }
 
+    virtual ~RdPropertyBase() = default;
+
     virtual void on_wire_received(AbstractBuffer &buffer) {
 
     }
@@ -50,6 +52,8 @@ public:
     explicit RdProperty(T const &value) : RdPropertyBase<T>(value) {
         this->property = std::unique_ptr<Property<T>>(new Property<T>(value));
     }
+
+    virtual ~RdProperty() = default;
 
     void advise(Lifetime lifetime, std::function<void(T)> handler) {
         RdPropertyBase<T>::advise(lifetime, handler);

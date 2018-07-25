@@ -7,3 +7,5 @@
 IWire *RdReactiveBase::get_wire() {
     return get_protocol()->wire;
 }
+
+

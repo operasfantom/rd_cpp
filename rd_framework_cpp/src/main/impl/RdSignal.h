@@ -12,44 +12,47 @@
 #include "RdReactiveBase.h"
 #include "SerializationCtx.h"
 
-template <typename T>
+template<typename T>
 class RdSignal : RdReactiveBase, ISignal<T> {
-private:
+protected:
     Signal<T> signal;
-//    ISerializer<T> valueSerializer = Polymorphic<T>();
-public:
+    ISerializer<T> *value_serializer/* = Polymorphic<T>()*/;
 
-    void on_wire_received(AbstractBuffer &buffer) {
-        /*val value = valueSerializer.read(serializationContext, buffer)
-        logReceived.trace { "signal `$location` ($rdid):: value = ${value.printToString()}" }
-        signal.fire(value)*/
+public:
+    RdSignal() = default;
+
+    explicit RdSignal(Lifetime lifetime) : RdBindableBase(lifetime) {
+        get_wire()->advise(lifetime, *this);
     }
 
-    void fire(T const& value) {
+    explicit RdSignal(ISerializer<T> *value_serializer) : value_serializer(value_serializer) {}
+
+    virtual ~RdSignal() = default;
+
+    virtual void on_wire_received(AbstractBuffer &buffer) {
+        T value = value_serializer->read(serialization_context, buffer);
+//        logReceived.trace { "signal `$location` ($rdid):: value = ${value.printToString()}" }
+        signal.fire(value);
+    }
+
+    void fire(T const &value) {
         assert_bound();
-        /*if (!async) assertThreading()
-        //localChange {
-        wire.send(rdid) { buffer ->
-                    logSend.trace { "signal `$location` ($rdid):: value = ${value.printToString()}" }
-            valueSerializer.write(serializationContext, buffer, value)
+        if (!async) {
+            assert_threading();
         }
-        signal.fire(value)
-        //}*/
+        protocol->wire->send(rd_id, [this, value](AbstractBuffer &buffer) {
+//            logSend.trace { "signal `$location` ($rdid):: value = ${value.printToString()}" }
+            value_serializer->write(get_serialization_ctx(), buffer, value);
+        });
+        signal.fire(value);
     }
 
 
     void advise(Lifetime lifetime, std::function<void(T)> handler) {
-        /*if (isBound) assertThreading()
-        signal.advise(lifetime, handler)*/
-    }
-
-
-    void adviseOn(Lifetime lifetime, IScheduler& scheduler, std::function<void(T)> handler) {
-        /*if (this->is_bound()){
-            assertThreading()
-        }  //even if listener on pool thread, advise must be on main thread
-        this.wireScheduler = scheduler
-        signal.advise(lifetime, handler)*/
+        if (is_bound()) {
+            assert_threading();
+        }
+        signal.advise(lifetime, handler);
     }
 };
 

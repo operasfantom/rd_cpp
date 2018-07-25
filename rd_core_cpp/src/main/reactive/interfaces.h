@@ -77,7 +77,7 @@ public:
 template<typename T>
 class ISignal : public ISource<T> {
 public:
-    virtual ~ISignal() {}
+    virtual ~ISignal() = default;
 
     virtual void fire(T const &value) = 0;
 };

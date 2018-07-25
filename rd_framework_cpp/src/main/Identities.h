@@ -44,7 +44,7 @@ inline hash_t getPlatformIndependentHash<int64_t>(int64_t that, hash_t initial) 
     return initial * HASH_FACTOR + (that + 1);
 }
 
-class Identities : IIdentities {
+class Identities : public IIdentities {
 private:
     //todo atomicy
     int32_t id_acc;
@@ -56,7 +56,7 @@ public:
     explicit Identities(IdKind dynamicKind = IdKind::Client) : id_acc(
             dynamicKind == IdKind::Client ? BASE_CLIENT_ID : BASE_SERVER_ID) {}
 
-    RdId next(RdId parent);
+    virtual RdId next(RdId parent);
 };
 
 

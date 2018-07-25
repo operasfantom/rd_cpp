@@ -12,7 +12,7 @@ RName RName::sub(std::string localName, std::string separator) {
 }
 
 namespace {
-    RName Empty(nullptr, "", "");
+    RName EMPTY(nullptr, "", "");
 }
 
 std::string RName::toString() {
@@ -24,4 +24,8 @@ std::string RName::toString() {
     }
 }
 
-RName::RName(std::string local_name) : RName(&Empty, local_name, "") {}
+RName::RName(std::string local_name) : RName(&EMPTY, local_name, "") {}
+
+RName RName::Empty() {
+    return EMPTY;
+}
