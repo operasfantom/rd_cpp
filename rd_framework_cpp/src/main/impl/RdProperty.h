@@ -10,41 +10,7 @@
 #include <main/RdId.h>
 #include <main/interfaces.h>
 #include <main/base/RdReactiveBase.h>
-
-template<typename T>
-class RdPropertyBase : public RdReactiveBase, public IProperty<T> {
-protected:
-    //mastering
-    bool is_master = true;
-    int32_t master_version = 0;
-    bool default_value_changed = false;
-
-    //init
-    bool optimize_nested = false;
-    std::unique_ptr<IProperty<T>> property;
-
-//    override val change : ISource<T> get() = property.change
-    ISerializer<T> *value_serializer;
-public:
-    explicit RdPropertyBase(const T &value) : IProperty<T>(value) {
-        this->change = std::unique_ptr<Signal<T>>(new Signal<T>());
-    }
-
-    virtual ~RdPropertyBase() = default;
-
-    virtual void on_wire_received(AbstractBuffer &buffer) {
-
-    }
-
-    virtual void advise(Lifetime lifetime, std::function<void(T)> handler) {
-        if (is_bound()) {
-//            assertThreading();
-        }
-        IProperty<T>::advise(lifetime, handler);
-    }
-//    explicit RdPropertyBase(ISerializer<T> *value_serializer) : value_serializer(value_serializer) {}
-
-};
+#include <main/base/RdPropertyBase.h>
 
 template<typename T>
 class RdProperty : public RdPropertyBase<T>/*, public IProperty<T> */{
@@ -71,9 +37,9 @@ public:
         });
     }
 
-    RdProperty<T> *slave() {
+    RdProperty<T> &slave() {
         this->is_master = false;
-        return this;
+        return *this;
     }
 
     void identify(IIdentities &ids, RdId id) {

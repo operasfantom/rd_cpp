@@ -9,11 +9,12 @@
 #include <interfaces.h>
 #include <IScheduler.h>
 #include <SignalX.h>
+#include <main/interfaces.h>
 #include "RdReactiveBase.h"
 #include "SerializationCtx.h"
 
 template<typename T>
-class RdSignal : RdReactiveBase, ISignal<T> {
+class RdSignal : public RdReactiveBase, public ISignal<T> {
 protected:
     Signal<T> signal;
     ISerializer<T> *value_serializer/* = Polymorphic<T>()*/;
@@ -21,13 +22,14 @@ protected:
 public:
     RdSignal() = default;
 
-    explicit RdSignal(Lifetime lifetime) : RdBindableBase(lifetime) {
-        get_wire()->advise(lifetime, *this);
-    }
-
     explicit RdSignal(ISerializer<T> *value_serializer) : value_serializer(value_serializer) {}
 
     virtual ~RdSignal() = default;
+
+    virtual void init(Lifetime lifetime) {
+        RdReactiveBase::init(lifetime);
+        get_wire()->advise(lifetime, *this);
+    }
 
     virtual void on_wire_received(AbstractBuffer &buffer) {
         T value = value_serializer->read(serialization_context, buffer);
@@ -40,7 +42,7 @@ public:
         if (!async) {
             assert_threading();
         }
-        protocol->wire->send(rd_id, [this, value](AbstractBuffer &buffer) {
+        get_wire()->send(rd_id, [this, value](AbstractBuffer &buffer) {
 //            logSend.trace { "signal `$location` ($rdid):: value = ${value.printToString()}" }
             value_serializer->write(get_serialization_ctx(), buffer, value);
         });

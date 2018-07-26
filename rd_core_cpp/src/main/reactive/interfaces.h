@@ -54,8 +54,9 @@ class IProperty : public IPropertyBase<T> {
 protected:
     T value;
 
-    std::unique_ptr<ISource<T>> change;
 public:
+    std::unique_ptr<ISource<T>> change;
+
     virtual ~IProperty() {}
 
     explicit IProperty(T const &value) : value(value) {}

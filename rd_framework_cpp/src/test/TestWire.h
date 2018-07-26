@@ -10,20 +10,20 @@
 #include <queue>
 
 class RdMessage {
+public:
     RdId id;
-//    AbstractBuffer& istream;
+    AbstractBuffer &istream;
 };
 
 class TestWire : public WireBase {
 protected:
+    bool auto_flush = true;
+public:
+    TestWire *counterpart = nullptr;
     std::queue<RdMessage> msgQ;
-
     int64_t bytesWritten = 0;
 
-public:
-    TestWire *counterpart;
-
-    TestWire(IScheduler *scheduler) : WireBase(scheduler) {
+    explicit TestWire(IScheduler *scheduler) : WireBase(scheduler) {
         this->connected.set(true);
     }
 
@@ -41,14 +41,27 @@ public:
 //        if (autoFlush) processAllMessages()
     }
 
+    void processAllMessages() {
+        while (!msgQ.empty()) {
+            processOneMessage();
+        }
+    }
 
-    bool autoFlush = true;
+    void processOneMessage() {
+        if (msgQ.empty()){
+            return;
+        }
+        auto msg = msgQ.front();
+        msgQ.pop();
+        counterpart->message_broker.dispatch(msg.id, msg.istream);
+    }
 
-    /*
-    set(value) {
-            field = value
-            if (value) processAllMessages()
-    }*/
+    void set_auto_flush(bool value) {
+            auto_flush = value;
+            if (value) {
+//                process_all_messages();
+            }
+    }
 
     /*fun processAllMessages() {
         while (!msgQ.isEmpty()) processOneMessage()

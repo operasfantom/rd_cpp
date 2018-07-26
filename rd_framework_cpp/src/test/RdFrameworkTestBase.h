@@ -11,6 +11,7 @@
 #include <main/Serializers.h>
 #include <main/Identities.h>
 #include <main/Protocol.h>
+#include <gtest/gtest.h>
 #include "TestWire.h"
 
 class TestScheduler : public IScheduler {
@@ -25,7 +26,7 @@ class TestScheduler : public IScheduler {
     }
 };
 
-class RdFrameworkTestBase {
+class RdFrameworkTestBase : public ::testing::Test {
 public:
     Serializers serializers;
 
@@ -50,8 +51,8 @@ public:
 //    private var disposeLoggerFactory: Closeable? = null
 
     //    @BeforeTest
-    RdFrameworkTestBase() : clientLifetimeDef(Lifetime::Eternal().create_nested()),
-                            serverLifetimeDef(Lifetime::Eternal().create_nested()),
+    RdFrameworkTestBase() : clientLifetimeDef(Lifetime::Eternal()),
+                            serverLifetimeDef(Lifetime::Eternal()),
                             clientLifetime(clientLifetimeDef.lifetime),
                             serverLifetime(serverLifetimeDef.lifetime) {
 

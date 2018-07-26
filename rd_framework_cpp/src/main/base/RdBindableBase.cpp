@@ -25,9 +25,9 @@ void RdBindableBase::bind(Lifetime lf, IRdDynamic *parent, const std::string &na
 
 //    protocol->scheduler.assertThread(this);
 
-    /*Signal.priorityAdviseSection{
-        init(lf)
-    }*/
+//    Signal.priorityAdviseSection{
+        init(lf);
+//    }
 }
 
 void RdBindableBase::identify(IIdentities *identities, RdId id) {
@@ -41,8 +41,8 @@ void RdBindableBase::identify(IIdentities *identities, RdId id) {
 }
 
 IProtocol *RdBindableBase::get_protocol() {
-    if (parent && parent->protocol) {
-        return parent->protocol;
+    if (parent && parent->get_protocol()) {
+        return parent->get_protocol();
     } else {
         throw std::exception();//nb
     }
@@ -56,9 +56,7 @@ SerializationCtx RdBindableBase::get_serialization_ctx() {
     }
 }
 
-RdBindableBase::RdBindableBase(Lifetime lifetime) {
-    rd_id = RdId::Null();
-    location = RName("<<not bound>>");
+void RdBindableBase::init(Lifetime lifetime) {
     for (auto p : bindable_children){
         auto child = p.second;
         if (child.has_value()){

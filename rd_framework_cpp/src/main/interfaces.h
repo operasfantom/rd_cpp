@@ -19,13 +19,17 @@ class IProtocol;
 
 class IRdDynamic {
 public:
-    IProtocol *protocol;
+    IProtocol *protocol = nullptr;
     SerializationCtx serialization_context;
     RName location;
 
     IRdDynamic() = default;
 
     virtual ~IRdDynamic() = default;
+
+    virtual IProtocol* get_protocol(){
+        return protocol;
+    }
 };
 
 class IRdReactive;

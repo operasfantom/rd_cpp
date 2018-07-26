@@ -44,9 +44,9 @@ public:
         ++advise_id;
     }
 
-    void advise_eternal(std::function<void(T)> handler) {
+    /*void advise_eternal(std::function<void(T)> handler) {
         advise(LifetimeImpl::eternal, handler);
-    }
+    }*/
 };
 
 

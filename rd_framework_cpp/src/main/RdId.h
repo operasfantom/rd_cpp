@@ -16,6 +16,12 @@ private:
 
     hash_t hash;
 public:
+    struct Hash {
+        size_t operator()(RdId const &id) const noexcept {
+            return std::hash<hash_t>()(id.hash);
+        }
+    };
+
     explicit RdId(hash_t hash);
 
 //    static std::shared_ptr<RdId> NULL_ID;

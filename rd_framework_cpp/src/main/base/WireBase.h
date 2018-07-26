@@ -8,12 +8,15 @@
 
 #include <main/interfaces.h>
 #include <Property.h>
+#include <main/MessageBroker.h>
 
 class WireBase : public IWire {
 protected:
     IScheduler *scheduler;
+
+    MessageBroker message_broker;
 public:
-    explicit WireBase(IScheduler *scheduler) : scheduler(scheduler) {}
+    explicit WireBase(IScheduler *scheduler) : scheduler(scheduler), message_broker(scheduler) {}
 
     virtual void advise(Lifetime lifetime, IRdReactive &entity) {
 //        messageBroker.adviseOn(lifetime, entity);

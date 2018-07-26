@@ -17,7 +17,7 @@ public:
 
     IScheduler* wire_scheduler = nullptr;
 
-    virtual void on_wire_received(AbstractBuffer& buffer) = 0;
+    virtual void on_wire_received(AbstractBuffer& buffer) const = 0;
 };
 
 
