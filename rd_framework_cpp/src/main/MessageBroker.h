@@ -23,7 +23,7 @@ private:
         if (sync) {
             that->on_wire_received(msg);
         } else {
-            that->wire_scheduler->queue([this, that, &msg]() {
+            that->get_wire_scheduler()->queue([this, that, &msg]() {
                 if (subscriptions.count(that->rd_id) > 0) {
                     that->on_wire_received(msg);
                 } else {
@@ -53,7 +53,7 @@ public:
                 IRdReactive *subscription = subscriptions[id]; //no lock because can be changed only under default scheduler
 
                 if (subscription != nullptr) {
-                    if (subscription->wire_scheduler == defaultScheduler)
+                    if (subscription->get_wire_scheduler() == defaultScheduler)
                         invoke(subscription, message, true);
                     else
                         invoke(subscription, message);
@@ -75,7 +75,7 @@ public:
 
         } else {
 
-            if (s->wire_scheduler == defaultScheduler || s->wire_scheduler->out_of_order_execution) {
+            if (s->get_wire_scheduler() == defaultScheduler || s->get_wire_scheduler()->out_of_order_execution) {
                 invoke(s, message);
             } else {
                 if (broker.count(id) == 0) {

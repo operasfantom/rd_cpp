@@ -31,7 +31,7 @@ public:
 
     virtual void init(Lifetime lifetime) {
         RdReactiveBase::init(lifetime);
-        wire_scheduler = get_default_scheduler();
+//        wire_scheduler = get_default_scheduler();
         get_wire()->advise(lifetime, *this);
     }
 

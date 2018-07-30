@@ -8,7 +8,7 @@
 
 using vi = std::vector<int>;
 
-TEST_F(RdFrameworkTestBase, statics) {
+TEST_F(RdFrameworkTestBase, property_statics) {
     int property_id = 1;
 
     RdProperty client_property_storage = RdProperty(1);
@@ -43,4 +43,8 @@ TEST_F(RdFrameworkTestBase, statics) {
     server_property.set(3);
     EXPECT_EQ((vi{1, 2, 3}), client_log);
     EXPECT_EQ((vi{1, 2, 3}), server_log);
+
+
+    clientLifetimeDef.terminate();
+    serverLifetimeDef.terminate();
 }

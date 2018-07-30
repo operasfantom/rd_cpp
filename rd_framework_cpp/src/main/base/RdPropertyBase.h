@@ -23,7 +23,6 @@ protected:
     bool optimize_nested = false;
     std::unique_ptr<IProperty<T>> property;
 
-//    override val change : ISource<T> get() = property.change
     ISerializer<T> *value_serializer;
 public:
     explicit RdPropertyBase(const T &value) : IProperty<T>(value) {
@@ -43,21 +42,19 @@ public:
             });
         }
 
-        auto lambda = [this](T v) {
+        advise(lifetime, [this](T v) {
             if (!is_local_change) {
                 return;
             }
             if (is_master) {
                 master_version++;
             }
-            get_wire()->send(rd_id, [](AbstractBuffer const &buffer) {
-//                buffer.writeInt(masterVersion);
+            get_wire()->send(rd_id, [v](AbstractBuffer const &buffer) {
+                buffer.writeInt(v);
 //                valueSerializer.write(serializationContext, buffer, v)
 //                logSend.trace{ "property `$location` ($rdid):: ver = $masterVersion, value = ${v.printToString()}" }
             });
-        };
-
-        advise(lifetime, lambda);
+        });
 
         get_wire()->advise(lifetime, *this);
 
@@ -71,7 +68,9 @@ public:
     virtual ~RdPropertyBase() = default;
 
     virtual void on_wire_received(AbstractBuffer const &buffer) {
+        T v = buffer.readInt();
 
+        this->property->set(v);
     };
 
     virtual void advise(Lifetime lifetime, std::function<void(T)> handler) {

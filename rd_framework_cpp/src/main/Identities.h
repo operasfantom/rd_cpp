@@ -48,7 +48,6 @@ inline hash_t getPlatformIndependentHash<int64_t>(int64_t that, hash_t initial) 
 
 class Identities : public IIdentities {
 private:
-    //todo atomicy
     int32_t id_acc;
 public:
     static const int32_t BASE_CLIENT_ID = RdId::MAX_STATIC_ID;
