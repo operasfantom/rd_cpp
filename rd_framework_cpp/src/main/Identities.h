@@ -8,9 +8,11 @@
 
 #include <string>
 #include <memory>
+#include <main/base/IIdentities.h>
 
 
 #include "interfaces.h"
+#include "RdId.h"
 
 enum class IdKind {
     Client,

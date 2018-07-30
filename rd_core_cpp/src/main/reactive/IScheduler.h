@@ -33,7 +33,7 @@ public:
 
     virtual void flush() = 0;
 
-    bool is_active;
+    bool is_active = false;
 };
 
 

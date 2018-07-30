@@ -8,6 +8,7 @@
 
 #include "IRdBindable.h"
 #include "AbstractBuffer.h"
+#include "IScheduler.h"
 
 class IRdReactive : public virtual IRdBindable {
 protected:
@@ -15,9 +16,11 @@ protected:
 public:
     IRdReactive() = default;
 
-    IScheduler* wire_scheduler = nullptr;
+    virtual ~IRdReactive() = default;
 
-    virtual void on_wire_received(AbstractBuffer& buffer) const = 0;
+    IScheduler *wire_scheduler = nullptr;
+
+    virtual void on_wire_received(AbstractBuffer const &buffer) = 0;
 };
 
 

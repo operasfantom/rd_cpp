@@ -8,11 +8,14 @@
 
 #include <main/base/WireBase.h>
 #include <queue>
+#include <main/UnsafeBuffer.h>
 
 class RdMessage {
 public:
     RdId id;
-    AbstractBuffer &istream;
+    AbstractBuffer const &istream;
+
+    RdMessage(const RdId &id, AbstractBuffer const &istream) : id(id), istream(istream) {};
 };
 
 class TestWire : public WireBase {
@@ -27,18 +30,20 @@ public:
         this->connected.set(true);
     }
 
-    void send(RdId id, std::function<void(AbstractBuffer &)> writer) {
+    void send(RdId id, std::function<void(AbstractBuffer const &buffer)> writer) {
 //        require(!id.isNull)
+        UnsafeBuffer buffer(std::vector<unsigned char>(10));
+        AbstractBuffer &ostream = buffer;
+        writer(ostream);
 
-//        AbstractBuffer& ostream = createAbstractBuffer();
-//        writer(ostream);
+        bytesWritten += ostream.get_position();
 
-//        bytesWritten += ostream.position
+        ostream.set_position(0);
 
-//        ostream.position = 0
-
-//        msgQ.offer(RdMessage(id, ostream))
-//        if (autoFlush) processAllMessages()
+        msgQ.push(RdMessage(id, ostream));
+        if (auto_flush) {
+            processAllMessages();
+        }
     }
 
     void processAllMessages() {

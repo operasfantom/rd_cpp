@@ -8,6 +8,8 @@
 
 #include "RdBindableBase.h"
 #include "IRdReactive.h"
+#include "IWire.h"
+#include "IProtocol.h"
 
 class RdReactiveBase : public virtual RdBindableBase, public virtual IRdReactive {
 public:

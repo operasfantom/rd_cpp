@@ -6,9 +6,9 @@
 #define RD_CPP_WIREBASE_H
 
 
-#include <main/interfaces.h>
 #include <Property.h>
 #include <main/MessageBroker.h>
+#include "IWire.h"
 
 class WireBase : public IWire {
 protected:
@@ -19,7 +19,7 @@ public:
     explicit WireBase(IScheduler *scheduler) : scheduler(scheduler), message_broker(scheduler) {}
 
     virtual void advise(Lifetime lifetime, IRdReactive &entity) {
-//        messageBroker.adviseOn(lifetime, entity);
+        message_broker.advise_on(lifetime, entity);
     }
 
     void dumpToString() {

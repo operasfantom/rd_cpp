@@ -7,7 +7,6 @@
 
 
 #include <IScheduler.h>
-#include <main/interfaces.h>
 #include <main/Serializers.h>
 #include <main/Identities.h>
 #include <main/Protocol.h>
@@ -73,8 +72,8 @@ public:
 
 //    @AfterTest
     virtual ~RdFrameworkTestBase() {
-        clientLifetimeDef.terminate();
-        serverLifetimeDef.terminate();
+//        clientLifetimeDef.terminate();
+//        serverLifetimeDef.terminate();
     }
 
     template<typename T>

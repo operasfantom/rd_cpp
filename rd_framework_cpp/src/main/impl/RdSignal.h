@@ -9,7 +9,8 @@
 #include <interfaces.h>
 #include <IScheduler.h>
 #include <SignalX.h>
-#include <main/interfaces.h>
+#include <main/base/ISerializer.h>
+#include <main/Polymorphic.h>
 #include "RdReactiveBase.h"
 #include "SerializationCtx.h"
 
@@ -17,21 +18,24 @@ template<typename T>
 class RdSignal : public RdReactiveBase, public ISignal<T> {
 protected:
     Signal<T> signal;
-    ISerializer<T> *value_serializer/* = Polymorphic<T>()*/;
+    ISerializer<T> *value_serializer = nullptr/* = Polymorphic<T>()*/;
 
 public:
-    RdSignal() = default;
+    RdSignal(){
+        value_serializer = new Polymorphic<T>();
+    };
 
-    explicit RdSignal(ISerializer<T> *value_serializer) : value_serializer(value_serializer) {}
+    explicit RdSignal(ISerializer<T> *value_serializer) : value_serializer(value_serializer) {}//todo smart_ptr
 
     virtual ~RdSignal() = default;
 
     virtual void init(Lifetime lifetime) {
         RdReactiveBase::init(lifetime);
+        wire_scheduler = get_default_scheduler();
         get_wire()->advise(lifetime, *this);
     }
 
-    virtual void on_wire_received(AbstractBuffer &buffer) {
+    virtual void on_wire_received(AbstractBuffer const &buffer) {
         T value = value_serializer->read(serialization_context, buffer);
 //        logReceived.trace { "signal `$location` ($rdid):: value = ${value.printToString()}" }
         signal.fire(value);
@@ -42,9 +46,10 @@ public:
         if (!async) {
             assert_threading();
         }
-        get_wire()->send(rd_id, [this, value](AbstractBuffer &buffer) {
+        get_wire()->send(rd_id, [this, value](AbstractBuffer const &buffer) {
 //            logSend.trace { "signal `$location` ($rdid):: value = ${value.printToString()}" }
-            value_serializer->write(get_serialization_ctx(), buffer, value);
+//            value_serializer->write(get_serialization_ctx(), buffer, value);
+            buffer.writeInt(value);
         });
         signal.fire(value);
     }

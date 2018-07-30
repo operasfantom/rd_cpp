@@ -16,7 +16,7 @@
 template<typename T>
 class ISource {
 public:
-    virtual ~ISource() {}
+    virtual ~ISource() = default;
 
     virtual void advise(Lifetime lifetime, std::function<void(T)> handler) = 0;
 };
@@ -24,7 +24,7 @@ public:
 template<typename T>
 class IViewable {
 public:
-    virtual ~IViewable() {}
+    virtual ~IViewable() = default;
 
     virtual void
     view(Lifetime lifetime, std::function<void(Lifetime, T)> handler) = 0;
@@ -33,7 +33,7 @@ public:
 template<typename T>
 class IPropertyBase : public ISource<T>, public IViewable<T> {
 public:
-    virtual ~IPropertyBase() {}
+    virtual ~IPropertyBase() = default;
 
     virtual void view(Lifetime lifetime, std::function<void(Lifetime, T)> handler) {
         if (lifetime->is_terminated()) return;
@@ -57,7 +57,7 @@ protected:
 public:
     std::unique_ptr<ISource<T>> change;
 
-    virtual ~IProperty() {}
+    virtual ~IProperty() = default;
 
     explicit IProperty(T const &value) : value(value) {}
 

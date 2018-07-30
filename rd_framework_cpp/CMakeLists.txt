@@ -5,7 +5,6 @@ project(rd_cpp)
 link_libraries(rd_core_cpp)
 
 add_library(rd_framework_cpp STATIC
-        src/main/interfaces.h
         src/main/SerializationCtx.cpp src/main/SerializationCtx.h
         src/main/Identities.cpp src/main/Identities.h
         src/main/impl/RName.cpp src/main/impl/RName.h
@@ -17,7 +16,7 @@ add_library(rd_framework_cpp STATIC
         src/main/base/RdReactiveBase.cpp src/main/base/RdReactiveBase.h
         src/main/base/RdBindableBase.cpp src/main/base/RdBindableBase.h
         src/main/impl/RdProperty.cpp src/main/impl/RdProperty.h
-        src/main/base/RdExtBase.cpp src/main/base/RdExtBase.h src/main/Serializers.cpp src/main/Serializers.h src/main/base/WireBase.cpp src/main/base/WireBase.h src/main/Protocol.cpp src/main/Protocol.h src/main/base/RdPropertyBase.cpp src/main/base/RdPropertyBase.h src/main/MessageBroker.cpp src/main/MessageBroker.h)
+        src/main/base/RdExtBase.cpp src/main/base/RdExtBase.h src/main/Serializers.cpp src/main/Serializers.h src/main/base/WireBase.cpp src/main/base/WireBase.h src/main/Protocol.cpp src/main/Protocol.h src/main/base/RdPropertyBase.cpp src/main/base/RdPropertyBase.h src/main/MessageBroker.cpp src/main/MessageBroker.h src/main/UnsafeBuffer.cpp src/main/UnsafeBuffer.h src/main/Polymorphic.cpp src/main/Polymorphic.h src/main/base/IProtocol.cpp src/main/base/IProtocol.h src/main/base/IRdDynamic.cpp src/main/base/IRdDynamic.h src/main/base/IWire.cpp src/main/base/IWire.h src/main/base/ISerializer.cpp src/main/base/ISerializer.h src/main/base/IIdentities.cpp src/main/base/IIdentities.h src/main/base/ISerializers.cpp src/main/base/ISerializers.h)
 
 target_include_directories(rd_framework_cpp PUBLIC src/)
 target_include_directories(rd_framework_cpp PUBLIC src/main)

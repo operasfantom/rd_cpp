@@ -10,7 +10,7 @@
 class Mq {
 public:
     int32_t defaultSchedulerMessages = 0;
-    std::vector<AbstractBuffer> customSchedulerMessages;
+    std::vector<AbstractBuffer const *> customSchedulerMessages;
 };
 
 class MessageBroker {
@@ -18,14 +18,12 @@ private:
     IScheduler *defaultScheduler = nullptr;
     std::unordered_map<RdId, IRdReactive *, RdId::Hash> subscriptions;
     std::unordered_map<RdId, Mq, RdId::Hash> broker;
-public:
-    explicit MessageBroker(IScheduler *defaultScheduler) : defaultScheduler(defaultScheduler) {}
 
-    void invoke(IRdReactive *that, AbstractBuffer &msg, bool sync = false) {
+    void invoke(IRdReactive *that, AbstractBuffer const &msg, bool sync = false) {
         if (sync) {
             that->on_wire_received(msg);
         } else {
-            that->wire_scheduler->queue([this, that, msg]() mutable {
+            that->wire_scheduler->queue([this, that, &msg]() {
                 if (subscriptions.count(that->rd_id) > 0) {
                     that->on_wire_received(msg);
                 } else {
@@ -35,17 +33,23 @@ public:
         }
     }
 
-    void dispatch(RdId id, AbstractBuffer &message) {
+public:
+
+    explicit MessageBroker(IScheduler *defaultScheduler) : defaultScheduler(defaultScheduler) {}
+
+    void dispatch(RdId id, AbstractBuffer const &message) {
 //        require(!id.isNull) { "id mustn't be null" }
 
 //        synchronized(lock) {
 
         IRdReactive *s = subscriptions[id];
         if (s == nullptr) {
-//                broker.getOrCreate(id, { Mq() }).defaultSchedulerMessages++
+            if (broker.count(id) == 0) {
+                broker[id] = Mq();
+            }
+            broker[id].defaultSchedulerMessages++;
 
-            defaultScheduler->queue
-            {
+            defaultScheduler->queue([this, id, &message]() {
                 IRdReactive *subscription = subscriptions[id]; //no lock because can be changed only under default scheduler
 
                 if (subscription != nullptr) {
@@ -59,34 +63,51 @@ public:
 
 //                    synchronized(lock) {
                 if (--broker[id].defaultSchedulerMessages == 0) {
-                    broker.remove(id)
-                  /*  !!.customSchedulerMessages.forEach
-                    {
-                        subscription ?.apply{
-                                require(wireScheduler != defaultScheduler)
-                                subscription.invoke(it)
-                        }
-                    }*/
+                    auto t = broker[id];
+                    broker.erase(id);
+                    for (auto &it : t.customSchedulerMessages) {
+//                        require (wireScheduler != defaultScheduler);
+                        invoke(subscription, *it);
+                    }
                 }
 //                    }
-            }
+            });
 
         } else {
 
-            if (s.wireScheduler == defaultScheduler || s.wireScheduler.outOfOrderExecution) {
-                s.invoke(message)
+            if (s->wire_scheduler == defaultScheduler || s->wire_scheduler->out_of_order_execution) {
+                invoke(s, message);
             } else {
-                val mq = broker[id]
-                if (mq != null) {
-                    require(mq.defaultSchedulerMessages > 0)
-                    mq.customSchedulerMessages.add(message)
+                if (broker.count(id) == 0) {
+                    invoke(s, message);
                 } else {
-                    s.invoke(message)
+                    Mq mq = broker[id];
+//                    require(mq.defaultSchedulerMessages > 0)
+                    mq.customSchedulerMessages.push_back(&message);
                 }
             }
         }
 
 //        }
+    }
+
+    void advise_on(Lifetime lifetime, IRdReactive &entity) {
+//        require(!entity.rdid.isNull) {"id is null for entity: $entity"}
+
+        //advise MUST happen under default scheduler, not custom
+//        defaultScheduler.assertThread(entity)
+
+        //if (lifetime.isTerminated) return
+
+//        subscriptions.blockingPutUnique(lifetime, lock, entity.rdid, entity)
+        if (!lifetime->is_terminated()) {
+            auto key = entity.rd_id;
+            IRdReactive *value = &entity;
+            subscriptions[key] = value;
+            lifetime->add_action([this, key]() {
+                subscriptions.erase(key);
+            });
+        }
     }
 };
 

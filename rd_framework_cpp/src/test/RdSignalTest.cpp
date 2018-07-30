@@ -10,8 +10,8 @@ TEST_F(RdFrameworkTestBase, signal_statics) {
     RdSignal<int> client_signal_storage;
     RdSignal<int> server_signal_storage;
 
-    RdSignal<int>& client_property = statics(client_signal_storage, property_id);
-    RdSignal<int>& server_property = statics(server_signal_storage, property_id);
+    RdSignal<int> &client_property = statics(client_signal_storage, property_id);
+    RdSignal<int> &server_property = statics(server_signal_storage, property_id);
 
     std::vector<int> client_log;
     std::vector<int> server_log;
@@ -23,8 +23,8 @@ TEST_F(RdFrameworkTestBase, signal_statics) {
     EXPECT_EQ((vi{}), client_log);
     EXPECT_EQ((vi{}), client_log);
 
-    EXPECT_THROW( client_property.fire(2), std::exception);
-    EXPECT_THROW( server_property.fire(2), std::exception);
+    EXPECT_THROW(client_property.fire(2), std::exception);
+    EXPECT_THROW(server_property.fire(2), std::exception);
 
     //bound
     bindStatic(serverProtocol.get(), server_property, "top");
@@ -39,4 +39,7 @@ TEST_F(RdFrameworkTestBase, signal_statics) {
     server_property.fire(3);
     EXPECT_EQ((vi{2, 3}), client_log);
     EXPECT_EQ((vi{2, 3}), server_log);
+
+    clientLifetimeDef.terminate();
+    serverLifetimeDef.terminate();
 }

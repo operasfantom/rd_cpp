@@ -26,7 +26,7 @@ public:
 
     Signal(Signal const &other) = delete;
 
-    virtual ~Signal() {}
+    virtual ~Signal() = default;
 
     virtual void fire(T const &value) {
         for (auto p : listeners) {

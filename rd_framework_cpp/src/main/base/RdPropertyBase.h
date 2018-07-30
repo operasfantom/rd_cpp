@@ -7,8 +7,9 @@
 
 
 #include <main/SerializationCtx.h>
-#include <main/interfaces.h>
 #include "RdReactiveBase.h"
+#include "ISerializer.h"
+#include "../../../../rd_core_cpp/src/main/reactive/SignalX.h"
 
 template<typename T>
 class RdPropertyBase : public RdReactiveBase, public IProperty<T> {
@@ -43,13 +44,13 @@ public:
         }
 
         auto lambda = [this](T v) {
-            if (!is_local_change){
+            if (!is_local_change) {
                 return;
             }
             if (is_master) {
                 master_version++;
             }
-            get_wire()->send(rd_id, [](AbstractBuffer &buffer) {
+            get_wire()->send(rd_id, [](AbstractBuffer const &buffer) {
 //                buffer.writeInt(masterVersion);
 //                valueSerializer.write(serializationContext, buffer, v)
 //                logSend.trace{ "property `$location` ($rdid):: ver = $masterVersion, value = ${v.printToString()}" }
@@ -60,8 +61,8 @@ public:
 
         get_wire()->advise(lifetime, *this);
 
-        if (!optimize_nested){
-            this->view(lifetime, [](Lifetime lf, T v){
+        if (!optimize_nested) {
+            this->view(lifetime, [](Lifetime lf, T v) {
 //                v ?.bindPolymorphic(lf, this, "\$") }
             });
         }
@@ -69,9 +70,9 @@ public:
 
     virtual ~RdPropertyBase() = default;
 
-    virtual void on_wire_received(AbstractBuffer &buffer) {
+    virtual void on_wire_received(AbstractBuffer const &buffer) {
 
-    }
+    };
 
     virtual void advise(Lifetime lifetime, std::function<void(T)> handler) {
         if (is_bound()) {

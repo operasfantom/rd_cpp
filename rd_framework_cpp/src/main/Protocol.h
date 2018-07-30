@@ -6,6 +6,7 @@
 #define RD_CPP_PROTOCOL_H
 
 
+#include <main/base/IProtocol.h>
 #include "interfaces.h"
 
 class Protocol : /*IRdDynamic, */public IProtocol {

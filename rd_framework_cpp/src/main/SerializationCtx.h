@@ -6,12 +6,13 @@
 #define RD_CPP_FRAMEWORK_SERIALIZATIONCTX_H
 
 
+#include <main/base/ISerializers.h>
+#include "AbstractBuffer.h"
+
 class SerializationCtx {
-
+public:
+    ISerializers* serializers;
+//    std::optional<IInternRoot> internRoot;
 };
-
-/*class Polymorphic : ISerializer<> {
-
-}*/
 
 #endif //RD_CPP_FRAMEWORK_SERIALIZATIONCTX_H
