@@ -55,6 +55,13 @@ public:
         lw->terminate();
         return result;
     }
+
+//    template<>
+    static void use(std::function<void(Lifetime)> block) {
+        Lifetime lw = Eternal().create_nested();
+        block(lw);
+        lw->terminate();
+    }
 };
 
 

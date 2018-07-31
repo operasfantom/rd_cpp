@@ -20,17 +20,17 @@ void TestWire::send(RdId id, std::function<void(AbstractBuffer const &buffer)> w
 
     msgQ.push(RdMessage(id, ostream));
     if (auto_flush) {
-        processAllMessages();
+        process_all_messages();
     }
 }
 
-void TestWire::processAllMessages() {
+void TestWire::process_all_messages() {
     while (!msgQ.empty()) {
-        processOneMessage();
+        process_one_message();
     }
 }
 
-void TestWire::processOneMessage() {
+void TestWire::process_one_message() {
     if (msgQ.empty()) {
         return;
     }
@@ -42,6 +42,6 @@ void TestWire::processOneMessage() {
 void TestWire::set_auto_flush(bool value) {
     auto_flush = value;
     if (value) {
-        processAllMessages();
+        process_all_messages();
     }
 }

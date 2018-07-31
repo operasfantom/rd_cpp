@@ -30,9 +30,9 @@ public:
 
     virtual void send(RdId id, std::function<void(AbstractBuffer const &buffer)> writer);
 
-    void processAllMessages();
+    void process_all_messages();
 
-    void processOneMessage();
+    void process_one_message();
 
     void set_auto_flush(bool value);
 

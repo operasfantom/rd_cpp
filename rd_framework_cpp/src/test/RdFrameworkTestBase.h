@@ -6,11 +6,12 @@
 #define RD_CPP_RDFRAMEWORKTESTBASE_H
 
 
+#include <gtest/gtest.h>
+
 #include <IScheduler.h>
 #include <main/Serializers.h>
 #include <main/Identities.h>
 #include <main/Protocol.h>
-#include <gtest/gtest.h>
 #include "TestWire.h"
 
 class TestScheduler : public IScheduler {

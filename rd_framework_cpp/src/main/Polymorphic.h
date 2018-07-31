@@ -13,11 +13,11 @@ public:
 
     virtual T read(SerializationCtx const &ctx, AbstractBuffer const &buffer) {
 //        ctx.serializers->readPolymorphicNullable(ctx, buffer);
-        return read_pod<int32_t>(buffer);
+        return read_pod<T>(buffer);
     }
 
     virtual void write(SerializationCtx const &ctx, AbstractBuffer const &buffer, T const &value) {
-        write_pod(buffer, value);
+        write_pod<T>(buffer, value);
     }
 };
 

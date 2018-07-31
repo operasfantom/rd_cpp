@@ -49,7 +49,7 @@ public:
         get_wire()->send(rd_id, [this, value](AbstractBuffer const &buffer) {
 //            logSend.trace { "signal `$location` ($rdid):: value = ${value.printToString()}" }
 //            value_serializer->write(get_serialization_ctx(), buffer, value);
-            write_pod(buffer, value);
+            value_serializer->write(get_serialization_ctx(), buffer, value);
         });
         signal.fire(value);
     }

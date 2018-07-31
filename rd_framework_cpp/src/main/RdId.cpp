@@ -45,7 +45,7 @@ RdId RdId::notNull() {
 }
 
 RdId RdId::read(AbstractBuffer const &buffer) {
-    int64_t number = read_pod<int64_t>(buffer);
+    auto number = read_pod<hash_t>(buffer);
     return RdId(number);
 }
 

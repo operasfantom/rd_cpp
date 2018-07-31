@@ -44,7 +44,7 @@ IProtocol *RdBindableBase::get_protocol() {
     if (parent && parent->get_protocol()) {
         return parent->get_protocol();
     } else {
-        throw std::invalid_argument("Not bound");//nb
+        throw std::invalid_argument("Not bound");
     }
 }
 
@@ -52,7 +52,7 @@ SerializationCtx RdBindableBase::get_serialization_ctx() {
     if (parent) {
         return parent->serialization_context;
     } else {
-        throw std::exception();//nb
+        throw std::invalid_argument("Not bound");
     }
 }
 

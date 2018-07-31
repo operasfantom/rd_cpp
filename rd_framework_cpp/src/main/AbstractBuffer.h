@@ -6,6 +6,7 @@
 #define RD_CPP_FRAMEWORK_ABSTRACTBUFFER_H
 
 #include <cstdint>
+#include "vector"
 
 class AbstractBuffer {
 private:
@@ -32,5 +33,18 @@ void write_pod(AbstractBuffer const &buffer, T const &value) {
     buffer.write(&value, sizeof(T));
 }
 
+template<typename T>
+std::vector<T> read_array(AbstractBuffer const &buffer) {
+    size_t len = read_pod<size_t>(buffer);
+    std::vector<T> result(len);
+    buffer.read(result.data(), sizeof(T) * len);
+    return result;
+}
+
+template<typename T>
+void write_array(AbstractBuffer const &buffer, std::vector<T> const &array) {
+    write_pod<size_t>(buffer, array.size());
+    buffer.write(array.data(), sizeof(T) * array.size());
+}
 
 #endif //RD_CPP_FRAMEWORK_ABSTRACTBUFFER_H
