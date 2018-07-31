@@ -11,7 +11,7 @@
 
 class SerializationCtx {
 public:
-    ISerializers* serializers;
+    ISerializers *serializers;
 //    std::optional<IInternRoot> internRoot;
 };
 

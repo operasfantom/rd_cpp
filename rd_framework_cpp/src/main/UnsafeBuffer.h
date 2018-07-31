@@ -15,34 +15,24 @@ protected:
     using ByteArray = std::vector<unsigned char>;
 
     mutable ByteArray byteBufferMemoryBase;
-    mutable size_t memory = 0;
     mutable size_t offset = 0;
     mutable size_t size = 0;
-//    int32_t position = 0;
-//private val unsafe = Companion.unsafe // copy to instance field for performance
-//private var charArray: CharArray = charArrayOf() // preallocated array for string serialization
+
+    void require_available(size_t size) const;
 public:
     virtual size_t get_position() const;
 
     virtual void set_position(size_t value) const;
 
-    explicit UnsafeBuffer(int64_t initialSize);
+    explicit UnsafeBuffer(size_t initialSize);
 
-    explicit UnsafeBuffer(ByteArray const& byteArray);
-
-    void check_available(int32_t moreSize) const;
+    void check_available(size_t moreSize) const;
 
     //read
-    int32_t readInt() const;
-
-    int64_t readLong() const;
+    void read(void *dst, size_t size) const override;
 
     //write
-    void writeInt(int32_t value) const;
-
-    void writeLong(int64_t value) const;
-
-    void checkAvailable(size_t moreSize) const;
+    void write(const void *src, size_t size) const override;
 };
 
 

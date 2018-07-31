@@ -9,6 +9,8 @@
 #include <functional>
 
 class IScheduler {
+protected:
+    bool is_active_ = false;
 public:
     virtual void queue(std::function<void()> action) = 0;
 
@@ -24,7 +26,7 @@ public:
     bool out_of_order_execution = false;
 
     void invokeOrQueue(std::function<void()> action) {
-        if (is_active) {
+        if (is_active()) {
             action();
         } else {
             queue(action);
@@ -33,7 +35,7 @@ public:
 
     virtual void flush() = 0;
 
-    bool is_active = false;
+    virtual bool is_active() = 0;
 };
 
 

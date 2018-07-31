@@ -3,3 +3,7 @@
 //
 
 #include "Protocol.h"
+
+IProtocol *Protocol::get_protocol() {
+    return this;
+}

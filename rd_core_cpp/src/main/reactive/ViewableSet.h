@@ -20,7 +20,7 @@ private:
     std::unordered_set<T> set;
 
 public:
-    virtual ~ViewableSet() {}
+    virtual ~ViewableSet() = default;
 
     virtual bool add(T const &element) {
         auto p = set.insert(element);

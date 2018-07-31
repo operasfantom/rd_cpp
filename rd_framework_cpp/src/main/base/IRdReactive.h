@@ -20,7 +20,7 @@ public:
 
 //    IScheduler *wire_scheduler = nullptr;
 
-    virtual IScheduler* get_wire_scheduler() = 0;
+    virtual IScheduler *get_wire_scheduler() = 0;
 
     virtual void on_wire_received(AbstractBuffer const &buffer) = 0;
 };

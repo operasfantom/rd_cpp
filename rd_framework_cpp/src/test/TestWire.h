@@ -26,47 +26,15 @@ public:
     std::queue<RdMessage> msgQ;
     int64_t bytesWritten = 0;
 
-    explicit TestWire(IScheduler *scheduler) : WireBase(scheduler) {
-        this->connected.set(true);
-    }
+    explicit TestWire(IScheduler *scheduler);
 
-    void send(RdId id, std::function<void(AbstractBuffer const &buffer)> writer) {
-//        require(!id.isNull)
-        UnsafeBuffer buffer(std::vector<unsigned char>(10));
-        AbstractBuffer &ostream = buffer;
-        writer(ostream);
+    virtual void send(RdId id, std::function<void(AbstractBuffer const &buffer)> writer);
 
-        bytesWritten += ostream.get_position();
+    void processAllMessages();
 
-        ostream.set_position(0);
+    void processOneMessage();
 
-        msgQ.push(RdMessage(id, ostream));
-        if (auto_flush) {
-            processAllMessages();
-        }
-    }
-
-    void processAllMessages() {
-        while (!msgQ.empty()) {
-            processOneMessage();
-        }
-    }
-
-    void processOneMessage() {
-        if (msgQ.empty()){
-            return;
-        }
-        auto msg = msgQ.front();
-        msgQ.pop();
-        counterpart->message_broker.dispatch(msg.id, msg.istream);
-    }
-
-    void set_auto_flush(bool value) {
-            auto_flush = value;
-            if (value) {
-//                process_all_messages();
-            }
-    }
+    void set_auto_flush(bool value);
 
     /*fun processAllMessages() {
         while (!msgQ.isEmpty()) processOneMessage()

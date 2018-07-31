@@ -21,7 +21,7 @@ protected:
     ISerializer<T> *value_serializer = nullptr/* = Polymorphic<T>()*/;
 
 public:
-    RdSignal(){
+    RdSignal() {
         value_serializer = new Polymorphic<T>();
     };
 
@@ -49,7 +49,7 @@ public:
         get_wire()->send(rd_id, [this, value](AbstractBuffer const &buffer) {
 //            logSend.trace { "signal `$location` ($rdid):: value = ${value.printToString()}" }
 //            value_serializer->write(get_serialization_ctx(), buffer, value);
-            buffer.writeInt(value);
+            write_pod(buffer, value);
         });
         signal.fire(value);
     }

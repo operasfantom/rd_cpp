@@ -14,9 +14,7 @@ public:
     Protocol(ISerializers *serializers, IIdentities *identity, IScheduler *scheduler, IWire *wire) :
             IProtocol(serializers, identity, scheduler, wire) {}
 
-    virtual IProtocol *get_protocol() {
-        return this;
-    }
+    virtual IProtocol *get_protocol();
 //    static std::string log_category = "protocol";
 //    fun sublogger(subcategory: String) = getLogger("$logCategory.$subcategory")
 };

@@ -4,57 +4,41 @@
 
 #include "UnsafeBuffer.h"
 
-size_t UnsafeBuffer::get_position() const {
-    return static_cast<size_t>(offset);
-}
-
-UnsafeBuffer::UnsafeBuffer(int64_t initialSize) {
-//        memory = unsafe.allocateMemory(initialSize)
-    byteBufferMemoryBase.clear();
+UnsafeBuffer::UnsafeBuffer(size_t initialSize) {
+    byteBufferMemoryBase.resize(initialSize);
     size = initialSize;
 }
 
-UnsafeBuffer::UnsafeBuffer(const UnsafeBuffer::ByteArray &byteArray) {
-    byteBufferMemoryBase = byteArray;
-//        memory = Unsafe.ARRAY_BYTE_BASE_OFFSET.toLong()
-    size = byteArray.size();
-}
-
-void UnsafeBuffer::check_available(int32_t moreSize) const {
-    if (offset + moreSize > size){
-//            throw IndexOutOfBoundsException("Expected $moreSize bytes in buffer, only ${size - offset} available")
-        throw std::exception();
-    }
-}
-
-void UnsafeBuffer::writeLong(int64_t value) const {
-    memcpy(&byteBufferMemoryBase[memory + offset], &value, sizeof(value));
-    offset += 8;
+size_t UnsafeBuffer::get_position() const {
+    return offset;
 }
 
 void UnsafeBuffer::set_position(size_t value) const {
     offset = value;
 }
 
-int64_t UnsafeBuffer::readLong() const {
-    int64_t result = byteBufferMemoryBase[memory + offset];
-    offset += 8;
-    return result;
+void UnsafeBuffer::check_available(size_t moreSize) const {
+    if (offset + moreSize > size) {
+        throw std::out_of_range("Expected $moreSize bytes in buffer, only ${size - offset} available");
+    }
 }
 
-int32_t UnsafeBuffer::readInt() const {
-    int32_t result = byteBufferMemoryBase[memory + offset];
-    offset += 4;
-    return result;
+void UnsafeBuffer::read(void *dst, size_t size) const {
+    check_available(size);
+    memcpy(dst, &byteBufferMemoryBase[offset], size);
+    offset += size;
 }
 
-void UnsafeBuffer::checkAvailable(size_t moreSize) const {
-    if (offset + moreSize > size)
-//            throw IndexOutOfBoundsException("Expected $moreSize bytes in buffer, only ${size - offset} available")
-        throw std::exception();
+void UnsafeBuffer::write(const void *src, size_t size) const {
+    require_available(size);
+    memcpy(&byteBufferMemoryBase[offset], src, size);
+    offset += size;
 }
 
-void UnsafeBuffer::writeInt(int32_t value) const{
-    memcpy(&byteBufferMemoryBase[memory + offset], &value, sizeof(value));
-    offset += 4;
+void UnsafeBuffer::require_available(size_t moreSize) const {
+    if (offset + moreSize > size) {
+        size_t newSize = std::max(size * 2, offset + moreSize);
+        byteBufferMemoryBase.reserve(newSize);
+        size = newSize;
+    }
 }

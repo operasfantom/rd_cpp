@@ -34,14 +34,9 @@ public:
 
     static const int32_t MAX_STATIC_ID = 1000000;
 
-    static RdId read(AbstractBuffer const& buffer){
-        int64_t number = buffer.readLong();
-        return RdId(number);
-    }
+    static RdId read(AbstractBuffer const &buffer);
 
-    void write(AbstractBuffer& buffer){
-        buffer.writeLong(hash);
-    }
+    void write(AbstractBuffer &buffer);
 
     hash_t get_hash();
 

@@ -40,14 +40,14 @@ public:
     }
 
     void assert_threading() {
-        if (!async && !get_default_scheduler()->is_active) {
+        if (!async && !get_default_scheduler()->is_active()) {
 
         }
     }
 
     void assert_bound() {
         if (!is_bound()) {
-            throw std::exception();
+            throw std::invalid_argument("Not bound");
         }
     }
 

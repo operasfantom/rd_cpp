@@ -14,9 +14,9 @@
 #include "TestWire.h"
 
 class TestScheduler : public IScheduler {
-    void flush() override {}
+    virtual void flush() {}
 
-    void queue(std::function<void()> action) override {
+    virtual void queue(std::function<void()> action) {
         action();
     }
 

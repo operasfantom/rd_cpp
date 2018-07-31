@@ -49,8 +49,9 @@ public:
             if (is_master) {
                 master_version++;
             }
-            get_wire()->send(rd_id, [v](AbstractBuffer const &buffer) {
-                buffer.writeInt(v);
+            get_wire()->send(rd_id, [this, v](AbstractBuffer const &buffer) {
+                write_pod(buffer, master_version);
+                write_pod(buffer, v);
 //                valueSerializer.write(serializationContext, buffer, v)
 //                logSend.trace{ "property `$location` ($rdid):: ver = $masterVersion, value = ${v.printToString()}" }
             });
@@ -68,7 +69,14 @@ public:
     virtual ~RdPropertyBase() = default;
 
     virtual void on_wire_received(AbstractBuffer const &buffer) {
-        T v = buffer.readInt();
+        int32_t version = read_pod<int32_t>(buffer);
+        T v = read_pod<T>(buffer);
+
+        bool rejected = is_master && version < master_version;
+        if (rejected) {
+            return;
+        }
+        master_version = version;
 
         this->property->set(v);
     };

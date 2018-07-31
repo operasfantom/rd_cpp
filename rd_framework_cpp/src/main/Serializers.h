@@ -14,9 +14,9 @@
 
 class Serializers : public ISerializers {
 
-    std::unordered_map<RdId, std::function<std::any(SerializationCtx, AbstractBuffer const&)>, RdId::Hash> readers;
+    std::unordered_map<RdId, std::function<std::any(SerializationCtx, AbstractBuffer const &)>, RdId::Hash> readers;
 
-    template<typename T>
+    /*template<typename T>
     T readPolymorphicNullable(SerializationCtx ctx, AbstractBuffer const &stream) {
         RdId id = RdId::read(stream);
         if (id.isNull) {
@@ -28,7 +28,7 @@ class Serializers : public ISerializers {
         auto reader = readers[id];
 
         return reader(ctx, stream);
-    }
+    }*/
 };
 
 

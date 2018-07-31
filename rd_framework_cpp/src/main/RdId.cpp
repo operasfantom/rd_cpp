@@ -43,3 +43,12 @@ RdId RdId::notNull() {
 //        require(!isNull) { "id is null" }
     return *this;
 }
+
+RdId RdId::read(AbstractBuffer const &buffer) {
+    int64_t number = read_pod<int64_t>(buffer);
+    return RdId(number);
+}
+
+void RdId::write(AbstractBuffer &buffer) {
+    write_pod(buffer, hash);
+}

@@ -10,7 +10,7 @@
 
 class RName {
 private:
-    RName* parent = nullptr;
+    RName *parent = nullptr;
     std::string local_name, separator;
 public:
     RName() = default;

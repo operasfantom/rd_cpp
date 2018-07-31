@@ -11,13 +11,13 @@ template<typename T>
 class Polymorphic : public ISerializer<T> {
 public:
 
-    T read(SerializationCtx const &ctx, AbstractBuffer const &buffer) {
+    virtual T read(SerializationCtx const &ctx, AbstractBuffer const &buffer) {
 //        ctx.serializers->readPolymorphicNullable(ctx, buffer);
-        return buffer.readInt();
+        return read_pod<int32_t>(buffer);
     }
 
-    void write(SerializationCtx const &ctx, AbstractBuffer const &buffer, T const &value) override {
-        buffer.writeInt(value);
+    virtual void write(SerializationCtx const &ctx, AbstractBuffer const &buffer, T const &value) {
+        write_pod(buffer, value);
     }
 };
 
