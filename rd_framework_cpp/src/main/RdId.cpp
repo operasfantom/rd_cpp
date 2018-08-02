@@ -44,11 +44,11 @@ RdId RdId::notNull() {
     return *this;
 }
 
-RdId RdId::read(AbstractBuffer const &buffer) {
-    auto number = read_pod<hash_t>(buffer);
+RdId RdId::read(Buffer const &buffer) {
+    auto number = buffer.read_pod<hash_t>();
     return RdId(number);
 }
 
-void RdId::write(AbstractBuffer &buffer) {
-    write_pod(buffer, hash);
+void RdId::write(Buffer &buffer) {
+    buffer.write_pod(hash);
 }

@@ -14,18 +14,14 @@
 #include "RdReactiveBase.h"
 #include "SerializationCtx.h"
 
-template<typename T>
+template<typename T, typename S = Polymorphic<T>>
 class RdSignal : public RdReactiveBase, public ISignal<T> {
 protected:
     Signal<T> signal;
-    ISerializer<T> *value_serializer = nullptr/* = Polymorphic<T>()*/;
+//    std::shared_ptr<ISerializer<T>> value_serializer = nullptr;
 
 public:
-    RdSignal() {
-        value_serializer = new Polymorphic<T>();
-    };
-
-    explicit RdSignal(ISerializer<T> *value_serializer) : value_serializer(value_serializer) {}//todo smart_ptr
+//    explicit RdSignal(ISerializer<T> &value_serializer) : value_serializer(&value_serializer, [](T*){}) {}
 
     virtual ~RdSignal() = default;
 
@@ -35,8 +31,8 @@ public:
         get_wire()->advise(lifetime, *this);
     }
 
-    virtual void on_wire_received(AbstractBuffer const &buffer) {
-        T value = value_serializer->read(serialization_context, buffer);
+    virtual void on_wire_received(Buffer const &buffer) {
+        T value = S::read(serialization_context, buffer);
 //        logReceived.trace { "signal `$location` ($rdid):: value = ${value.printToString()}" }
         signal.fire(value);
     }
@@ -46,10 +42,10 @@ public:
         if (!async) {
             assert_threading();
         }
-        get_wire()->send(rd_id, [this, value](AbstractBuffer const &buffer) {
+        get_wire()->send(rd_id, [this, value](Buffer const &buffer) {
 //            logSend.trace { "signal `$location` ($rdid):: value = ${value.printToString()}" }
 //            value_serializer->write(get_serialization_ctx(), buffer, value);
-            value_serializer->write(get_serialization_ctx(), buffer, value);
+            S::write(get_serialization_ctx(), buffer, value);
         });
         signal.fire(value);
     }

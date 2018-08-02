@@ -47,7 +47,7 @@ public:
 
     void assert_bound() {
         if (!is_bound()) {
-            throw std::invalid_argument("Not bound");
+            throw std::invalid_argument("Not bound" );
         }
     }
 
@@ -63,6 +63,19 @@ public:
         T res = action();
         is_local_change = false;
         return res;
+    }
+
+//    template<>
+    void local_change(std::function<void()> action) {
+        if (is_bound() && !async) {
+//            assertThreading();
+        }
+
+//        require(!isLocalChange){ "!isLocalChange" }
+
+        is_local_change = true;
+        action();
+        is_local_change = false;
     }
 };
 

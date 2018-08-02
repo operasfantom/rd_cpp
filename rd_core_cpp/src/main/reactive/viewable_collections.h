@@ -216,11 +216,15 @@ public:
 
         std::variant<Add, Update, Remove> v;
 
+        int32_t index;
+
         Event(Add const &x) : v(x) {}
 
         Event(Update const &x) : v(x) {}
 
         Event(Remove const &x) : v(x) {}
+
+        Event(int32_t index) : index(index) {}
     };
 
 protected:
@@ -282,6 +286,8 @@ public:
     virtual V removeAt(size_t index) = 0;
 
     virtual bool remove(V const &element) = 0;
+
+    virtual V get(size_t index) = 0;
 
     virtual V set(size_t index, V const &element) = 0;
 

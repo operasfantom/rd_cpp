@@ -14,7 +14,7 @@
 
 class Serializers : public ISerializers {
 
-    std::unordered_map<RdId, std::function<std::any(SerializationCtx, AbstractBuffer const &)>, RdId::Hash> readers;
+    std::unordered_map<RdId, std::function<std::any(SerializationCtx, Buffer const &)>, RdId::Hash> readers;
 
     /*template<typename T>
     T readPolymorphicNullable(SerializationCtx ctx, AbstractBuffer const &stream) {

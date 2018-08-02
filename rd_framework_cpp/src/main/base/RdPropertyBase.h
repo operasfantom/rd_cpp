@@ -32,7 +32,6 @@ public:
     virtual void init(Lifetime lifetime) {
         RdReactiveBase::init(lifetime);
 
-        SerializationCtx serializationContext = serializationContext;
 
         if (!optimize_nested) {
             property->change->advise(lifetime, [this](T v) {
@@ -49,9 +48,9 @@ public:
             if (is_master) {
                 master_version++;
             }
-            get_wire()->send(rd_id, [this, v](AbstractBuffer const &buffer) {
-                write_pod(buffer, master_version);
-                write_pod(buffer, v);
+            get_wire()->send(rd_id, [this, v](Buffer const &buffer) {
+                buffer.write_pod(master_version);
+                buffer.write_pod(v);
 //                valueSerializer.write(serializationContext, buffer, v)
 //                logSend.trace{ "property `$location` ($rdid):: ver = $masterVersion, value = ${v.printToString()}" }
             });
@@ -68,9 +67,9 @@ public:
 
     virtual ~RdPropertyBase() = default;
 
-    virtual void on_wire_received(AbstractBuffer const &buffer) {
-        int32_t version = read_pod<int32_t>(buffer);
-        T v = read_pod<T>(buffer);
+    virtual void on_wire_received(Buffer const &buffer) {
+        int32_t version = buffer.read_pod<int32_t>();
+        T v = buffer.read_pod<T>();
 
         bool rejected = is_master && version < master_version;
         if (rejected) {

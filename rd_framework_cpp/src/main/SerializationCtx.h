@@ -7,7 +7,7 @@
 
 
 #include <main/base/ISerializers.h>
-#include "AbstractBuffer.h"
+#include "Buffer.h"
 
 class SerializationCtx {
 public:

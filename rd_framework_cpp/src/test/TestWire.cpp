@@ -8,17 +8,16 @@ TestWire::TestWire(IScheduler *scheduler) : WireBase(scheduler) {
     this->connected.set(true);
 }
 
-void TestWire::send(RdId id, std::function<void(AbstractBuffer const &buffer)> writer) {
+void TestWire::send(RdId id, std::function<void(Buffer const &buffer)> writer) {
 //        require(!id.isNull)
-    UnsafeBuffer buffer(10);
-    AbstractBuffer &ostream = buffer;
-    writer(ostream);
+    std::shared_ptr<Buffer> ostream(new Buffer(10));
+    writer(*ostream);
 
-    bytesWritten += ostream.get_position();
+    bytesWritten += ostream->get_position();
 
-    ostream.set_position(0);
+    ostream->set_position(0);
 
-    msgQ.push(RdMessage(id, ostream));
+    msgQ.push(RdMessage(id, ostream));//todo move
     if (auto_flush) {
         process_all_messages();
     }
@@ -36,7 +35,7 @@ void TestWire::process_one_message() {
     }
     auto msg = msgQ.front();
     msgQ.pop();
-    counterpart->message_broker.dispatch(msg.id, msg.istream);
+    counterpart->message_broker.dispatch(msg.id, msg.istream);//todo move
 }
 
 void TestWire::set_auto_flush(bool value) {

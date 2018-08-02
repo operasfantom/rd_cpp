@@ -8,16 +8,16 @@
 #include "ISerializer.h"
 
 template<typename T>
-class Polymorphic : public ISerializer<T> {
+class Polymorphic/* : public ISerializer<T>*/ {
 public:
 
-    virtual T read(SerializationCtx const &ctx, AbstractBuffer const &buffer) {
+    static T read(SerializationCtx const &ctx, Buffer const &buffer) {
 //        ctx.serializers->readPolymorphicNullable(ctx, buffer);
-        return read_pod<T>(buffer);
+        return (buffer.read_pod<T>());
     }
 
-    virtual void write(SerializationCtx const &ctx, AbstractBuffer const &buffer, T const &value) {
-        write_pod<T>(buffer, value);
+    static void write(SerializationCtx const &ctx, Buffer const &buffer, T const &value) {
+        buffer.write_pod<T>(value);
     }
 };
 

@@ -10,7 +10,7 @@
 class Mq {
 public:
     int32_t defaultSchedulerMessages = 0;
-    std::vector<AbstractBuffer const *> customSchedulerMessages;
+    std::vector<std::shared_ptr<Buffer>> customSchedulerMessages;
 };
 
 class MessageBroker {
@@ -19,13 +19,13 @@ private:
     std::unordered_map<RdId, IRdReactive *, RdId::Hash> subscriptions;
     std::unordered_map<RdId, Mq, RdId::Hash> broker;
 
-    void invoke(IRdReactive *that, AbstractBuffer const &msg, bool sync = false);
+    void invoke(IRdReactive *that, Buffer const &msg, bool sync = false);
 
 public:
 
     explicit MessageBroker(IScheduler *defaultScheduler);
 
-    void dispatch(RdId id, AbstractBuffer const &message);
+    void dispatch(RdId id, std::shared_ptr<Buffer> message);
 
     void advise_on(Lifetime lifetime, IRdReactive &entity);
 };

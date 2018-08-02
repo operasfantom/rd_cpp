@@ -58,6 +58,10 @@ public:
         return true;
     }
 
+    virtual T get(size_t index) {
+        return list[index];
+    }
+
     virtual T set(size_t index, T const &element) {
         T old_value = list[index];
         list[index] = element;

@@ -15,7 +15,7 @@ class IWire {
 public:
     virtual void advise(Lifetime lifetime, IRdReactive &entity) = 0;
 
-    virtual void send(RdId id, std::function<void(AbstractBuffer const &buffer)> writer) = 0;
+    virtual void send(RdId id, std::function<void(Buffer const &buffer)> writer) = 0;
 };
 
 

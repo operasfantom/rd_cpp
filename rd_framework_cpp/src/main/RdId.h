@@ -5,7 +5,7 @@
 #ifndef RD_CPP_FRAMEWORK_RDID_H
 #define RD_CPP_FRAMEWORK_RDID_H
 
-#include "AbstractBuffer.h"
+#include "Buffer.h"
 
 #include <cstdint>
 #include <string>
@@ -34,9 +34,9 @@ public:
 
     static const int32_t MAX_STATIC_ID = 1000000;
 
-    static RdId read(AbstractBuffer const &buffer);
+    static RdId read(Buffer const &buffer);
 
-    void write(AbstractBuffer &buffer);
+    void write(Buffer &buffer);
 
     hash_t get_hash();
 

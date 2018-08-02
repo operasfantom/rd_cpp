@@ -4,9 +4,9 @@
 
 #include "MessageBroker.h"
 #include <main/base/IRdReactive.h>
-#include "AbstractBuffer.h"
+#include "Buffer.h"
 
-void MessageBroker::invoke(IRdReactive *that, const AbstractBuffer &msg, bool sync) {
+void MessageBroker::invoke(IRdReactive *that, const Buffer &msg, bool sync) {
     if (sync) {
         that->on_wire_received(msg);
     } else {
@@ -22,7 +22,7 @@ void MessageBroker::invoke(IRdReactive *that, const AbstractBuffer &msg, bool sy
 
 MessageBroker::MessageBroker(IScheduler *defaultScheduler) : defaultScheduler(defaultScheduler) {}
 
-void MessageBroker::dispatch(RdId id, AbstractBuffer const &message) {
+void MessageBroker::dispatch(RdId id, std::shared_ptr<Buffer> message) {
 //        require(!id.isNull) { "id mustn't be null" }
 
 //        synchronized(lock) {
@@ -39,9 +39,9 @@ void MessageBroker::dispatch(RdId id, AbstractBuffer const &message) {
 
             if (subscription != nullptr) {
                 if (subscription->get_wire_scheduler() == defaultScheduler)
-                    invoke(subscription, message, true);
+                    invoke(subscription, *message, true);
                 else
-                    invoke(subscription, message);
+                    invoke(subscription, *message);
             } else {
 //                        log.trace { "No handler for id: $id" }
             }
@@ -61,14 +61,14 @@ void MessageBroker::dispatch(RdId id, AbstractBuffer const &message) {
     } else {
 
         if (s->get_wire_scheduler() == defaultScheduler || s->get_wire_scheduler()->out_of_order_execution) {
-            invoke(s, message);
+            invoke(s, *message);
         } else {
             if (broker.count(id) == 0) {
-                invoke(s, message);
+                invoke(s, *message);
             } else {
                 Mq mq = broker[id];
 //                    require(mq.defaultSchedulerMessages > 0)
-                mq.customSchedulerMessages.push_back(&message);
+                mq.customSchedulerMessages.push_back(message);
             }
         }
     }

@@ -78,14 +78,14 @@ public:
     }
 
     template<typename T>
-    T& bindStatic(IProtocol *protocol, T &x, std::string const &name) const {
+    T &bindStatic(IProtocol *protocol, T &x, std::string const &name) const {
         Lifetime lf = (protocol == clientProtocol.get() ? clientLifetime : serverLifetime);
         x.bind(lf, protocol, name);
         return x;
     }
 
     template<typename T>
-    T& bindStatic(IProtocol *protocol, T &x, int id) const {
+    T &bindStatic(IProtocol *protocol, T &x, int id) const {
         Lifetime lf = (protocol == clientProtocol.get() ? clientLifetime : serverLifetime);
         x.statics(id).bind(lf, this, "top");
         return x;

@@ -7,14 +7,14 @@
 
 
 #include "SerializationCtx.h"
-#include "AbstractBuffer.h"
+#include "Buffer.h"
 
 template<typename T>
 class ISerializer {
 public:
-    virtual T read(SerializationCtx const &ctx, AbstractBuffer const &buffer) = 0;
+    virtual T read(SerializationCtx const &ctx, Buffer const &buffer) = 0;
 
-    virtual void write(SerializationCtx const &ctx, AbstractBuffer const &buffer, T const &value) = 0;
+    virtual void write(SerializationCtx const &ctx, Buffer const &buffer, T const &value) = 0;
 };
 
 

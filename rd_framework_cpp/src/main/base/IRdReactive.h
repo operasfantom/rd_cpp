@@ -7,7 +7,7 @@
 
 
 #include "IRdBindable.h"
-#include "AbstractBuffer.h"
+#include "Buffer.h"
 #include "IScheduler.h"
 
 class IRdReactive : public virtual IRdBindable {
@@ -22,7 +22,7 @@ public:
 
     virtual IScheduler *get_wire_scheduler() = 0;
 
-    virtual void on_wire_received(AbstractBuffer const &buffer) = 0;
+    virtual void on_wire_received(Buffer const &buffer) = 0;
 };
 
 
