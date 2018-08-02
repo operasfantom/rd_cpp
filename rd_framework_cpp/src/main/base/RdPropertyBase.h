@@ -7,11 +7,12 @@
 
 
 #include <main/SerializationCtx.h>
+#include <main/Polymorphic.h>
 #include "RdReactiveBase.h"
 #include "ISerializer.h"
 #include "../../../../rd_core_cpp/src/main/reactive/SignalX.h"
 
-template<typename T>
+template<typename T, typename S = Polymorphic<T>>
 class RdPropertyBase : public RdReactiveBase, public IProperty<T> {
 protected:
     //mastering
@@ -22,8 +23,6 @@ protected:
     //init
     bool optimize_nested = false;
     std::unique_ptr<IProperty<T>> property;
-
-    ISerializer<T> *value_serializer;
 public:
     explicit RdPropertyBase(const T &value) : IProperty<T>(value) {
         this->change = std::unique_ptr<Signal<T>>(new Signal<T>());
@@ -49,9 +48,8 @@ public:
                 master_version++;
             }
             get_wire()->send(rd_id, [this, v](Buffer const &buffer) {
-                buffer.write_pod(master_version);
-                buffer.write_pod(v);
-//                valueSerializer.write(serializationContext, buffer, v)
+                buffer.write_pod<int32_t>(master_version);
+                S::write(serialization_context, buffer, v);
 //                logSend.trace{ "property `$location` ($rdid):: ver = $masterVersion, value = ${v.printToString()}" }
             });
         });
@@ -69,7 +67,7 @@ public:
 
     virtual void on_wire_received(Buffer const &buffer) {
         int32_t version = buffer.read_pod<int32_t>();
-        T v = buffer.read_pod<T>();
+        T v = S::read(serialization_context, buffer);
 
         bool rejected = is_master && version < master_version;
         if (rejected) {
@@ -86,7 +84,6 @@ public:
         }
         property->advise(lifetime, handler);
     }
-//    explicit RdPropertyBase(ISerializer<T> *value_serializer) : value_serializer(value_serializer) {}
 
 };
 

@@ -18,11 +18,7 @@ template<typename T, typename S = Polymorphic<T>>
 class RdSignal : public RdReactiveBase, public ISignal<T> {
 protected:
     Signal<T> signal;
-//    std::shared_ptr<ISerializer<T>> value_serializer = nullptr;
-
 public:
-//    explicit RdSignal(ISerializer<T> &value_serializer) : value_serializer(&value_serializer, [](T*){}) {}
-
     virtual ~RdSignal() = default;
 
     virtual void init(Lifetime lifetime) {
@@ -44,7 +40,6 @@ public:
         }
         get_wire()->send(rd_id, [this, value](Buffer const &buffer) {
 //            logSend.trace { "signal `$location` ($rdid):: value = ${value.printToString()}" }
-//            value_serializer->write(get_serialization_ctx(), buffer, value);
             S::write(get_serialization_ctx(), buffer, value);
         });
         signal.fire(value);

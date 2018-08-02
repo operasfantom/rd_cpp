@@ -27,7 +27,7 @@ target_include_directories(rd_framework_cpp PUBLIC src/main/impl)
 
 add_executable(rd_framework_cpp_test
         src/test/RdIdTest.cpp
-        src/test/RdPropertyTest.cpp src/test/RdFrameworkTestBase.cpp src/test/RdFrameworkTestBase.h src/test/TestWire.cpp src/test/TestWire.h src/test/RdSignalTest.cpp src/test/RdListTest.cpp)
+        src/test/RdPropertyTest.cpp src/test/RdFrameworkTestBase.cpp src/test/RdFrameworkTestBase.h src/test/TestWire.cpp src/test/TestWire.h src/test/RdSignalTest.cpp src/test/RdListTest.cpp src/test/RdSetTest.cpp)
 
 target_link_libraries(rd_framework_cpp_test gtest gtest_main)
 target_link_libraries(rd_framework_cpp_test rd_framework_cpp)

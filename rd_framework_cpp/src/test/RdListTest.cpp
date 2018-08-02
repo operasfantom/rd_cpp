@@ -5,7 +5,6 @@
 #include "RdList.h"
 #include "../../../rd_core_cpp/src/test/util.h"
 
-/*
 TEST_F(RdFrameworkTestBase, rd_list_static) {
     int32_t id = 1;
 
@@ -64,4 +63,4 @@ TEST_F(RdFrameworkTestBase, rd_list_static) {
                                         "Add 4:Client value 5",
                                         "Update 4:Server value 5"})
     );
-}*/
+}

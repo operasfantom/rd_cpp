@@ -17,7 +17,7 @@ public:
 private:
     Signal<Event> change;
 
-    std::unordered_set<T> set;
+    std::set<T> set;
 
 public:
     virtual ~ViewableSet() = default;
@@ -34,6 +34,9 @@ public:
     //addAll(collection)?
 
     virtual void clear() {
+        for (auto element : set){
+            change.fire(Event(AddRemove::REMOVE, element));
+        }
         set.clear();
     }
 

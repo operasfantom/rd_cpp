@@ -10,18 +10,15 @@
 #include <main/RdId.h>
 #include <main/base/RdReactiveBase.h>
 #include <main/base/RdPropertyBase.h>
+#include <main/Polymorphic.h>
 
-template<typename T>
-class RdProperty : public RdPropertyBase<T>/*, public IProperty<T> */{
-protected:
-    std::unique_ptr<ISerializer<T>> value_serializer = nullptr;
+template<typename T, typename S = Polymorphic<T>>
+class RdProperty : public RdPropertyBase<T, S>/*, public IProperty<T> */{
 public:
 
     explicit RdProperty(T const &value) : RdPropertyBase<T>(value) {
         this->property = std::unique_ptr<Property<T>>(new Property<T>(value));
     }
-
-    explicit RdProperty(const ISerializer<T> &value_serializer) : value_serializer(&value_serializer, [](){}) {}
 
     virtual ~RdProperty() = default;
 

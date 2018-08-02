@@ -11,31 +11,32 @@
 #include <ViewableList.h>
 #include <main/Polymorphic.h>
 
-template<typename V>
+template<typename V, typename S = Polymorphic<V>>
 class RdList : public RdReactiveBase, public IViewableList<V> {
 private:
-    ISerializer<V> *valSzr;
-    ViewableList<V> list;//todo IViewableList<V> by list
+//    using list = typename ViewableList<V>;
+    ViewableList<V> list;
     int64_t nextVersion;
 
     using Event = typename IViewableList<V>::Event;
 public:
-    RdList(ISerializer<V> *valSzr, const ViewableList<V> &list, int64_t nextVersion) : valSzr(valSzr), list(list),
-                                                                                       nextVersion(nextVersion) {}
+    RdList() = default;
 
-    RdList(ISerializer<V> *valSzr = new Polymorphic<V>()) : valSzr(valSzr) {};
-//    RdList(valSzr: ISerializer<V> = Polymorphic<V>()) : this(valSzr, ViewableList())
+    explicit RdList(const ViewableList<V> &list, int64_t nextVersion) : list(list), nextVersion(nextVersion) {}
+
     enum class Op {
         Add, Update, Remove
     }; // update versionedFlagShift when changing
-    /*static RdList<V> read(SerializationCtx ctx, AbstractBuffer const& buffer, ISerializer<V>* valSzr)  {
-                return RdList(valSzr, ViewableList(), read_pod<int64_t>(buffer)).withId(RdId.read(buffer));
-            }*/
 
-    /*void write(SerializationCtx ctx, AbstractBuffer const& buffer, RdList<*> value)= value.run {
-        buffer.writeLong(nextVersion);
-        rdid.write(buffer)
-    }*/
+    static RdList<V> read(SerializationCtx ctx, Buffer const &buffer, ISerializer<V> *valSzr) {
+//        return withId<RdList<V>>(RdList(valSzr, ViewableList(), buffer.read_pod<int64_t>()), RdId::read(buffer));
+    }
+
+    template<typename Y>
+    static void write(SerializationCtx ctx, Buffer const &buffer, RdList<Y> that) {
+        buffer.write_pod<int64_t>(that.nextVersion);
+        that.rd_id.write(buffer);
+    }
 
     static const int32_t versionedFlagShift = 2; // update when changing Op
 
@@ -58,18 +59,14 @@ public:
                     buffer.write_pod<int64_t>(static_cast<int64_t>(op) | (nextVersion++ << versionedFlagShift));
                     buffer.write_pod<int32_t>(e.index);
 
-                    /*if (typeid(e) == typeid(typename Event::Add) || typeid(e) == typeid(typename Event::Update)) {
-                        valSzr->write(serialization_context, buffer, e.v.new_value);
-                    }
-                    */
                     std::visit(overloaded{
-                            [this, &buffer](typename Event::Add const& e) {
-                                valSzr->write(serialization_context, buffer, e.new_value);
+                            [this, &buffer](typename Event::Add const &e) {
+                                S::write(serialization_context, buffer, e.new_value);
                             },
-                            [this, &buffer](typename Event::Update const& e) {
-                                valSzr->write(serialization_context, buffer, e.new_value);
+                            [this, &buffer](typename Event::Update const &e) {
+                                S::write(serialization_context, buffer, e.new_value);
                             },
-                            [](typename Event::Remove const& e) {},
+                            [](typename Event::Remove const &e) {},
                     }, e.v);
 
 //                logSend.trace { logmsg(op, nextVersion-1, it.index, it.newValueOpt) }
@@ -81,7 +78,8 @@ public:
 
         if (!optimizeNested)
             this->view(lifetime,
-                 [this](Lifetime lf, size_t index, V const &value) { /*value.bindPolymorphic(lf, this, "[$index]");*/ });
+                       [this](Lifetime lf, size_t index,
+                              V const &value) { /*value.bindPolymorphic(lf, this, "[$index]");*/ });
     }
 
     virtual void on_wire_received(Buffer const &buffer) {
@@ -100,12 +98,12 @@ public:
 
         switch (op) {
             case Op::Add: {
-                V value = valSzr->read(serialization_context, buffer);
+                V value = S::read(serialization_context, buffer);
                 (index < 0) ? list.add(value) : list.add(index, value);
                 break;
             }
             case Op::Update: {
-                V value = valSzr->read(serialization_context, buffer);
+                V value = S::read(serialization_context, buffer);
                 list.set(index, value);
                 break;
             }

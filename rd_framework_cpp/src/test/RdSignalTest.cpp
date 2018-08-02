@@ -74,35 +74,17 @@ TEST_F(RdFrameworkTestBase, signal_void_statics) {
     serverLifetimeDef.terminate();
 }
 
-class Foo {
+class CustomSerializer {
 public:
-    bool negate = false;
-    int32_t module = 0;
-
-    Foo() = default;
-
-    Foo(bool negate, int32_t module) : negate(negate), module(module) {}
-
-    friend bool operator==(const Foo &lhs, const Foo &rhs) {
-        return lhs.negate == rhs.negate &&
-               lhs.module == rhs.module;
+    static int32_t read(SerializationCtx const &ctx, Buffer const &buffer) {
+        bool negate = buffer.read_pod<bool>();
+        int32_t module = buffer.read_pod<int32_t>();
+        return negate ? -module : module;
     }
 
-    friend bool operator!=(const Foo &lhs, const Foo &rhs) {
-        return !(rhs == lhs);
-    }
-};
-
-class CustomSerializer/* : public ISerializer<Foo>*/ {
-public:
-    static Foo read(SerializationCtx const &ctx, Buffer const &buffer) {
-        int32_t number = buffer.read_pod<int32_t>();
-        return Foo(number < 0, abs(number));
-    }
-
-    static void write(SerializationCtx const &ctx, Buffer const &buffer, const Foo &value) {
-        int32_t number = value.negate ? -value.module : value.module;
-        buffer.write_pod(number);
+    static void write(SerializationCtx const &ctx, Buffer const &buffer, const int &value) {
+        buffer.write_pod(value < 0);
+        buffer.write_pod(abs(value));
     }
 };
 
@@ -110,30 +92,30 @@ public:
 TEST_F(RdFrameworkTestBase, signal_custom_serializer) {
     int signal_id = 1;
 
-    RdSignal<Foo, CustomSerializer> client_signal_storage;
-    RdSignal<Foo, CustomSerializer> server_signal_storage;
+    RdSignal<int32_t, CustomSerializer> client_signal_storage;
+    RdSignal<int32_t, CustomSerializer> server_signal_storage;
 
-    RdSignal<Foo, CustomSerializer> &client_signal = statics(client_signal_storage, signal_id);
-    RdSignal<Foo, CustomSerializer> &server_signal = statics(server_signal_storage, signal_id);
+    RdSignal<int32_t, CustomSerializer> &client_signal = statics(client_signal_storage, signal_id);
+    RdSignal<int32_t, CustomSerializer> &server_signal = statics(server_signal_storage, signal_id);
 
-    Foo client_log;
-    Foo server_log;
+    int32_t client_log;
+    int32_t server_log;
 
-    client_signal.advise(Lifetime::Eternal(), [&client_log](Foo v) { client_log = v; });
-    server_signal.advise(Lifetime::Eternal(), [&server_log](Foo v) { server_log = v; });
+    client_signal.advise(Lifetime::Eternal(), [&client_log](int32_t v) { client_log = v; });
+    server_signal.advise(Lifetime::Eternal(), [&server_log](int32_t v) { server_log = v; });
 
     bindStatic(serverProtocol.get(), server_signal, "top");
     bindStatic(clientProtocol.get(), client_signal, "top");
 
     //set from client
-    client_signal.fire(Foo(true, 2));
-    EXPECT_EQ(Foo(true, 2), client_log);
-    EXPECT_EQ(Foo(true, 2), server_log);
+    client_signal.fire(2);
+    EXPECT_EQ(2, client_log);
+    EXPECT_EQ(2, server_log);
 
     //set from client
-    server_signal.fire(Foo(false, 3));
-    EXPECT_EQ(Foo(false, 3), client_log);
-    EXPECT_EQ(Foo(false, 3), server_log);
+    server_signal.fire(-3);
+    EXPECT_EQ(-3, client_log);
+    EXPECT_EQ(-3, server_log);
 
     clientLifetimeDef.terminate();
     serverLifetimeDef.terminate();
