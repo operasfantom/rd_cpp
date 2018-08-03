@@ -7,7 +7,7 @@
 
 #include "viewable_collections.h"
 #include "ViewableMap.h"
-#include "util.h"
+#include "../util/util.h"
 
 TEST(viewable_map, advise) {
     std::unique_ptr<IViewableMap<int, int> > map(new ViewableMap<int, int>());

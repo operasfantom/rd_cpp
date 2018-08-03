@@ -5,7 +5,7 @@
 
 #include <cstdint>
 #include "RdList.h"
-#include "../../../../rd_core_cpp/src/test/util.h"
+#include "../../../../rd_core_cpp/src/test/util/util.h"
 #include "../util/RdFrameworkTestBase.h"
 
 TEST_F(RdFrameworkTestBase, rd_list_static) {
