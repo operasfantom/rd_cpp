@@ -7,8 +7,8 @@
 
 
 #include <Property.h>
-#include <main/MessageBroker.h>
 #include "IWire.h"
+#include "../MessageBroker.h"
 
 class WireBase : public IWire {
 protected:

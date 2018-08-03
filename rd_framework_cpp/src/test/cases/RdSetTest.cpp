@@ -2,8 +2,10 @@
 // Created by jetbrains on 02.08.2018.
 //
 
-#include "RdFrameworkTestBase.h"
+#include <gtest/gtest.h>
+
 #include "RdSet.h"
+#include "../util/RdFrameworkTestBase.h"
 
 using vi = std::vector<int>;
 

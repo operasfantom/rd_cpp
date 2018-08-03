@@ -5,11 +5,11 @@
 #ifndef RD_CPP_RDLIST_H
 #define RD_CPP_RDLIST_H
 
-#include <main/base/RdReactiveBase.h>
 #include <viewable_collections.h>
-#include <main/base/ISerializer.h>
 #include <ViewableList.h>
-#include <main/Polymorphic.h>
+#include <RdReactiveBase.h>
+#include "../serialization/Polymorphic.h"
+#include "../serialization/SerializationCtx.h"
 
 template<typename V, typename S = Polymorphic<V>>
 class RdList : public RdReactiveBase, public IViewableList<V> {
@@ -52,12 +52,10 @@ public:
 //            if (!optimizeNested) (e.newValueOpt)?.identifyPolymorphic(protocol.identity, protocol.identity.next(rdid))
 
                 get_wire()->send(rd_id, [this, e](Buffer const &buffer) {
-                    Op op = (typeid(e) == typeid(typename Event::Add) ? Op::Add :
-                             typeid(e) == typeid(typename Event::Update) ? Op::Update :
-                             Op::Remove);
+                    Op op = static_cast<Op >(e.v.index());
 
                     buffer.write_pod<int64_t>(static_cast<int64_t>(op) | (nextVersion++ << versionedFlagShift));
-                    buffer.write_pod<int32_t>(e.index);
+                    buffer.write_pod<int32_t>(e.get_index());
 
                     std::visit(overloaded{
                             [this, &buffer](typename Event::Add const &e) {

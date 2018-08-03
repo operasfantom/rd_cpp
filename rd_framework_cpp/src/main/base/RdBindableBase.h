@@ -17,7 +17,7 @@ protected:
 
     //bound state: inferred
 
-    bool is_bound();
+    bool is_bound() const ;
 
     IProtocol *get_protocol();
 

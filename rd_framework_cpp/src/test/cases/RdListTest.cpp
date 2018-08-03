@@ -1,9 +1,12 @@
 //
 // Created by jetbrains on 02.08.2018.
 //
-#include "RdFrameworkTestBase.h"
+#include <gtest/gtest.h>
+
+#include <cstdint>
 #include "RdList.h"
-#include "../../../rd_core_cpp/src/test/util.h"
+#include "../../../../rd_core_cpp/src/test/util.h"
+#include "../util/RdFrameworkTestBase.h"
 
 TEST_F(RdFrameworkTestBase, rd_list_static) {
     int32_t id = 1;
@@ -21,7 +24,7 @@ TEST_F(RdFrameworkTestBase, rd_list_static) {
 
     client_list.advise(Lifetime::Eternal(),
                        [&](IViewableList<std::string>::Event entry) {
-                           logUpdate.push_back(to_string<std::string>(entry));
+                           logUpdate.push_back(to_string_list_event<std::string>(entry));
                        });
 
     EXPECT_EQ(0, server_list.size());

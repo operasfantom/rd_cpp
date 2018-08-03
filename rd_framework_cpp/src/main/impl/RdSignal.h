@@ -9,10 +9,8 @@
 #include <interfaces.h>
 #include <IScheduler.h>
 #include <SignalX.h>
-#include <main/base/ISerializer.h>
-#include <main/Polymorphic.h>
 #include "RdReactiveBase.h"
-#include "SerializationCtx.h"
+#include "../serialization/Polymorphic.h"
 
 template<typename T, typename S = Polymorphic<T>>
 class RdSignal : public RdReactiveBase, public ISignal<T> {

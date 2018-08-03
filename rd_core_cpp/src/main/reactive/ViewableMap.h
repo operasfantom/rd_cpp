@@ -34,6 +34,10 @@ public:
         }
     }
 
+    virtual V const& get(K const &key) const {
+        return const_cast<tsl::ordered_map<K, V> &>(map)[key];//todo
+    }
+
     std::optional<V> set(K const &key, V const &value) {
         if (map.count(key) == 0) {
             map[key] = value;
@@ -68,6 +72,10 @@ public:
         for (auto it : changes) {
             change.fire(it);
         }
+    }
+
+    virtual size_t size() const {
+        return map.size();
     }
 };
 

@@ -6,10 +6,11 @@
 #define RD_CPP_TESTWIRE_H
 
 
-#include <main/base/WireBase.h>
-#include <main/Buffer.h>
 #include <queue>
 #include <utility>
+#include <WireBase.h>
+#include "../../main/RdId.h"
+#include "../../main/Buffer.h"
 
 class RdMessage {
 public:

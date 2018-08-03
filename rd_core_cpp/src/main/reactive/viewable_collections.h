@@ -122,6 +122,21 @@ public:
         Event(Update const &x) : v(x) {}
 
         Event(Remove const &x) : v(x) {}
+
+        K get_key() const {
+            return std::visit(overloaded{
+                    [](typename Event::Add const &e) {
+                        return e.key;
+                    },
+                    [](typename Event::Update const &e) {
+                        return e.key;
+                    },
+                    [](typename Event::Remove const &e) {
+                        return e.key;
+                    }
+            }, v);
+        }
+
     };
 
     virtual ~IViewableMap() {}
@@ -176,6 +191,8 @@ public:
 
     virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) = 0;
 
+    virtual V const &get(K const &) const = 0;
+
     virtual std::optional<V> set(K const &, V const &) = 0;
 
     virtual std::optional<V> remove(K const &) = 0;
@@ -216,15 +233,25 @@ public:
 
         std::variant<Add, Update, Remove> v;
 
-        int32_t index;
-
         Event(Add const &x) : v(x) {}
 
         Event(Update const &x) : v(x) {}
 
         Event(Remove const &x) : v(x) {}
 
-        Event(int32_t index) : index(index) {}
+        size_t get_index() const {
+            return std::visit(overloaded{
+                    [](typename Event::Add const &e) {
+                        return e.index;
+                    },
+                    [](typename Event::Update const &e) {
+                        return e.index;
+                    },
+                    [](typename Event::Remove const &e) {
+                        return e.index;
+                    }
+            }, v);
+        }
     };
 
 protected:

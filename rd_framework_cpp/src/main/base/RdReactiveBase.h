@@ -24,7 +24,7 @@ public:
     IWire *get_wire();
 
     //local change
-    bool is_local_change = false;
+    mutable bool is_local_change = false;
 
     //delegated
     ISerializers *get_serializers() {
@@ -52,7 +52,7 @@ public:
     }
 
     template<typename T>
-    T local_change(std::function<T()> action) {
+    T local_change(std::function<T()> action) const {
         if (is_bound() && !async) {
 //            assertThreading();
         }
@@ -65,7 +65,7 @@ public:
         return res;
     }
 
-    void local_change(std::function<void()> action) {
+    void local_change(std::function<void()> action) const {
         if (is_bound() && !async) {
 //            assertThreading();
         }

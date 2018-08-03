@@ -7,10 +7,8 @@
 
 
 #include <Property.h>
-#include <main/RdId.h>
-#include <main/base/RdReactiveBase.h>
-#include <main/base/RdPropertyBase.h>
-#include <main/Polymorphic.h>
+#include <RdPropertyBase.h>
+#include "../serialization/Polymorphic.h"
 
 template<typename T, typename S = Polymorphic<T>>
 class RdProperty : public RdPropertyBase<T, S>/*, public IProperty<T> */{

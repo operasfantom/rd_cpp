@@ -1,7 +1,5 @@
 project(rd_cpp)
 
-#lib
-
 add_library(rd_core_cpp STATIC
         lifetime/LifetimeDefinition.cpp lifetime/LifetimeDefinition.h
         lifetime/LifetimeImpl.cpp lifetime/LifetimeImpl.h
@@ -19,7 +17,6 @@ add_library(rd_core_cpp STATIC
         Logger.cpp Logger.h lifetime/Lifetime.cpp lifetime/Lifetime.h reactive/IScheduler.cpp reactive/IScheduler.h)
 
 
-target_include_directories(rd_core_cpp PUBLIC src/main)
 target_include_directories(rd_core_cpp PUBLIC util)
 target_include_directories(rd_core_cpp PUBLIC lifetime)
 target_include_directories(rd_core_cpp PUBLIC reactive)

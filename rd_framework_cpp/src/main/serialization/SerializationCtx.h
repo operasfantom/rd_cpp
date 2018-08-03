@@ -5,9 +5,8 @@
 #ifndef RD_CPP_FRAMEWORK_SERIALIZATIONCTX_H
 #define RD_CPP_FRAMEWORK_SERIALIZATIONCTX_H
 
-
-#include <main/base/ISerializers.h>
-#include "Buffer.h"
+#include <ISerializers.h>
+#include "../Buffer.h"
 
 class SerializationCtx {
 public:

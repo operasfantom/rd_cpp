@@ -3,8 +3,8 @@
 //
 
 #include <gtest/gtest.h>
-#include <main/impl/RdProperty.h>
-#include "RdFrameworkTestBase.h"
+#include <RdProperty.h>
+#include "../util/RdFrameworkTestBase.h"
 
 using vi = std::vector<int>;
 

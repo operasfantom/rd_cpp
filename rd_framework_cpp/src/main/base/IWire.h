@@ -7,7 +7,7 @@
 
 
 #include <interfaces.h>
-#include <main/base/IRdReactive.h>
+#include "IRdReactive.h"
 
 class IWire {
     IProperty<bool> *connected;

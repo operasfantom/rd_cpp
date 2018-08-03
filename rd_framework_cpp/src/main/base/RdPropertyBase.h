@@ -6,11 +6,10 @@
 #define RD_CPP_RDPROPERTYBASE_H
 
 
-#include <main/SerializationCtx.h>
-#include <main/Polymorphic.h>
 #include "RdReactiveBase.h"
 #include "ISerializer.h"
 #include "../../../../rd_core_cpp/src/main/reactive/SignalX.h"
+#include "../serialization/Polymorphic.h"
 
 template<typename T, typename S = Polymorphic<T>>
 class RdPropertyBase : public RdReactiveBase, public IProperty<T> {

@@ -5,7 +5,7 @@
 #ifndef RD_CPP_IIDENTITIES_H
 #define RD_CPP_IIDENTITIES_H
 
-#include <main/RdId.h>
+#include "../RdId.h"
 
 class IIdentities {
     virtual RdId next(RdId parent) = 0;

@@ -8,7 +8,7 @@
 
 #include <string>
 #include <memory>
-#include <main/base/IIdentities.h>
+#include <IIdentities.h>
 
 
 #include "interfaces.h"

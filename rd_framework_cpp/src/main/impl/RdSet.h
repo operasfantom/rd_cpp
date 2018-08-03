@@ -6,10 +6,10 @@
 #define RD_CPP_RDSET_H
 
 
-#include <main/Polymorphic.h>
-#include <main/base/RdReactiveBase.h>
 #include <viewable_collections.h>
 #include <ViewableSet.h>
+#include <RdReactiveBase.h>
+#include "../serialization/Polymorphic.h"
 
 template<typename T, typename S = Polymorphic<T>>
 class RdSet : public RdReactiveBase, public IViewableSet<T> {

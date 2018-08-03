@@ -9,10 +9,10 @@
 #include <gtest/gtest.h>
 
 #include <IScheduler.h>
-#include <main/Serializers.h>
-#include <main/Identities.h>
-#include <main/Protocol.h>
 #include "TestWire.h"
+#include "../../main/serialization/Serializers.h"
+#include "../../main/Identities.h"
+#include "../../main/Protocol.h"
 
 class TestScheduler : public IScheduler {
     virtual void flush() {}

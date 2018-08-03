@@ -5,9 +5,8 @@
 #ifndef RD_CPP_ISERIALIZER_H
 #define RD_CPP_ISERIALIZER_H
 
-
-#include "SerializationCtx.h"
-#include "Buffer.h"
+#include "../serialization/SerializationCtx.h"
+#include "../Buffer.h"
 
 template<typename T>
 class ISerializer {

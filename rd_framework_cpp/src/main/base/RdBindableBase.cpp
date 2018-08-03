@@ -4,7 +4,7 @@
 
 #include "RdBindableBase.h"
 
-bool RdBindableBase::is_bound() {
+bool RdBindableBase::is_bound() const {
     return parent != nullptr;
 }
 

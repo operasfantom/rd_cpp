@@ -6,43 +6,52 @@
 #define RD_CPP_RDMAP_H
 
 
-#include <main/Polymorphic.h>
-#include <main/base/RdReactiveBase.h>
 #include <viewable_collections.h>
 #include <ViewableMap.h>
+#include <cstdint>
+#include <RdReactiveBase.h>
+#include "../serialization/Polymorphic.h"
 
-/*
-template<typename K, typename V, typename S = Polymorphic>
-class RdMap : RdReactiveBase, IViewableMap<K, V> {
+template<typename K, typename V, typename KS = Polymorphic<K>, typename VS = Polymorphic<V>>
+class RdMap : public RdReactiveBase, public IViewableMap<K, V> {
 private:
 //    using list = typename ViewableMap<K, V>;
     ViewableMap<K, V> map;
     int64_t nextVersion = 0;
     std::map<K, int64_t> pendingForAck;
 
-    using Event = typename IViewableMap<K, V>::Event;
+    std::optional<bool> manualMaster;
+
+    bool is_master() {
+        return manualMaster.has_value() ? *manualMaster : !optimizeNested;
+    }
+
 public:
+    bool optimizeNested = false;
+
+    using Event = typename IViewableMap<K, V>::Event;
+
     RdMap() = default;
 
-    explicit RdMap(const ViewableMap <K, V> &list, int64_t nextVersion) : map(map), nextVersion(nextVersion) {}
+    explicit RdMap(const ViewableMap<K, V> &list, int64_t nextVersion) : map(map), nextVersion(nextVersion) {}
 
     enum class Op {
-        Add, Update, Remove
+        Add, Update, Remove, Ack
     }; // update versionedFlagShift when changing
 
-    static RdMap <K, V> read(SerializationCtx ctx, Buffer const &buffer, ISerializer<K, V> *valSzr) {
+
+
+/*    static RdMap<K, V> read(SerializationCtx ctx, Buffer const &buffer) {
 //        return withId<RdMap<K, V>>(RdMap(valSzr, ViewableMap(), buffer.read_pod<int64_t>()), RdId::read(buffer));
     }
 
-    template<typename Y>
-    static void write(SerializationCtx ctx, Buffer const &buffer, RdMap <Y> that) {
+    template<typename X, typename Y>
+    static void write(SerializationCtx ctx, Buffer const &buffer, RdMap<X, Y> const &that) {
         buffer.write_pod<int64_t>(that.nextVersion);
         that.rd_id.write(buffer);
-    }
+    }*/
 
     static const int32_t versionedFlagShift = 8; // update when changing Op
-
-    bool optimizeNested = false;
 
     virtual void init(Lifetime lifetime) {
         RdBindableBase::init(lifetime);
@@ -51,23 +60,29 @@ public:
             advise(lifetime, [this, lifetime](Event e) {
                 if (!is_local_change) return;
 
-//            if (!optimizeNested) (e.newValueOpt)?.identifyPolymorphic(protocol.identity, protocol.identity.next(rdid))
+//                if (!optimizeNested) (e.newValueOpt) ?.identifyPolymorphic(protocol.identity, protocol.identity.next(rdid))
 
                 get_wire()->send(rd_id, [this, e](Buffer const &buffer) {
-                    int32_t versionedFlag = ((master ? 1 : 0) 1 else 0) shl versionedFlagShift
-                    Op op = (typeid(e) == typeid(typename Event::Add) ? Op::Add :
-                             typeid(e) == typeid(typename Event::Update) ? Op::Update :
-                             Op::Remove);
+                    int32_t versionedFlag = ((is_master() ? 1 : 0)) << versionedFlagShift;
+                    Op op = static_cast<Op>(e.v.index());
 
-                    buffer.write_pod<int64_t>(static_cast<int64_t>(op) | (nextVersion++ << versionedFlagShift));
-                    buffer.write_pod<int32_t>(e.index);
+                    buffer.write_pod<int32_t>(static_cast<int32_t>(op) | versionedFlag);
+
+                    int64_t version = is_master() ? ++nextVersion : 0L;
+
+                    if (is_master()) {
+                        pendingForAck.insert(std::make_pair(e.get_key(), version));
+                        buffer.write_pod(version);
+                    }
+
+                    KS::write(serialization_context, buffer, e.get_key());
 
                     std::visit(overloaded{
                             [this, &buffer](typename Event::Add const &e) {
-                                S::write(serialization_context, buffer, e.new_value);
+                                VS::write(serialization_context, buffer, e.new_value);
                             },
                             [this, &buffer](typename Event::Update const &e) {
-                                S::write(serialization_context, buffer, e.new_value);
+                                VS::write(serialization_context, buffer, e.new_value);
                             },
                             [](typename Event::Remove const &e) {},
                     }, e.v);
@@ -80,44 +95,67 @@ public:
         get_wire()->advise(lifetime, *this);
 
         if (!optimizeNested)
-            this->view(lifetime,
-                       [this](Lifetime lf, size_t index,
-                              V const &value) { */
-/*value.bindPolymorphic(lf, this, "[$index]");*//*
- });
+            this->view(lifetime, [this](Lifetime lf, std::pair<K, V> const value) {
+//                           value.bindPolymorphic(lf, this, "[$index]");
+            });
     }
 
     virtual void on_wire_received(Buffer const &buffer) {
-        int64_t header = (buffer.read_pod<int64_t>());
-//        int64_t version = header >> versionedFlagShift;
-        Op op = static_cast<Op>((header & ((1 << versionedFlagShift) - 1L)));
-        int32_t index = (buffer.read_pod<int32_t>());
+        int32_t header = buffer.read_pod<int32_t>();
+        bool msgVersioned = (header >> versionedFlagShift) != 0;
+        Op op = static_cast<Op>(header & ((1 << versionedFlagShift) - 1));
 
-//            logReceived.trace { logmsg(op, version, index, value) }
+        int64_t version = msgVersioned ? buffer.read_pod<int64_t>() : 0;
 
-        */
-/*require(version == nextVersion) {
-            "Version conflict for $location}. Expected version $nextVersion, received $version. Are you modifying a list from two sides?"
-        }*//*
+        K key = KS::read(serialization_context, buffer);
+
+        if (op == Op::Ack) {
+            /*val errmsg =
+            if (!msgVersioned) "Received ${Op.Ack} while msg hasn't versioned flag set"
+            else if (!master) "Received ${Op.Ack} when not a Master"
+            else pendingForAck[key]?.let { pendingVersion ->
+                    if (pendingVersion < version) "Pending version `$pendingVersion` < ${Op.Ack} version `$version`"
+                    else {
+                        //side effect
+                        if (pendingVersion == version) pendingForAck.remove(key) //else we don't need to remove, silently drop
+                        "" //return good result
+                    }
+            } ?: "No pending for ${Op.Ack}"
+
+            if (errmsg.isEmpty())
+                logReceived.trace  { logmsg(Op.Ack, version, key) }
+            else
+            logReceived.error {  logmsg(Op.Ack, version, key) + " >> $errmsg"}*/
+
+        } else {
+            bool isPut = (op == Op::Add || op == Op::Update);
+            std::optional<V> value = isPut ? VS::read(serialization_context, buffer) : nullptr;
+
+                if (msgVersioned || !is_master() || pendingForAck.count(key)== 0) {
+//                    logReceived.trace { logmsg(op, version, key, value) }
+
+                    if (value.has_value()) {
+                        map.set(key, *value);
+                    } else {
+                        map.remove(key);
+                    }
+                } else {
+//                    logReceived.trace { logmsg(op, version, key, value) + " >> REJECTED" }
+                }
 
 
-        nextVersion++;
+            if (msgVersioned) {
+                get_wire()->send(rd_id, [this, version, key](Buffer const& innerBuffer){
+                    innerBuffer.write_pod<int32_t>((1 << versionedFlagShift) | static_cast<int32_t>(Op::Ack));
+                    innerBuffer.write_pod<int64_t>(version);
+                    KS::write(serialization_context, innerBuffer, key);
 
-        switch (op) {
-            case Op::Add: {
-                V value = S::read(serialization_context, buffer);
-                (index < 0) ? list.add(value) : list.add(index, value);
-                break;
+//                    logSend.trace { logmsg(Op.Ack, version, key) }
+                });
+
+//                if (is_master()) logReceived.error { "Both ends are masters: $location" }
             }
-            case Op::Update: {
-                V value = S::read(serialization_context, buffer);
-                list.set(index, value);
-                break;
-            }
-            case Op::Remove: {
-                list.removeAt(index);
-                break;
-            }
+
         }
     }
 
@@ -126,8 +164,27 @@ public:
         map.advise(lifetime, handler);
     }
 
+    virtual const V &get(K const &key) const {
+        return local_change<const V &>([&]() { return map.get(key); });
+    }
+
+    virtual std::optional<V> set(K const &key, V const &value) {
+        return local_change<std::optional<V>>([&]() { return map.set(key, value); });
+    }
+
+    virtual std::optional<V> remove(K const &key) {
+        return local_change<std::optional<V>>([&]() { return map.remove(key); });
+    }
+
+    virtual void clear() {
+        return local_change([&]() { return map.clear(); });
+    }
+
+    virtual size_t size() const {
+        return local_change<size_t>([&]() { return map.size(); });
+    }
+
 };
-*/
 
 
 #endif //RD_CPP_RDMAP_H
