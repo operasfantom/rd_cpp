@@ -8,13 +8,15 @@
 //#include "Logger.h"
 #include "viewable_collections.h"
 #include "SignalX.h"
+#include "ordered_map.h"
 
 template<typename K, typename V>
 class ViewableMap : public IViewableMap<K, V> {
 public:
     using Event = typename IViewableMap<K, V>::Event;
 private:
-    std::map<K, V> map;
+//    std::map<K, V> map;
+    tsl::ordered_map<K, V> map;
     Signal<Event> change;
 public:
     virtual ~ViewableMap() {}

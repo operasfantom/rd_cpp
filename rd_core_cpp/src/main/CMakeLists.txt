@@ -13,6 +13,9 @@ add_library(rd_core_cpp STATIC
         reactive/ViewableMap.h
         reactive/ViewableSet.h
         reactive/ViewableList.h
+        util/ordered_hash.h
+        util/ordered_set.h
+        util/ordered_map.h
         Logger.cpp Logger.h lifetime/Lifetime.cpp lifetime/Lifetime.h reactive/IScheduler.cpp reactive/IScheduler.h)
 
 

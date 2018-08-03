@@ -70,27 +70,4 @@ std::string to_string(typename IViewableList<V>::Event const &e) {
     return res;
 }
 
-template<>
-std::string to_string<std::string>(typename IViewableList<std::string>::Event const &e) {
-    using Event = typename IViewableList<std::string>::Event;
-    std::string res = std::visit(overloaded{
-            [](typename Event::Add const &e) {
-                return "Add " +
-                       std::to_string(e.index) + ":" +
-                       e.new_value;
-            },
-            [](typename Event::Update const &e) {
-                return "Update " +
-                       std::to_string(e.index) + ":" +
-                       /*std::to_string(e.old_value) + ":" +*/
-                       e.new_value;
-            },
-            [](typename Event::Remove const &e) {
-                return "Remove " +
-                       std::to_string(e.index);
-            },
-    }, e.v);
-    return res;
-}
-
 #endif //RD_CPP_CORE_UTIL_H

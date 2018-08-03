@@ -7,6 +7,7 @@
 
 #include "viewable_collections.h"
 #include "SignalX.h"
+#include "ordered_set.h"
 
 template<typename T>
 class ViewableSet : public IViewableSet<T> {
@@ -17,7 +18,8 @@ public:
 private:
     Signal<Event> change;
 
-    std::set<T> set;
+//    std::set<T> set;
+    tsl::ordered_set<T> set;
 
 public:
     virtual ~ViewableSet() = default;

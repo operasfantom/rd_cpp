@@ -65,7 +65,6 @@ public:
         return res;
     }
 
-//    template<>
     void local_change(std::function<void()> action) {
         if (is_bound() && !async) {
 //            assertThreading();

@@ -20,29 +20,29 @@ TEST_F(RdFrameworkTestBase, set_statics) {
 
     serverSet.advise(serverLifetimeDef.lifetime, [&](AddRemove kind, int v) { log.push_back((kind == AddRemove::ADD)  ? v : -v);});
 
-    clientSet.add(1);
-    clientSet.add(1);
     clientSet.add(2);
-    clientSet.add(3);
+    clientSet.add(0);
+    clientSet.add(1);
+    clientSet.add(8);
 
 
     EXPECT_EQ(vi(), log);
 
     bindStatic(serverProtocol.get(), serverSet, "top");
     bindStatic(clientProtocol.get(), clientSet, "top");
-    EXPECT_EQ((vi{1, 2, 3}), log);
-
-    clientSet.remove(3);
-    EXPECT_EQ(vi({1, 2, 3, -3}), log);
-
-    serverSet.remove(3);
-    clientSet.remove(3);
-    EXPECT_EQ(vi({1, 2, 3, -3}), log);
+    EXPECT_EQ((vi{2, 0, 1, 8}), log);
 
     clientSet.remove(1);
-    EXPECT_EQ((vi{1, 2, 3, -3, -1}), log);
+    EXPECT_EQ((vi{2, 0, 1, 8, -1}), log);
+
+    serverSet.remove(1);
+    clientSet.remove(1);
+    EXPECT_EQ((vi{2, 0, 1, 8, -1}), log);
+
+    clientSet.remove(2);
+    EXPECT_EQ((vi{2, 0, 1, 8, -1, -2}), log);
 
 
     clientSet.clear();
-    EXPECT_EQ(vi({1, 2, 3, -3, -1, -2}), log);
+    EXPECT_EQ((vi{2, 0, 1, 8, -1, -2, -0, -8}), log);
 }
