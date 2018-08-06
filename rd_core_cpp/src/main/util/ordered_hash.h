@@ -319,7 +319,7 @@ public:
         ordered_iterator operator--(int) { ordered_iterator tmp(*this); --(*this); return tmp; }
         
         reference operator[](difference_type n) const { return m_iterator[n]; }
-        
+
         ordered_iterator& operator+=(difference_type n) { m_iterator += n; return *this; }
         ordered_iterator& operator-=(difference_type n) { m_iterator -= n; return *this; }
         

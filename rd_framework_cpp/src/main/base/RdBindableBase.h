@@ -23,7 +23,7 @@ protected:
 
     std::vector<std::pair<std::string, std::any> > bindable_children;
 
-    SerializationCtx get_serialization_ctx();
+    SerializationCtx get_serialization_context();
 
     /*val containingExt: RdExtBase?
                        get() {

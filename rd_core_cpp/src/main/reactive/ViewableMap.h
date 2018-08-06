@@ -24,7 +24,7 @@ public:
     virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) {
         change.advise(lifetime, handler);
         for (auto p : map) {
-            handler(Event(typename Event::Add(p.first, p.second))); /*})*/;
+            handler(Event(typename Event::Add(p.first, p.second)));;
         }
     }
 
@@ -34,8 +34,8 @@ public:
         }
     }
 
-    virtual V const& get(K const &key) const {
-        return const_cast<tsl::ordered_map<K, V> &>(map)[key];//todo
+    virtual V get(K const &key) const {
+        return map[key];
     }
 
     std::optional<V> set(K const &key, V const &value) {

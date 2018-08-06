@@ -26,7 +26,7 @@ public:
     }
 
     virtual void on_wire_received(Buffer const &buffer) {
-        T value = S::read(serialization_context, buffer);
+        T value = S::read(this->get_serialization_context(), buffer);
 //        logReceived.trace { "signal `$location` ($rdid):: value = ${value.printToString()}" }
         signal.fire(value);
     }
@@ -38,7 +38,7 @@ public:
         }
         get_wire()->send(rd_id, [this, value](Buffer const &buffer) {
 //            logSend.trace { "signal `$location` ($rdid):: value = ${value.printToString()}" }
-            S::write(get_serialization_ctx(), buffer, value);
+            S::write(get_serialization_context(), buffer, value);
         });
         signal.fire(value);
     }

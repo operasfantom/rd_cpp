@@ -35,6 +35,8 @@ public:
 
     explicit RdMap(const ViewableMap<K, V> &list, int64_t nextVersion) : map(map), nextVersion(nextVersion) {}
 
+    virtual ~RdMap() = default;
+
     enum class Op {
         Add, Update, Remove, Ack
     }; // update versionedFlagShift when changing
@@ -75,14 +77,14 @@ public:
                         buffer.write_pod(version);
                     }
 
-                    KS::write(serialization_context, buffer, e.get_key());
+                    KS::write(this->get_serialization_context(), buffer, e.get_key());
 
                     std::visit(overloaded{
                             [this, &buffer](typename Event::Add const &e) {
-                                VS::write(serialization_context, buffer, e.new_value);
+                                VS::write(this->get_serialization_context(), buffer, e.new_value);
                             },
                             [this, &buffer](typename Event::Update const &e) {
-                                VS::write(serialization_context, buffer, e.new_value);
+                                VS::write(this->get_serialization_context(), buffer, e.new_value);
                             },
                             [](typename Event::Remove const &e) {},
                     }, e.v);
@@ -107,7 +109,7 @@ public:
 
         int64_t version = msgVersioned ? buffer.read_pod<int64_t>() : 0;
 
-        K key = KS::read(serialization_context, buffer);
+        K key = KS::read(this->get_serialization_context(), buffer);
 
         if (op == Op::Ack) {
             /*val errmsg =
@@ -129,26 +131,26 @@ public:
 
         } else {
             bool isPut = (op == Op::Add || op == Op::Update);
-            std::optional<V> value = isPut ? VS::read(serialization_context, buffer) : nullptr;
+            std::optional<V> value = isPut ? VS::read(this->get_serialization_context(), buffer) : nullptr;
 
-                if (msgVersioned || !is_master() || pendingForAck.count(key)== 0) {
+            if (msgVersioned || !is_master() || pendingForAck.count(key) == 0) {
 //                    logReceived.trace { logmsg(op, version, key, value) }
 
-                    if (value.has_value()) {
-                        map.set(key, *value);
-                    } else {
-                        map.remove(key);
-                    }
+                if (value.has_value()) {
+                    map.set(key, *value);
                 } else {
-//                    logReceived.trace { logmsg(op, version, key, value) + " >> REJECTED" }
+                    map.remove(key);
                 }
+            } else {
+//                    logReceived.trace { logmsg(op, version, key, value) + " >> REJECTED" }
+            }
 
 
             if (msgVersioned) {
-                get_wire()->send(rd_id, [this, version, key](Buffer const& innerBuffer){
+                get_wire()->send(rd_id, [this, version, key](Buffer const &innerBuffer) {
                     innerBuffer.write_pod<int32_t>((1 << versionedFlagShift) | static_cast<int32_t>(Op::Ack));
                     innerBuffer.write_pod<int64_t>(version);
-                    KS::write(serialization_context, innerBuffer, key);
+                    KS::write(this->get_serialization_context(), innerBuffer, key);
 
 //                    logSend.trace { logmsg(Op.Ack, version, key) }
                 });
@@ -164,8 +166,8 @@ public:
         map.advise(lifetime, handler);
     }
 
-    virtual const V &get(K const &key) const {
-        return local_change<const V &>([&]() { return map.get(key); });
+    virtual V get(K const &key) const {
+        return local_change<V>([&]() { return map.get(key); });
     }
 
     virtual std::optional<V> set(K const &key, V const &value) {

@@ -24,6 +24,8 @@ public:
 
     explicit RdList(const ViewableList<V> &list, int64_t nextVersion) : list(list), nextVersion(nextVersion) {}
 
+    virtual ~RdList() = default;
+
     enum class Op {
         Add, Update, Remove
     }; // update versionedFlagShift when changing
@@ -59,10 +61,10 @@ public:
 
                     std::visit(overloaded{
                             [this, &buffer](typename Event::Add const &e) {
-                                S::write(serialization_context, buffer, e.new_value);
+                                S::write(this->get_serialization_context(), buffer, e.new_value);
                             },
                             [this, &buffer](typename Event::Update const &e) {
-                                S::write(serialization_context, buffer, e.new_value);
+                                S::write(this->get_serialization_context(), buffer, e.new_value);
                             },
                             [](typename Event::Remove const &e) {},
                     }, e.v);
@@ -96,12 +98,12 @@ public:
 
         switch (op) {
             case Op::Add: {
-                V value = S::read(serialization_context, buffer);
+                V value = S::read(this->get_serialization_context(), buffer);
                 (index < 0) ? list.add(value) : list.add(index, value);
                 break;
             }
             case Op::Update: {
-                V value = S::read(serialization_context, buffer);
+                V value = S::read(this->get_serialization_context(), buffer);
                 list.set(index, value);
                 break;
             }

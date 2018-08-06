@@ -191,7 +191,7 @@ public:
 
     virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) = 0;
 
-    virtual V const &get(K const &) const = 0;
+    virtual V get(K const &) const = 0;
 
     virtual std::optional<V> set(K const &, V const &) = 0;
 

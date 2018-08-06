@@ -47,17 +47,17 @@ public:
     }
 
     template<typename T>
-    std::vector<T> read_array(Buffer const &buffer) const {
+    std::vector<T> read_array() const {
         int32_t len = read_pod<int32_t>();
         std::vector<T> result(len);
-        buffer.read(result.data(), sizeof(T) * len);
+        read(result.data(), sizeof(T) * len);
         return result;
     }
 
     template<typename T>
-    void write_array(Buffer const &buffer, std::vector<T> const &array) const {
+    void write_array(std::vector<T> const &array) const {
         write_pod<int32_t >(array.size());
-        buffer.write(array.data(), sizeof(T) * array.size());
+        write(array.data(), sizeof(T) * array.size());
     }
 
 };

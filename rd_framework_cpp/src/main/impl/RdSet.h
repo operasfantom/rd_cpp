@@ -18,6 +18,7 @@ protected:
 
     using Event = typename IViewableSet<T>::Event;
 public:
+    virtual ~RdSet() = default;
 
     bool optimizeNested = false;
 
@@ -30,7 +31,7 @@ public:
 
                 get_wire()->send(rd_id, [this, kind, v](Buffer const &buffer) {
                     buffer.write_pod<int32_t>(static_cast<int32_t>(kind));
-                    S::write(serialization_context, buffer, v);
+                    S::write(this->get_serialization_context(), buffer, v);
 
 //                logSend.trace { "set `$location` ($rdid) :: $kind :: ${v.printToString()} "}
                 });
@@ -42,7 +43,7 @@ public:
 
     virtual void on_wire_received(Buffer const &buffer) {
         AddRemove kind = static_cast<AddRemove>(buffer.read_pod<int32_t>());
-        T value = S::read(serialization_context, buffer);
+        T value = S::read(this->get_serialization_context(), buffer);
 
         //todo maybe identify is forgotten
 

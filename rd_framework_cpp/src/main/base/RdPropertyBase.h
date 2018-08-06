@@ -48,7 +48,7 @@ public:
             }
             get_wire()->send(rd_id, [this, v](Buffer const &buffer) {
                 buffer.write_pod<int32_t>(master_version);
-                S::write(serialization_context, buffer, v);
+                S::write(this->get_serialization_context(), buffer, v);
 //                logSend.trace{ "property `$location` ($rdid):: ver = $masterVersion, value = ${v.printToString()}" }
             });
         });
@@ -66,7 +66,7 @@ public:
 
     virtual void on_wire_received(Buffer const &buffer) {
         int32_t version = buffer.read_pod<int32_t>();
-        T v = S::read(serialization_context, buffer);
+        T v = S::read(this->get_serialization_context(), buffer);
 
         bool rejected = is_master && version < master_version;
         if (rejected) {

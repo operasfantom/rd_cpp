@@ -48,7 +48,7 @@ IProtocol *RdBindableBase::get_protocol() {
     }
 }
 
-SerializationCtx RdBindableBase::get_serialization_ctx() {
+SerializationCtx RdBindableBase::get_serialization_context() {
     if (parent) {
         return parent->serialization_context;
     } else {
