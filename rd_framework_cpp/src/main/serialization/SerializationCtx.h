@@ -5,13 +5,22 @@
 #ifndef RD_CPP_FRAMEWORK_SERIALIZATIONCTX_H
 #define RD_CPP_FRAMEWORK_SERIALIZATIONCTX_H
 
-#include <ISerializers.h>
 #include "../Buffer.h"
+#include "Serializers.h"
+
+
+class IProtocol;
 
 class SerializationCtx {
 public:
-    ISerializers *serializers;
+    Serializers const * const serializers = nullptr;
 //    std::optional<IInternRoot> internRoot;
+
+//    SerializationCtx() = delete;
+
+    SerializationCtx(const Serializers *serializers = nullptr);
+
+    explicit SerializationCtx(IProtocol const &protocol);
 };
 
 #endif //RD_CPP_FRAMEWORK_SERIALIZATIONCTX_H

@@ -29,10 +29,9 @@ add_library(rd_framework_cpp STATIC
         base/IWire.cpp base/IWire.h
         base/ISerializer.cpp base/ISerializer.h
         base/IIdentities.cpp base/IIdentities.h
-        base/ISerializers.cpp base/ISerializers.h
         impl/RdList.cpp impl/RdList.h
         impl/RdMap.cpp impl/RdMap.h
-        impl/RdSet.cpp impl/RdSet.h)
+        impl/RdSet.cpp impl/RdSet.h serialization/ISerializable.cpp serialization/ISerializable.h serialization/IMarshaller.cpp serialization/IMarshaller.h)
 
 target_include_directories(rd_framework_cpp PUBLIC src/)
 target_include_directories(rd_framework_cpp PUBLIC src/main)

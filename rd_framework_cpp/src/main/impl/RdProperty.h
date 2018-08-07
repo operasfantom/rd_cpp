@@ -9,12 +9,18 @@
 #include <Property.h>
 #include <RdPropertyBase.h>
 #include "../serialization/Polymorphic.h"
+#include "../serialization/ISerializable.h"
 
 template<typename T, typename S = Polymorphic<T>>
-class RdProperty : public RdPropertyBase<T, S>/*, public IProperty<T> */{
+class RdProperty : public RdPropertyBase<T, S>/*, public IProperty<T> */, ISerializable {
 public:
+    virtual void init(IProtocol *aProtocol) {
 
-//    RdProperty(RdProperty const& other) = default;
+    }
+
+    virtual void write(SerializationCtx const& ctx, Buffer const &buffer) const {
+
+    }
 
     explicit RdProperty(T const &value) : RdPropertyBase<T>(value) {
         this->property = std::unique_ptr<Property<T>>(new Property<T>(value));

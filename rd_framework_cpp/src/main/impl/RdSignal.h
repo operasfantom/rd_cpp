@@ -26,7 +26,7 @@ public:
     }
 
     virtual void on_wire_received(Buffer const &buffer) {
-        T value = S::read(this->get_serialization_context(), buffer);
+        T /*const& */value = static_cast<T const&>(S::read(this->get_serialization_context(), buffer));
 //        logReceived.trace { "signal `$location` ($rdid):: value = ${value.printToString()}" }
         signal.fire(value);
     }

@@ -48,9 +48,9 @@ IProtocol *RdBindableBase::get_protocol() {
     }
 }
 
-SerializationCtx RdBindableBase::get_serialization_context() {
+SerializationCtx const& RdBindableBase::get_serialization_context() const {
     if (parent) {
-        return parent->serialization_context;
+        return parent->get_serialization_context();
     } else {
         throw std::invalid_argument("Not bound");
     }
@@ -58,7 +58,7 @@ SerializationCtx RdBindableBase::get_serialization_context() {
 
 void RdBindableBase::init(Lifetime lifetime) {
     for (auto &p : bindable_children) {
-        auto &name = p.first;
+//        auto &name = p.first;
         auto &child = p.second;
         if (child.has_value()) {
 //            bindPolymorphic(child, lifetime, *this, name);

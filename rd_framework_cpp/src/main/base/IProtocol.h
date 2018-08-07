@@ -8,23 +8,25 @@
 
 #include <IScheduler.h>
 #include "IRdDynamic.h"
-#include "ISerializers.h"
 #include "IIdentities.h"
 #include "IWire.h"
+#include "../serialization/Serializers.h"
+
 
 class IProtocol : public IRdDynamic {
 public:
-
-    ISerializers *serializers;
+    Serializers serializers;
     IIdentities *identity;
     IScheduler *scheduler;
     IWire *wire;
+    SerializationCtx context;
 
-    IProtocol(ISerializers *serializers, IIdentities *identity, IScheduler *scheduler, IWire *wire) : serializers(
-            serializers), identity(identity), scheduler(scheduler), wire(wire) {}
+    IProtocol(IIdentities *identity, IScheduler *scheduler, IWire *wire);
 
     //    ViewableSet <RdExtBase> out_of_sync_models;
     virtual ~IProtocol() = default;
+
+    virtual const SerializationCtx &get_serialization_context() const;
 };
 
 

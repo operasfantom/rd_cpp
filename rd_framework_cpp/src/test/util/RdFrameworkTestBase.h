@@ -57,9 +57,9 @@ public:
                             serverLifetime(serverLifetimeDef.lifetime) {
 
         clientProtocol = std::unique_ptr<IProtocol>(
-                new Protocol(&serializers, &clientIdentities, &clientScheduler, clientTestWire.get()));
+                new Protocol(/*serializers, */&clientIdentities, &clientScheduler, clientTestWire.get()));
         serverProtocol = std::unique_ptr<IProtocol>(
-                new Protocol(&serializers, &serverIdentities, &serverScheduler, serverTestWire.get()));
+                new Protocol(/*serializers,*/ &serverIdentities, &serverScheduler, serverTestWire.get()));
 
 
         std::pair<TestWire *, TestWire *> p = std::make_pair(

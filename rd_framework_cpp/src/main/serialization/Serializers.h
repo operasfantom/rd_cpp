@@ -7,28 +7,58 @@
 
 
 #include <any>
+#include "iostream"
 #include "interfaces.h"
 #include "../RdId.h"
-#include "SerializationCtx.h"
+#include "IMarshaller.h"
+#include "ISerializable.h"
+#include "../Identities.h"
 
-class Serializers : public ISerializers {
+class SerializationCtx;
 
-    std::unordered_map<RdId, std::function<std::any(SerializationCtx, Buffer const &)>, RdId::Hash> readers;
-
-    /*template<typename T>
-    T readPolymorphicNullable(SerializationCtx ctx, AbstractBuffer const &stream) {
+class Serializers {
+public:
+    std::unordered_map<RdId, std::function<ISerializable const&(SerializationCtx const&, Buffer const&)>, RdId::Hasher > readers;
+//    template<typename T>
+    /*T */const ISerializable & readPolymorphic(SerializationCtx const &ctx, Buffer const &stream) const {
         RdId id = RdId::read(stream);
-        if (id.isNull) {
-            return {};
+        int32_t size = stream.read_pod<int32_t>();
+        stream.check_available(size);
+
+        if (readers.count(id) == 0) {
+            throw std::invalid_argument("no reader");
         }
-        int32_t size = stream.readInt();
-        stream.checkAvailable(size);
+        return readers.at(id)(ctx, stream);
+    }
 
-        auto reader = readers[id];
+    template <typename T>
+    void registry(std::function<ISerializable const&(SerializationCtx const&, Buffer const&)> reader) {
+        auto h = getPlatformIndependentHash(std::string(typeid(T).name()));
+        std::cout << std::endl << typeid(T).name() << std::endl;
+        RdId id(h);
+//        Protocol.initializationLogger.trace { "Registering type ${t.simpleName}, id = $id" }
 
-        return reader(ctx, stream);
-    }*/
+        readers[id] = reader;
+    }
+
+    template<typename T>
+    void writePolymorphic(SerializationCtx const& ctx, Buffer const &stream, const T &value) const {
+        hash_t h = getPlatformIndependentHash(std::string(typeid(value).name()));
+        RdId(h).write(stream);
+
+        std::cout << std::endl << typeid(value).name() << std::endl;
+
+        size_t lengthTagPosition = stream.get_position();
+        stream.write_pod<int32_t>(0);
+        size_t objectStartPosition = stream.get_position();
+        value.write(ctx, stream);
+        size_t objectEndPosition = stream.get_position();
+        stream.set_position(lengthTagPosition);
+        stream.write_pod<int32_t>(objectEndPosition - objectStartPosition);
+        stream.set_position(objectEndPosition);
+    }
 };
+
 
 
 #endif //RD_CPP_SERIALIZERS_H

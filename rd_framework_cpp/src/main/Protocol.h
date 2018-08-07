@@ -9,10 +9,11 @@
 #include <IProtocol.h>
 #include "interfaces.h"
 
+
 class Protocol : /*IRdDynamic, */public IProtocol {
 public:
-    Protocol(ISerializers *serializers, IIdentities *identity, IScheduler *scheduler, IWire *wire) :
-            IProtocol(serializers, identity, scheduler, wire) {}
+    Protocol(IIdentities *identity, IScheduler *scheduler, IWire *wire) :
+            IProtocol(identity, scheduler, wire) {}
 
     virtual IProtocol *get_protocol();
 //    static std::string log_category = "protocol";

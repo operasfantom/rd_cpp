@@ -10,6 +10,7 @@
 
 class IProtocol;
 
+
 class IRdDynamic {
 public:
     IProtocol *protocol = nullptr;
@@ -21,6 +22,8 @@ public:
     virtual ~IRdDynamic() = default;
 
     virtual IProtocol *get_protocol();
+
+    virtual SerializationCtx const& get_serialization_context() const = 0;
 };
 
 

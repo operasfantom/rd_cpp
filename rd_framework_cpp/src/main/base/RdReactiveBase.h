@@ -27,7 +27,7 @@ public:
     mutable bool is_local_change = false;
 
     //delegated
-    ISerializers *get_serializers() {
+    const Serializers & get_serializers() {
         return get_protocol()->serializers;
     }
 

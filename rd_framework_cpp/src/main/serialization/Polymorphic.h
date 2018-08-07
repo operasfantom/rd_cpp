@@ -11,17 +11,30 @@ template<typename T>
 class Polymorphic/* : public ISerializer<T>*/ {
 public:
 
-    static T read(SerializationCtx const &ctx, Buffer const &buffer) {
-//        ctx.serializers->readPolymorphicNullable(ctx, buffer);
-        return (buffer.read_pod<T>());
+    static ISerializable const &read(SerializationCtx const &ctx, Buffer const &buffer) {
+        return ctx.serializers->readPolymorphic(ctx, buffer);
+//        return (buffer.read_pod<T>());
     }
 
     static void write(SerializationCtx const &ctx, Buffer const &buffer, T const &value) {
-        buffer.write_pod<T>(value);
+        ctx.serializers->writePolymorphic(ctx, buffer, value);
     }
 
 };
 
+template<>
+class Polymorphic<int> {
+public:
+    static int read(SerializationCtx const &ctx, Buffer const &buffer) {
+//        ctx.serializers->readPolymorphicNullable(ctx, buffer);
+        return (buffer.read_pod<int>());
+    }
+
+    static void write(SerializationCtx const &ctx, Buffer const &buffer, int const &value) {
+        buffer.write_pod<int>(value);
+    }
+
+};
 
 template<>
 class Polymorphic<std::string> {
@@ -38,5 +51,14 @@ public:
     }
 };
 
+template<>
+class Polymorphic<void *> {
+public:
+    static void *read(SerializationCtx const &ctx, Buffer const &buffer) {
+        return nullptr;
+    }
+
+    static void write(SerializationCtx const &ctx, Buffer const &buffer, void *const &value) {}
+};
 
 #endif //RD_CPP_POLYMORPHIC_H

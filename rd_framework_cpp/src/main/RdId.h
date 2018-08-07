@@ -17,7 +17,7 @@ private:
 
     hash_t hash;
 public:
-    struct Hash {
+    struct Hasher {
         size_t operator()(RdId const &id) const noexcept {
             return std::hash<hash_t>()(id.hash);
         }

@@ -16,8 +16,8 @@ public:
 class MessageBroker {
 private:
     IScheduler *defaultScheduler = nullptr;
-    std::unordered_map<RdId, IRdReactive *, RdId::Hash> subscriptions;
-    std::unordered_map<RdId, Mq, RdId::Hash> broker;
+    std::unordered_map<RdId, IRdReactive *, RdId::Hasher> subscriptions;
+    std::unordered_map<RdId, Mq, RdId::Hasher> broker;
 
     void invoke(IRdReactive *that, Buffer const &msg, bool sync = false);
 
