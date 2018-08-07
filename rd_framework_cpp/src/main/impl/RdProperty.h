@@ -14,6 +14,8 @@ template<typename T, typename S = Polymorphic<T>>
 class RdProperty : public RdPropertyBase<T, S>/*, public IProperty<T> */{
 public:
 
+//    RdProperty(RdProperty const& other) = default;
+
     explicit RdProperty(T const &value) : RdPropertyBase<T>(value) {
         this->property = std::unique_ptr<Property<T>>(new Property<T>(value));
     }

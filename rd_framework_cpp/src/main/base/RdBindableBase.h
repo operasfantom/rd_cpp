@@ -17,23 +17,13 @@ protected:
 
     //bound state: inferred
 
-    bool is_bound() const ;
+    bool is_bound() const;
 
     IProtocol *get_protocol();
 
     std::vector<std::pair<std::string, std::any> > bindable_children;
 
     SerializationCtx get_serialization_context();
-
-    /*val containingExt: RdExtBase?
-                       get() {
-                               var cur: IRdDynamic? = this
-                    while (cur is RdBindableBase) {
-                        if (cur is RdExtBase) return cur
-                        cur = cur.parent
-                    }
-                    return null
-                       }*/
 
 public:
     RdBindableBase() {

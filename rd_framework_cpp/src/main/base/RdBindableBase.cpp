@@ -58,10 +58,12 @@ SerializationCtx RdBindableBase::get_serialization_context() {
 
 void RdBindableBase::init(Lifetime lifetime) {
     for (auto &p : bindable_children) {
+        auto &name = p.first;
         auto &child = p.second;
         if (child.has_value()) {
-//            child?.bindPolymorphic(lifetime, this, name)
+//            bindPolymorphic(child, lifetime, *this, name);
         }
     }
 }
+
 

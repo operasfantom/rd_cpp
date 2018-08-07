@@ -48,3 +48,116 @@ TEST_F(RdFrameworkTestBase, property_statics) {
     clientLifetimeDef.terminate();
     serverLifetimeDef.terminate();
 }
+
+/*
+class DynamicEntity : RdBindableBase {
+public:
+    RdProperty<std::optional<bool> > foo;
+
+    DynamicEntity() = default;
+
+    DynamicEntity(DynamicEntity const& other) = default;
+//    DynamicEntity(const RdProperty<std::optional<bool>> &foo) : foo(foo) {}
+
+//    DynamicEntity(std::optional<bool> foo) : DynamicEntity(RdProperty(foo, FrameworkMarshallers.Bool.nullable()));
+
+*/
+/*
+    companion object : IMarshaller<DynamicEntity> {
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): DynamicEntity {
+            return DynamicEntity(RdProperty.read(ctx, buffer, FrameworkMarshallers.Bool.nullable()))
+        }
+
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: DynamicEntity) {
+            RdProperty.write(ctx, buffer, value._foo)
+        }
+
+        override val _type: KClass<*>
+        get() = DynamicEntity::class
+}
+*//*
+
+
+    static void create(IProtocol *protocol) {
+//        protocol->serializers->registry(DynamicEntity);
+    }
+
+    void init(Lifetime lifetime) {
+        foo.bind(lifetime, this, "foo");
+    }
+
+    void identify(IIdentities &identities, RdId id) {
+        foo.identify(identities, id.mix("foo"));
+    }
+};
+
+
+TEST_F(RdFrameworkTestBase, property_dynamic) {
+    int property_id = 1;
+
+    RdProperty<DynamicEntity> client_property_storage{DynamicEntity()};
+    RdProperty<DynamicEntity> server_property_storage{DynamicEntity()};
+
+    RdProperty<DynamicEntity> &client_property = statics(client_property_storage, (property_id));
+    RdProperty<DynamicEntity> &server_property = statics(server_property_storage, (property_id)).slave();
+
+//    DynamicEntity.create(clientProtocol);
+//    DynamicEntity.create(serverProtocol);
+    //bound
+    bindStatic(serverProtocol.get(), server_property, "top");
+    bindStatic(clientProtocol.get(), client_property, "top");
+
+    using listOf = std::vector<std::optional<bool> >;
+
+    std::vector<std::optional<bool> > clientLog;
+    std::vector<std::optional<bool> > serverLog;
+
+    client_property.advise(Lifetime::Eternal(), [](DynamicEntity entity) {
+        entity.foo.advise(Lifetime::Eternal(), [](std::optional<bool> it) { clientLog.push_back(it); });
+    });
+    server_property.advise(Lifetime::Eternal(), [](DynamicEntity entity) {
+        entity.foo.advise(Lifetime::Eternal(), [](std::optional<bool> it) { serverLog.push_back(it); });
+    });
+
+    EXPECT_EQ(listOf(), clientLog);
+    EXPECT_EQ(listOf(), serverLog);
+
+//    client_property.set(DynamicEntity(nullopt));
+
+    EXPECT_EQ(listOf{nullptr}, clientLog);
+    EXPECT_EQ(listOf{nullptr}, serverLog);
+
+
+    EXPECT_TRUE(client_property.get().foo.get().has_value());
+    client_property.get().foo.set(false);
+
+    EXPECT_EQ((listOf{nullptr, false}), clientLog);
+    EXPECT_EQ((listOf{nullptr, false}), serverLog);
+
+    EXPECT_TRUE(server_property.get().foo.get().has_value());
+    server_property.get().foo.set(true);
+    EXPECT_EQ((listOf{nullptr, false, true}), clientLog);
+    EXPECT_EQ((listOf{nullptr, false, true}), serverLog);
+
+    EXPECT_TRUE(server_property.get().foo.get().has_value());
+    server_property.get().foo.set(nullptr);
+    EXPECT_EQ((listOf{nullptr, false, true, nullptr}), clientLog);
+    EXPECT_EQ((listOf{nullptr, false, true, nullptr}), serverLog);
+
+
+//    DynamicEntity e(true);
+//    client_property.set(e); //no listen - no change
+    EXPECT_EQ((listOf{nullptr, false, true, nullptr, true}), clientLog);
+    EXPECT_EQ((listOf{nullptr, false, true, nullptr, true}), serverLog);
+
+    EXPECT_TRUE(server_property.get().foo.get().has_value());
+    server_property.get().foo.set(nullptr);
+    EXPECT_EQ((listOf{nullptr, false, true, nullptr, true, nullptr}), clientLog);
+    EXPECT_EQ((listOf{nullptr, false, true, nullptr, true, nullptr}), serverLog);
+
+
+//    client_property.set(DynamicEntity(false));
+    //reuse
+//    client_property.set(e);
+}
+*/
