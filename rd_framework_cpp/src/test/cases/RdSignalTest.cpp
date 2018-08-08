@@ -127,11 +127,13 @@ class Foo : public ISerializable {
 public:
     explicit Foo(int32_t x = 0, int32_t y = 0) : x(x), y(y) {};
 
+    virtual ~Foo() = default;
+
     static void registry(IProtocol *protocol) {
         protocol->serializers.registry<Foo>([](SerializationCtx const& ctx, Buffer const& buffer) {
             int32_t x = buffer.read_pod<int32_t>();
             int32_t y = buffer.read_pod<int32_t>();
-            return Foo(x, y);
+            return std::make_unique<Foo>(x, y);
         });
     }
 
