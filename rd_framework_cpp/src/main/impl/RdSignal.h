@@ -17,7 +17,10 @@ class RdSignal : public RdReactiveBase, public ISignal<T> {
 protected:
     Signal<T> signal;
 public:
+    //region ctor/dtor
+
     virtual ~RdSignal() = default;
+    //endregion
 
     virtual void init(Lifetime lifetime) {
         RdReactiveBase::init(lifetime);

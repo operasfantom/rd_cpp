@@ -31,7 +31,7 @@ add_library(rd_framework_cpp STATIC
         base/IIdentities.cpp base/IIdentities.h
         impl/RdList.cpp impl/RdList.h
         impl/RdMap.cpp impl/RdMap.h
-        impl/RdSet.cpp impl/RdSet.h serialization/ISerializable.cpp serialization/ISerializable.h serialization/IMarshaller.cpp serialization/IMarshaller.h)
+        impl/RdSet.cpp impl/RdSet.h serialization/ISerializable.cpp serialization/ISerializable.h serialization/IMarshaller.cpp serialization/IMarshaller.h FrameworkMarshallers.cpp FrameworkMarshallers.h)
 
 target_include_directories(rd_framework_cpp PUBLIC src/)
 target_include_directories(rd_framework_cpp PUBLIC src/main)

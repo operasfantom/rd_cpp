@@ -14,18 +14,32 @@
 template<typename T, typename S = Polymorphic<T>>
 class RdProperty : public RdPropertyBase<T, S>/*, public IProperty<T> */, ISerializable {
 public:
-    virtual void write(SerializationCtx const& ctx, Buffer const &buffer) const {
+    //region ctor/dtor
 
-    }
+    RdProperty(RdProperty &&other) = default;
 
-    explicit RdProperty(T const &value) : RdPropertyBase<T>(value) {
+    explicit RdProperty(T const &value) : RdPropertyBase<T, S>(value) {
         this->property = std::unique_ptr<Property<T>>(new Property<T>(value));
     }
 
     virtual ~RdProperty() = default;
+    //endregion
+
+    static RdProperty<T, S> read(SerializationCtx const &ctx, Buffer const &buffer) {
+        RdId id = RdId::read(buffer);
+//        val value = if (buffer.readBool()) valueSerializer.read(ctx, buffer) else null;
+        T value = S::read(ctx, buffer);
+        RdProperty<T, S> property(value);
+        withId(property, id);
+        return property;
+    }
+
+    virtual void write(SerializationCtx const &ctx, Buffer const &buffer) const {
+
+    }
 
     void advise(Lifetime lifetime, std::function<void(T)> handler) {
-        RdPropertyBase<T>::advise(lifetime, handler);
+        RdPropertyBase<T, S>::advise(lifetime, handler);
     }
 
     virtual T get() {

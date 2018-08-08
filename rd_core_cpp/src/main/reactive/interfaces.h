@@ -26,8 +26,7 @@ class IViewable {
 public:
     virtual ~IViewable() = default;
 
-    virtual void
-    view(Lifetime lifetime, std::function<void(Lifetime, T)> handler) = 0;
+    virtual void view(Lifetime lifetime, std::function<void(Lifetime, T)> handler) = 0;
 };
 
 template<typename T>
@@ -57,9 +56,14 @@ protected:
 public:
     std::unique_ptr<ISource<T>> change;
 
-    virtual ~IProperty() = default;
+    //region ctor/dtor
+
+    IProperty(IProperty &&other) = default;
 
     explicit IProperty(T const &value) : value(value) {}
+
+    virtual ~IProperty() = default;
+    //endregion
 
     virtual T get() = 0;
 

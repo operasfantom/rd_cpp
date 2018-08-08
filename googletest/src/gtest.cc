@@ -4369,7 +4369,7 @@ void TestEventListeners::SuppressEventForwarding() {
 // calls will return the same object.
 //
 // We don't protect this under mutex_ as a user is not supposed to
-// call this before main() starts, from which point on the return
+// call this before base() starts, from which point on the return
 // value will never change.
 UnitTest* UnitTest::GetInstance() {
   // When compiled with MSVC 7.1 in optimized mode, destroying the
@@ -4493,7 +4493,7 @@ TestEventListeners& UnitTest::listeners() {
 // The UnitTest object takes ownership of the given environment.
 //
 // We don't protect this under mutex_, as we only support calling it
-// from the main thread.
+// from the base thread.
 Environment* UnitTest::AddEnvironment(Environment* env) {
   if (env == NULL) {
     return NULL;
@@ -4588,7 +4588,7 @@ void UnitTest::RecordProperty(const std::string& key,
 // Returns 0 if successful, or 1 otherwise.
 //
 // We don't protect this under mutex_, as we only support calling it
-// from the main thread.
+// from the base thread.
 int UnitTest::Run() {
   const bool in_death_test_child_process =
       internal::GTEST_FLAG(internal_run_death_test).length() > 0;

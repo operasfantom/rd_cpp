@@ -1847,7 +1847,7 @@ For example:
   * `./foo_test` Has no flag, and thus runs all its tests.
   * `./foo_test --gtest_filter=*` Also runs everything, due to the single match-everything `*` value.
   * `./foo_test --gtest_filter=FooTest.*` Runs everything in test case `FooTest`.
-  * `./foo_test --gtest_filter=*Null*:*Constructor*` Runs any test whose full name contains either `"Null"` or `"Constructor"`.
+  * `./foo_test --gtest_filter=*NULL_ID*:*Constructor*` Runs any test whose full name contains either `"NULL_ID"` or `"Constructor"`.
   * `./foo_test --gtest_filter=-*DeathTest.*` Runs all non-death tests.
   * `./foo_test --gtest_filter=FooTest.*-FooTest.Bar` Runs everything in test case `FooTest` except `FooTest.Bar`.
 

@@ -13,7 +13,7 @@ class IProtocol;
 
 class IRdDynamic {
 public:
-    IProtocol *protocol = nullptr;
+    IProtocol * protocol = nullptr;
     SerializationCtx serialization_context;
     RName location;
 

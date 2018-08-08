@@ -48,11 +48,11 @@ public:
 
     inline RdId notNull();
 
-    RdId mix(const std::string &tail);
+    RdId mix(const std::string &tail) const;
 
-    RdId mix(int32_t tail);
+    RdId mix(int32_t tail) const;
 
-    RdId mix(int64_t tail);
+    RdId mix(int64_t tail) const;
 };
 
 

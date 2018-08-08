@@ -15,15 +15,15 @@ RdId RdId::Null() {
     return NULL_ID;
 }
 
-RdId RdId::mix(const std::string &tail) {
+RdId RdId::mix(const std::string &tail) const {
     return RdId(getPlatformIndependentHash(tail, hash));
 }
 
-RdId RdId::mix(int32_t tail) {
+RdId RdId::mix(int32_t tail) const {
     return RdId(getPlatformIndependentHash(tail, hash));
 }
 
-RdId RdId::mix(int64_t tail) {
+RdId RdId::mix(int64_t tail) const {
     return RdId(getPlatformIndependentHash(tail, hash));
 }
 

@@ -60,9 +60,9 @@ TEST(WidgetInitializerTest, TestConversion) {
   EXPECT_STREQ("name", buffer);
 }
 
-// Use the Google Test main that is linked into the framework. It does something
+// Use the Google Test base that is linked into the framework. It does something
 // like this:
-// int main(int argc, char** argv) {
+// int base(int argc, char** argv) {
 //   testing::InitGoogleTest(&argc, argv);
 //   return RUN_ALL_TESTS();
 // }

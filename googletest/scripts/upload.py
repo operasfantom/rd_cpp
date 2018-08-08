@@ -1248,7 +1248,7 @@ def GuessVCS(options):
 
 
 def RealMain(argv, data=None):
-  """The real main function.
+  """The real base function.
 
   Args:
     argv: Command line arguments.

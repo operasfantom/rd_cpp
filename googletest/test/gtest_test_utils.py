@@ -305,7 +305,7 @@ def Main():
   """Runs the unit test."""
 
   # We must call _ParseAndStripGTestFlags() before calling
-  # unittest.main().  Otherwise the latter will be confused by the
+  # unittest.base().  Otherwise the latter will be confused by the
   # --gtest_* flags.
   _ParseAndStripGTestFlags(sys.argv)
   # The tested binaries should not be writing XML output files unless the

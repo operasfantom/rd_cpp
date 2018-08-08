@@ -23,11 +23,25 @@ public:
     virtual void identify(IIdentities *identities, RdId id) = 0;
 };
 
-void identifyPolymorphic(IRdBindable &that, IIdentities *identities, RdId const& id);
+void identifyPolymorphic(IRdBindable &that, IIdentities *identities, RdId const &id);
 
-void identifyPolymorphic(std::any const &that, IIdentities *identities, RdId const& id);
+template<typename T>
+void identifyPolymorphic(std::vector<T> const &that, IIdentities *identities, RdId const &id) {
+    for (size_t i = 0; i < that.size(); ++i) {
+        that[i].identify(identities, id.mix(static_cast<int32_t >(i)));
+    }
+}
+
+void identifyPolymorphic(std::any const &that, IIdentities *identities, RdId const &id);
 
 void bindPolymorphic(IRdBindable &that, Lifetime lf, IRdDynamic *parent, std::string const &name);
+
+template<typename T>
+void bindPolymorphic(std::vector<T> &that, Lifetime lf, IRdDynamic *parent, std::string const &name) {
+    for (size_t i = 0; i < that.size(); ++i) {
+        that[i].bind(lf, parent, name);
+    }
+}
 
 void bindPolymorphic(std::any const &that, Lifetime lf, IRdDynamic *parent, std::string const &name);
 

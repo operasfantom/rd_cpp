@@ -41,7 +41,7 @@
 using testing::internal::ShouldUseColor;
 
 // The purpose of this is to ensure that the UnitTest singleton is
-// created before main() is entered, and thus that ShouldUseColor()
+// created before base() is entered, and thus that ShouldUseColor()
 // works the same way as in a real Google-Test-based test.  We don't actual
 // run the TEST itself.
 TEST(GTestColorTest, Dummy) {

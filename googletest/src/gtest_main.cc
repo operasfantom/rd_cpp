@@ -40,7 +40,7 @@ void f()
 GTEST_API_ int main(int argc, char **argv) {
 	
 
-  printf("Running main() from gtest_main.cc\n");
+  printf("Running base() from gtest_main.cc\n");
   testing::InitGoogleTest(&argc, argv);
   f();
   return RUN_ALL_TESTS();

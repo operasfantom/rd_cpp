@@ -64,7 +64,7 @@ const char kInternalRunDeathTestFlag[] = "internal_run_death_test";
 // exit status:  The integer exit information in the format specified
 //               by wait(2)
 // exit code:    The integer code passed to exit(3), _exit(2), or
-//               returned from main()
+//               returned from base()
 class GTEST_API_ DeathTest {
  public:
   // Create returns false if there was an error determining the

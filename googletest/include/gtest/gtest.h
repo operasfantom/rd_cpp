@@ -1201,7 +1201,7 @@ class GTEST_API_ UnitTest {
   // Runs all tests in this UnitTest object and prints the result.
   // Returns 0 if successful, or 1 otherwise.
   //
-  // This method can only be called from the main thread.
+  // This method can only be called from the base thread.
   //
   // INTERNAL IMPLEMENTATION - DO NOT USE IN A USER PROGRAM.
   int Run() GTEST_MUST_USE_RESULT_;
@@ -1299,7 +1299,7 @@ class GTEST_API_ UnitTest {
   //
   // The UnitTest object takes ownership of the given environment.
   //
-  // This method can only be called from the main thread.
+  // This method can only be called from the base thread.
   Environment* AddEnvironment(Environment* env);
 
   // Adds a TestPartResult to the current TestResult object.  All
@@ -1374,14 +1374,14 @@ class GTEST_API_ UnitTest {
 // program.
 //
 // You should call this before RUN_ALL_TESTS() is called, probably in
-// main().  If you use gtest_main, you need to call this before main()
+// base().  If you use gtest_main, you need to call this before base()
 // starts for it to take effect.  For example, you can define a global
 // variable like this:
 //
 //   testing::Environment* const foo_env =
 //       testing::AddGlobalTestEnvironment(new FooEnvironment);
 //
-// However, we strongly recommend you to write your own main() and
+// However, we strongly recommend you to write your own base() and
 // call AddGlobalTestEnvironment() there, as relying on initialization
 // of global variables makes the code harder to read and may cause
 // problems when you register multiple environments from different
@@ -2315,7 +2315,7 @@ GTEST_API_ std::string TempDir();
 
 }  // namespace testing
 
-// Use this function in main() to run all tests.  It returns 0 if all
+// Use this function in base() to run all tests.  It returns 0 if all
 // tests are successful, or 1 otherwise.
 //
 // RUN_ALL_TESTS() should be invoked after the command line has been

@@ -1230,7 +1230,7 @@ TEST(ThreadLocalTest, DestroysManagedObjectForOwnThreadWhenDying) {
     ThreadLocal<DestructorTracker> thread_local_tracker;
     ASSERT_EQ(0U, DestructorCall::List().size());
 
-    // This creates another DestructorTracker object for the main thread.
+    // This creates another DestructorTracker object for the base thread.
     thread_local_tracker.get();
     ASSERT_EQ(1U, DestructorCall::List().size());
     ASSERT_FALSE(DestructorCall::List()[0]->CheckDestroyed());

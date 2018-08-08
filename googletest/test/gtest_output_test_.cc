@@ -255,7 +255,7 @@ TEST(SCOPED_TRACETest, CanBeRepeated) {
 
 // Here's the sequence of actions that happen in the test:
 //
-//   Thread A (main)                | Thread B (spawned)
+//   Thread A (base)                | Thread B (spawned)
 //   ===============================|================================
 //   spawns thread B                |
 //   -------------------------------+--------------------------------
@@ -480,7 +480,7 @@ void DieIf(bool should_die) {
 
 // Tests running death tests in a multi-threaded context.
 
-// Used for coordination between the main and the spawn thread.
+// Used for coordination between the base and the spawn thread.
 struct SpawnThreadNotifications {
   SpawnThreadNotifications() {}
 
@@ -494,10 +494,10 @@ struct SpawnThreadNotifications {
 // The function to be executed in the thread spawn by the
 // MultipleThreads test (below).
 static void ThreadRoutine(SpawnThreadNotifications* notifications) {
-  // Signals the main thread that this thread has started.
+  // Signals the base thread that this thread has started.
   notifications->spawn_thread_started.Notify();
 
-  // Waits for permission to finish from the main thread.
+  // Waits for permission to finish from the base thread.
   notifications->spawn_thread_ok_to_terminate.WaitForNotification();
 }
 
@@ -1021,7 +1021,7 @@ class BarEnvironment : public testing::Environment {
   }
 };
 
-// The main function.
+// The base function.
 //
 // The idea is to use Google Test to run all the tests we have defined (some
 // of them are intended to fail), and then compare the test results

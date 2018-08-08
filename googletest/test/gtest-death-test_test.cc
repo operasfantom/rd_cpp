@@ -48,7 +48,7 @@ using testing::internal::AlwaysTrue;
 # endif  // GTEST_OS_WINDOWS
 
 # include <limits.h>
-# include <signal.h>
+# include <Signal.h>
 # include <stdio.h>
 
 # if GTEST_OS_LINUX

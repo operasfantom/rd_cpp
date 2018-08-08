@@ -14,7 +14,15 @@
 class RdReactiveBase : public virtual RdBindableBase, public virtual IRdReactive {
 public:
 
+    //region ctor/dtor
+
+    RdReactiveBase() = default;
+
+    RdReactiveBase(RdReactiveBase &&other) = default;
+
     virtual ~RdReactiveBase() = default;
+    //endregion
+
     /*static logReceived = Protocol.sublogger("RECV")
     static logSend = Protocol.sublogger("SEND")
     static logAssert = getLogger<RdReactiveBase>()*/
@@ -27,7 +35,7 @@ public:
     mutable bool is_local_change = false;
 
     //delegated
-    const Serializers & get_serializers() {
+    const Serializers &get_serializers() {
         return get_protocol()->serializers;
     }
 
@@ -47,7 +55,7 @@ public:
 
     void assert_bound() {
         if (!is_bound()) {
-            throw std::invalid_argument("Not bound" );
+            throw std::invalid_argument("Not bound");
         }
     }
 

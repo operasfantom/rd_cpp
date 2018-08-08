@@ -737,7 +737,7 @@ INSTANTIATE_TEST_CASE_P(TestExpansionModule, TestGenerationTest,
 // the call site of INSTANTIATE_TEST_CASE_P nor in RUN_ALL_TESTS().  For
 // that, we declare param_value_ to be a static member of
 // GeneratorEvaluationTest and initialize it to 0.  We set it to 1 in
-// main(), just before invocation of InitGoogleTest().  After calling
+// base(), just before invocation of InitGoogleTest().  After calling
 // InitGoogleTest(), we set the value to 2.  If the sequence is evaluated
 // before or after InitGoogleTest, INSTANTIATE_TEST_CASE_P will create a
 // test with parameter other than 1, and the test body will fail the

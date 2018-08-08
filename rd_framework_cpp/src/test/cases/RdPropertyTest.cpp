@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 #include <RdProperty.h>
 #include "../util/RdFrameworkTestBase.h"
+#include "../../main/FrameworkMarshallers.h"
 
 using vi = std::vector<int>;
 
@@ -49,74 +50,70 @@ TEST_F(RdFrameworkTestBase, property_statics) {
     serverLifetimeDef.terminate();
 }
 
-/*
-class DynamicEntity : RdBindableBase {
+class DynamicEntity : public RdBindableBase, public ISerializable {
+    using S = FrameworkMarshallers::Bool;
 public:
-    RdProperty<std::optional<bool> > foo;
+    RdProperty<bool, S> foo;
+
+    //region ctor/dtor
 
     DynamicEntity() = default;
 
-    DynamicEntity(DynamicEntity const& other) = default;
-//    DynamicEntity(const RdProperty<std::optional<bool>> &foo) : foo(foo) {}
+    DynamicEntity(DynamicEntity &&other) = default;
 
-//    DynamicEntity(std::optional<bool> foo) : DynamicEntity(RdProperty(foo, FrameworkMarshallers.Bool.nullable()));
+    explicit DynamicEntity(RdProperty<bool, S> &&foo) : foo(std::move(foo)) {}
 
-*/
-/*
-    companion object : IMarshaller<DynamicEntity> {
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): DynamicEntity {
-            return DynamicEntity(RdProperty.read(ctx, buffer, FrameworkMarshallers.Bool.nullable()))
-        }
+    explicit DynamicEntity(bool value) : DynamicEntity(RdProperty<bool, S>(value)) {};
+    //endregion
 
-        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: DynamicEntity) {
-            RdProperty.write(ctx, buffer, value._foo)
-        }
+    static void registry(IProtocol *protocol) {
+        protocol->serializers.registry<DynamicEntity>([](SerializationCtx const &ctx, Buffer const &buffer) {
+            return std::make_unique<DynamicEntity>(std::move(RdProperty<bool, S>::read(ctx, buffer)));
+            //todo avoid heap alloc
+        });
+    }
 
-        override val _type: KClass<*>
-        get() = DynamicEntity::class
-}
-*//*
-
-
-    static void create(IProtocol *protocol) {
-//        protocol->serializers->registry(DynamicEntity);
+    virtual void write(SerializationCtx const &ctx, Buffer const &buffer) const {
+        foo.write(ctx, buffer);
     }
 
     void init(Lifetime lifetime) {
         foo.bind(lifetime, this, "foo");
     }
 
-    void identify(IIdentities &identities, RdId id) {
+    void identify(IIdentities *identities, RdId id) {
         foo.identify(identities, id.mix("foo"));
     }
 };
 
 
-TEST_F(RdFrameworkTestBase, property_dynamic) {
+/*TEST_F(RdFrameworkTestBase, property_dynamic) {
+    using listOf = std::vector<bool>;
+
     int property_id = 1;
 
-    RdProperty<DynamicEntity> client_property_storage{DynamicEntity()};
-    RdProperty<DynamicEntity> server_property_storage{DynamicEntity()};
+    RdProperty<DynamicEntity> client_property_storage{DynamicEntity(false)};
+    RdProperty<DynamicEntity> server_property_storage{DynamicEntity(false)};
 
     RdProperty<DynamicEntity> &client_property = statics(client_property_storage, (property_id));
     RdProperty<DynamicEntity> &server_property = statics(server_property_storage, (property_id)).slave();
 
-//    DynamicEntity.create(clientProtocol);
-//    DynamicEntity.create(serverProtocol);
+    DynamicEntity::registry(clientProtocol.get());
+    DynamicEntity::registry(serverProtocol.get());
     //bound
     bindStatic(serverProtocol.get(), server_property, "top");
     bindStatic(clientProtocol.get(), client_property, "top");
 
-    using listOf = std::vector<std::optional<bool> >;
+    using listOf = std::vector<bool>;
 
-    std::vector<std::optional<bool> > clientLog;
-    std::vector<std::optional<bool> > serverLog;
+    std::vector<bool> clientLog;
+    std::vector<bool> serverLog;
 
-    client_property.advise(Lifetime::Eternal(), [](DynamicEntity entity) {
-        entity.foo.advise(Lifetime::Eternal(), [](std::optional<bool> it) { clientLog.push_back(it); });
+    client_property.advise(Lifetime::Eternal(), [&](DynamicEntity entity) {
+        entity.foo.advise(Lifetime::Eternal(), [&](bool it) { clientLog.push_back(it); });
     });
-    server_property.advise(Lifetime::Eternal(), [](DynamicEntity entity) {
-        entity.foo.advise(Lifetime::Eternal(), [](std::optional<bool> it) { serverLog.push_back(it); });
+    server_property.advise(Lifetime::Eternal(), [&](DynamicEntity entity) {
+        entity.foo.advise(Lifetime::Eternal(), [&](bool it) { serverLog.push_back(it); });
     });
 
     EXPECT_EQ(listOf(), clientLog);
@@ -124,7 +121,7 @@ TEST_F(RdFrameworkTestBase, property_dynamic) {
 
 //    client_property.set(DynamicEntity(nullopt));
 
-    EXPECT_EQ(listOf{nullptr}, clientLog);
+    *//*EXPECT_EQ(listOf{nullptr}, clientLog);
     EXPECT_EQ(listOf{nullptr}, serverLog);
 
 
@@ -153,11 +150,11 @@ TEST_F(RdFrameworkTestBase, property_dynamic) {
     EXPECT_TRUE(server_property.get().foo.get().has_value());
     server_property.get().foo.set(nullptr);
     EXPECT_EQ((listOf{nullptr, false, true, nullptr, true, nullptr}), clientLog);
-    EXPECT_EQ((listOf{nullptr, false, true, nullptr, true, nullptr}), serverLog);
+    EXPECT_EQ((listOf{nullptr, false, true, nullptr, true, nullptr}), serverLog);*//**//*
 
 
 //    client_property.set(DynamicEntity(false));
     //reuse
 //    client_property.set(e);
-}
-*/
+ *//*
+}*/

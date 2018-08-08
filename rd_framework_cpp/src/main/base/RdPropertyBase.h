@@ -23,9 +23,17 @@ protected:
     bool optimize_nested = false;
     std::unique_ptr<IProperty<T>> property;
 public:
+
+    //region ctor/dtor
+
+    RdPropertyBase(RdPropertyBase &&other) = default;
+
     explicit RdPropertyBase(const T &value) : IProperty<T>(value) {
         this->change = std::unique_ptr<Signal<T>>(new Signal<T>());
     }
+
+    virtual ~RdPropertyBase() = default;
+    //endregion
 
     virtual void init(Lifetime lifetime) {
         RdReactiveBase::init(lifetime);
@@ -61,8 +69,6 @@ public:
             });
         }
     }
-
-    virtual ~RdPropertyBase() = default;
 
     virtual void on_wire_received(Buffer const &buffer) {
         int32_t version = buffer.read_pod<int32_t>();
