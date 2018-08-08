@@ -186,3 +186,39 @@ TEST_F(RdFrameworkTestBase, signal_custom_iserializable) {
     clientLifetimeDef.terminate();
     serverLifetimeDef.terminate();
 }
+
+TEST_F(RdFrameworkTestBase, signal_vector) {
+    int signal_id = 1;
+
+    using array = std::vector<int>;
+
+    RdSignal<array> client_signal_storage;
+    RdSignal<array> server_signal_storage;
+
+    RdSignal<array> &client_signal = statics(client_signal_storage, signal_id);
+    RdSignal<array> &server_signal = statics(server_signal_storage, signal_id);
+
+    array client_log;
+    array server_log;
+
+    client_signal.advise(Lifetime::Eternal(), [&client_log](array v) { client_log = v; });
+    server_signal.advise(Lifetime::Eternal(), [&server_log](array v) { server_log = v; });
+
+    bindStatic(serverProtocol.get(), server_signal, "top");
+    bindStatic(clientProtocol.get(), client_signal, "top");
+
+    //set from client
+    array a{2, 0, 1, 8};
+    client_signal.fire(a);
+    EXPECT_EQ(a, client_log);
+    EXPECT_EQ(a, server_log);
+
+    //set from client
+    a = {8, 8, 9, 8, 8, 0, 2, 1, 8, 6, 0};
+    server_signal.fire(a);
+    EXPECT_EQ(a, client_log);
+    EXPECT_EQ(a, server_log);
+
+    clientLifetimeDef.terminate();
+    serverLifetimeDef.terminate();
+}

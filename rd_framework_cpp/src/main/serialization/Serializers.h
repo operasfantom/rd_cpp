@@ -22,7 +22,7 @@ public:
                                                                           Buffer const &)>, RdId::Hasher> readers;
 
     template<typename T>
-    T/*const ISerializable &*/ readPolymorphic(SerializationCtx const &ctx, Buffer const &stream) const {
+    T/*const ISerializable &*/ readPolymorphic(SerializationCtx const &ctx, Buffer const &stream) const {//todo rvalue
         RdId id = RdId::read(stream);
         int32_t size = stream.read_pod<int32_t>();
         stream.check_available(size);
@@ -31,7 +31,7 @@ public:
             throw std::invalid_argument("no reader");
         }
         auto const &reader = readers.at(id);
-        T result = *static_cast<T*>(reader(ctx, stream).get());
+        T result = *dynamic_cast<T*>(reader(ctx, stream).get());
         return result;
     }
 

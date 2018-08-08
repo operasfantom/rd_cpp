@@ -6,8 +6,9 @@
 #define RD_CPP_POLYMORPHIC_H
 
 #include "ISerializer.h"
+#include <type_traits>
 
-template<typename T>
+template<typename T, typename R = void>
 class Polymorphic/* : public ISerializer<T>*/ {
 public:
 
@@ -22,18 +23,33 @@ public:
 
 };
 
-template<>
-class Polymorphic<int> {
+template<typename T>
+class Polymorphic<T, typename std::enable_if_t<std::is_integral_v<T> > > {
 public:
     static int read(SerializationCtx const &ctx, Buffer const &buffer) {
 //        ctx.serializers->readPolymorphicNullable(ctx, buffer);
-        return (buffer.read_pod<int>());
+        return buffer.read_pod<T>();
     }
 
-    static void write(SerializationCtx const &ctx, Buffer const &buffer, int const &value) {
-        buffer.write_pod<int>(value);
+    static void write(SerializationCtx const &ctx, Buffer const &buffer, T const &value) {
+        buffer.write_pod<T>(value);
     }
 
+};
+
+template<typename T>
+class Polymorphic<std::vector<T>> {
+public:
+    static std::vector<T> read(SerializationCtx const &ctx, Buffer const &buffer) {
+//        ctx.serializers->readPolymorphicNullable(ctx, buffer);
+        auto v = buffer.read_array<T>();
+        return std::vector<T>(v.begin(), v.end());
+    }
+
+    static void write(SerializationCtx const &ctx, Buffer const &buffer, std::vector<T> const &value) {
+        std::vector<T> v(value.begin(), value.end());
+        buffer.write_array<T>(v);
+    }
 };
 
 template<>
