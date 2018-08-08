@@ -137,6 +137,19 @@ public:
             }, v);
         }
 
+        std::optional<V> get_new_value() const {
+            return std::visit(overloaded{
+                    [](typename Event::Add const &e) {
+                        return std::make_optional<V>(e.new_value);
+                    },
+                    [](typename Event::Update const &e) {
+                        return std::make_optional<V>(e.new_value);
+                    },
+                    [](typename Event::Remove const &e) {
+                        return std::make_optional<V>();
+                    }
+            }, v);
+        }
     };
 
     virtual ~IViewableMap() {}
@@ -249,6 +262,20 @@ public:
                     },
                     [](typename Event::Remove const &e) {
                         return e.index;
+                    }
+            }, v);
+        }
+
+        std::optional<V> get_new_value() const {
+            return std::visit(overloaded{
+                    [](typename Event::Add const &e) {
+                        return std::make_optional<V>(e.new_value);
+                    },
+                    [](typename Event::Update const &e) {
+                        return std::make_optional<V>(e.new_value);
+                    },
+                    [](typename Event::Remove const &e) {
+                        return std::make_optional<V>();
                     }
             }, v);
         }

@@ -23,5 +23,18 @@ public:
     virtual void identify(IIdentities *identities, RdId id) = 0;
 };
 
+void identifyPolymorphic(IRdBindable &that, IIdentities *identities, RdId const& id);
+
+void identifyPolymorphic(std::any const &that, IIdentities *identities, RdId const& id);
+
+void bindPolymorphic(IRdBindable &that, Lifetime lf, IRdDynamic *parent, std::string const &name);
+
+void bindPolymorphic(std::any const &that, Lifetime lf, IRdDynamic *parent, std::string const &name);
+
+/*void bindPolymorphic(? &that, Lifetime lf, IRdDynamic *parent, std::string const &name){
+    for (auto &x){
+        x.bind(lf, parent, name);
+    }
+}*/
 
 #endif //RD_CPP_FRAMEWORK_IRDBINDABLE_H

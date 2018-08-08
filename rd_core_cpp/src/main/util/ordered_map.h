@@ -461,8 +461,6 @@ public:
     T& operator[](const Key& key) { return m_ht[key]; }
     T& operator[](Key&& key) { return m_ht[std::move(key)]; }
 
-    T const & operator[](const Key& key) const { return (*find(key)).second; }
-
     size_type count(const Key& key) const { return m_ht.count(key); }
 
     /**

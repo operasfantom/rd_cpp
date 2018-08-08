@@ -14,10 +14,6 @@
 template<typename T, typename S = Polymorphic<T>>
 class RdProperty : public RdPropertyBase<T, S>/*, public IProperty<T> */, ISerializable {
 public:
-    virtual void init(IProtocol *aProtocol) {
-
-    }
-
     virtual void write(SerializationCtx const& ctx, Buffer const &buffer) const {
 
     }
@@ -49,10 +45,11 @@ public:
         return *this;
     }
 
-    void identify(IIdentities &ids, RdId id) {
-        /*RdPropertyBase<T>::identify(ids, id);
-        if (!optimizeNested)
-            value?.identifyPolymorphic(ids, ids.next(id))*/
+
+    virtual void identify(IIdentities *identities, RdId id) {
+        RdBindableBase::identify(identities, id);
+        if (!this->optimize_nested)
+            identifyPolymorphic(this->get(), identities, identities->next(id));
     }
 
     /*void print(PrettyPrinter printer) {

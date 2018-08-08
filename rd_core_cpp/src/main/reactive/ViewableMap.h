@@ -35,14 +35,14 @@ public:
     }
 
     virtual V get(K const &key) const {
-        return map[key];
+        return map.at(key);
     }
 
     std::optional<V> set(K const &key, V const &value) {
         if (map.count(key) == 0) {
             map[key] = value;
             change.fire(typename Event::Add(key, value));
-            return {};
+            return std::nullopt;
         } else {
             V old_value = map[key];
             if (map[key] != value) {
@@ -60,7 +60,7 @@ public:
             change.fire(typename Event::Remove(key, old_value));
             return old_value;
         }
-        return {};
+        return std::nullopt;
     }
 
     virtual void clear() {

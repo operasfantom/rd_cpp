@@ -35,9 +35,12 @@ void RdBindableBase::identify(IIdentities *identities, RdId id) {
 //        require(!id.isNull) { "Assigned RdId mustn't be null, entity: $this" }
 
     this->rd_id = id;
-    /*for ((name, child) in bindableChildren) {
-        child?.identifyPolymorphic(identities, id.mix(".$name"))
-    }*/
+    for (auto &p : bindable_children) {
+        auto const &name = p.first;
+        auto const &child = p.second;
+
+        identifyPolymorphic(child, identities, id.mix("." + name));
+    }
 }
 
 IProtocol *RdBindableBase::get_protocol() {
@@ -48,7 +51,7 @@ IProtocol *RdBindableBase::get_protocol() {
     }
 }
 
-SerializationCtx const& RdBindableBase::get_serialization_context() const {
+SerializationCtx const &RdBindableBase::get_serialization_context() const {
     if (parent) {
         return parent->get_serialization_context();
     } else {
@@ -58,10 +61,10 @@ SerializationCtx const& RdBindableBase::get_serialization_context() const {
 
 void RdBindableBase::init(Lifetime lifetime) {
     for (auto &p : bindable_children) {
-//        auto &name = p.first;
+        auto &name = p.first;
         auto &child = p.second;
         if (child.has_value()) {
-//            bindPolymorphic(child, lifetime, *this, name);
+            bindPolymorphic(child, lifetime, this, name);
         }
     }
 }

@@ -51,7 +51,12 @@ public:
             advise(lifetime, [this, lifetime](typename IViewableList<V>::Event e) {
                 if (!is_local_change) return;
 
-//            if (!optimizeNested) (e.newValueOpt)?.identifyPolymorphic(protocol.identity, protocol.identity.next(rdid))
+                if (!optimizeNested){
+                    std::optional<V> new_value = e.get_new_value();
+                    if (new_value.has_value()){
+                        identifyPolymorphic(e, get_protocol()->identity, get_protocol()->identity->next(rd_id));
+                    }
+                }
 
                 get_wire()->send(rd_id, [this, e](Buffer const &buffer) {
                     Op op = static_cast<Op >(e.v.index());
@@ -59,15 +64,10 @@ public:
                     buffer.write_pod<int64_t>(static_cast<int64_t>(op) | (nextVersion++ << versionedFlagShift));
                     buffer.write_pod<int32_t>(e.get_index());
 
-                    std::visit(overloaded{
-                            [this, &buffer](typename Event::Add const &e) {
-                                S::write(this->get_serialization_context(), buffer, e.new_value);
-                            },
-                            [this, &buffer](typename Event::Update const &e) {
-                                S::write(this->get_serialization_context(), buffer, e.new_value);
-                            },
-                            [](typename Event::Remove const &e) {},
-                    }, e.v);
+                    std::optional<V> new_value = e.get_new_value();
+                    if (new_value){
+                        S::write(this->get_serialization_context(), buffer, *new_value);
+                    }
 
 //                logSend.trace { logmsg(op, nextVersion-1, it.index, it.newValueOpt) }
                 });
@@ -79,7 +79,7 @@ public:
         if (!optimizeNested)
             this->view(lifetime,
                        [this](Lifetime lf, size_t index,
-                              V const &value) { /*value.bindPolymorphic(lf, this, "[$index]");*/ });
+                              V const &value) { bindPolymorphic(value, lf, this, "[" + std::to_string(index) + "]"); });
     }
 
     virtual void on_wire_received(Buffer const &buffer) {

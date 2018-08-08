@@ -34,7 +34,7 @@ public:
         if (!optimize_nested) {
             property->change->advise(lifetime, [this](T v) {
                 if (is_local_change) {
-//                v?.identifyPolymorphic(protocol.identity, protocol.identity.next(rdid));
+                    identifyPolymorphic(v, get_protocol()->identity, get_protocol()->identity->next(rd_id));
                 }
             });
         }
@@ -56,8 +56,8 @@ public:
         get_wire()->advise(lifetime, *this);
 
         if (!optimize_nested) {
-            this->view(lifetime, [](Lifetime lf, T v) {
-//                v ?.bindPolymorphic(lf, this, "\$") }
+            this->view(lifetime, [this](Lifetime lf, T v) {
+                bindPolymorphic(v, lf, this, "\'$");
             });
         }
     }

@@ -11,7 +11,6 @@
 template<typename T, typename R = void>
 class Polymorphic/* : public ISerializer<T>*/ {
 public:
-
     static T/*ISerializable const &*/read(SerializationCtx const &ctx, Buffer const &buffer) {
         return ctx.serializers->readPolymorphic<T>(ctx, buffer);
 //        return (buffer.read_pod<T>());

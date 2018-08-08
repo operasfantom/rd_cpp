@@ -8,6 +8,7 @@
 
 #include <optional>
 #include <vector>
+#include <type_traits>
 #include "Buffer.h"
 
 class Buffer {
@@ -25,6 +26,7 @@ protected:
 
     //write
     void write(const void *src, size_t size) const;
+
 public:
     size_t get_position() const;
 
@@ -34,14 +36,14 @@ public:
 
     void check_available(size_t moreSize) const;
 
-    template<typename T>
+    template<typename T, typename = std::enable_if_t<std::is_integral_v<T> > >
     T read_pod() const {
         T result;
         read(&result, sizeof(T));
         return result;
     }
 
-    template<typename T>
+    template<typename T, typename = std::enable_if_t<std::is_integral_v<T> > >
     void write_pod(T const &value) const {
         write(&value, sizeof(T));
     }
@@ -56,7 +58,7 @@ public:
 
     template<typename T>
     void write_array(std::vector<T> const &array) const {
-        write_pod<int32_t >(array.size());
+        write_pod<int32_t>(array.size());
         write(array.data(), sizeof(T) * array.size());
     }
 

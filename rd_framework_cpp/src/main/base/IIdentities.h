@@ -8,6 +8,7 @@
 #include "../RdId.h"
 
 class IIdentities {
+public:
     virtual RdId next(RdId parent) = 0;
 };
 

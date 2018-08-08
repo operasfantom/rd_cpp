@@ -62,7 +62,10 @@ public:
             advise(lifetime, [this, lifetime](Event e) {
                 if (!is_local_change) return;
 
-//                if (!optimizeNested) (e.newValueOpt) ?.identifyPolymorphic(protocol.identity, protocol.identity.next(rdid))
+                std::optional<V> new_value = e.get_new_value();
+                if (new_value.has_value()){
+                    identifyPolymorphic(e, get_protocol()->identity, get_protocol()->identity->next(rd_id));
+                }
 
                 get_wire()->send(rd_id, [this, e](Buffer const &buffer) {
                     int32_t versionedFlag = ((is_master() ? 1 : 0)) << versionedFlagShift;
@@ -79,15 +82,10 @@ public:
 
                     KS::write(this->get_serialization_context(), buffer, e.get_key());
 
-                    std::visit(overloaded{
-                            [this, &buffer](typename Event::Add const &e) {
-                                VS::write(this->get_serialization_context(), buffer, e.new_value);
-                            },
-                            [this, &buffer](typename Event::Update const &e) {
-                                VS::write(this->get_serialization_context(), buffer, e.new_value);
-                            },
-                            [](typename Event::Remove const &e) {},
-                    }, e.v);
+                    std::optional<V> new_value = e.get_new_value();
+                    if (new_value.has_value()){
+                        VS::write(this->get_serialization_context(), buffer, *new_value);
+                    }
 
 //                logSend.trace { logmsg(op, nextVersion-1, it.index, it.newValueOpt) }
                 });
@@ -97,8 +95,8 @@ public:
         get_wire()->advise(lifetime, *this);
 
         if (!optimizeNested)
-            this->view(lifetime, [this](Lifetime lf, std::pair<K, V> const value) {
-//                           value.bindPolymorphic(lf, this, "[$index]");
+            this->view(lifetime, [this](Lifetime lf, std::pair<K, V> const entry) {
+                bindPolymorphic(entry.second, lf, this, "[" + std::to_string(entry.first) + "]");
             });
     }
 
