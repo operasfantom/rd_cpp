@@ -63,7 +63,7 @@ public:
                 if (!is_local_change) return;
 
                 std::optional<V> new_value = e.get_new_value();
-                if (new_value.has_value()){
+                if (new_value.has_value()) {
                     identifyPolymorphic(e, get_protocol()->identity, get_protocol()->identity->next(rd_id));
                 }
 
@@ -83,7 +83,7 @@ public:
                     KS::write(this->get_serialization_context(), buffer, e.get_key());
 
                     std::optional<V> new_value = e.get_new_value();
-                    if (new_value.has_value()){
+                    if (new_value.has_value()) {
                         VS::write(this->get_serialization_context(), buffer, *new_value);
                     }
 
@@ -107,7 +107,7 @@ public:
 
         int64_t version = msgVersioned ? buffer.read_pod<int64_t>() : 0;
 
-        K key = KS::read(this->get_serialization_context(), buffer);
+        K const& key = KS::read(this->get_serialization_context(), buffer);
 
         if (op == Op::Ack) {
             /*val errmsg =
@@ -159,7 +159,7 @@ public:
         }
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(typename IViewableMap<K, V>::Event)> handler) {
+    virtual void advise(Lifetime lifetime, std::function<void(typename IViewableMap<K, V>::Event)> handler) const {
         if (is_bound()) assert_threading();
         map.advise(lifetime, handler);
     }

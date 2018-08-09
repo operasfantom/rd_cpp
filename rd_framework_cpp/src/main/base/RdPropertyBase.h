@@ -72,7 +72,7 @@ public:
 
     virtual void on_wire_received(Buffer const &buffer) {
         int32_t version = buffer.read_pod<int32_t>();
-        T v = S::read(this->get_serialization_context(), buffer);
+        T const& v = S::read(this->get_serialization_context(), buffer);
 
         bool rejected = is_master && version < master_version;
         if (rejected) {
@@ -83,7 +83,7 @@ public:
         this->property->set(v);
     };
 
-    virtual void advise(Lifetime lifetime, std::function<void(T)> handler) {
+    virtual void advise(Lifetime lifetime, std::function<void(const T &)> handler) const {
         if (is_bound()) {
 //            assertThreading();
         }

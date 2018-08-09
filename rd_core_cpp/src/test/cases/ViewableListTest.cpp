@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
+#include <ViewableList.h>
 #include "viewable_collections.h"
-#include "ViewableList.h"
 #include "../util/util.h"
 
 TEST(viewable_list, add_remove_advise) {
@@ -68,7 +68,7 @@ TEST(viewable_list, other_reactive_api) {
             list->add(0);
             list->add(0, 1);
             //EXPECT_EQ(log, arrayListOf({"Add 0 0"_s, "Add 0 1"_s}));
-			EXPECT_EQ(log, (std::vector<std::string>{"Add 0 0", "Add 0 1"}));
+            EXPECT_EQ(log, (std::vector<std::string>{"Add 0 0", "Add 0 1"}));
 
 
             EXPECT_EQ(list->toList(), arrayListOf({1, 0}));

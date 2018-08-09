@@ -24,7 +24,7 @@ public:
     }
 
 
-    T get() {
+    virtual T const &get() const {
         return this->value;
     }
 

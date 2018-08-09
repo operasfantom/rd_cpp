@@ -13,7 +13,7 @@ class IProtocol;
 
 class SerializationCtx {
 public:
-    Serializers const * const serializers = nullptr;
+    Serializers const *const serializers = nullptr;
 //    std::optional<IInternRoot> internRoot;
 
 //    SerializationCtx() = delete;

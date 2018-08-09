@@ -29,7 +29,7 @@ public:
     }
 
     virtual void on_wire_received(Buffer const &buffer) {
-        T /*const& */value = S::read(this->get_serialization_context(), buffer);
+        T const& value = S::read(this->get_serialization_context(), buffer);
 //        logReceived.trace { "signal `$location` ($rdid):: value = ${value.printToString()}" }
         signal.fire(value);
     }
@@ -39,7 +39,7 @@ public:
         if (!async) {
             assert_threading();
         }
-        get_wire()->send(rd_id, [this, value](Buffer const &buffer) {
+        get_wire()->send(rd_id, [this, &value](Buffer const &buffer) {
 //            logSend.trace { "signal `$location` ($rdid):: value = ${value.printToString()}" }
             S::write(get_serialization_context(), buffer, value);
         });
@@ -47,7 +47,7 @@ public:
     }
 
 
-    void advise(Lifetime lifetime, std::function<void(T)> handler) {
+    void advise(Lifetime lifetime, std::function<void(const T &)> handler) const {
         if (is_bound()) {
             assert_threading();
         }

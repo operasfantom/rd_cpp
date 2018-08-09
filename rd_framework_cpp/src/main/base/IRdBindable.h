@@ -14,9 +14,12 @@ class IRdBindable : public IRdDynamic {
 public:
     RdId rd_id = RdId::Null();
 
+    //region ctor/dtor
+
     IRdBindable() = default;
 
     virtual ~IRdBindable() = default;
+    //endregion
 
     virtual void bind(Lifetime lf, IRdDynamic *parent, std::string const &name) = 0;
 

@@ -3,7 +3,6 @@
 //
 
 #include "MessageBroker.h"
-#include "Buffer.h"
 
 void MessageBroker::invoke(IRdReactive *that, const Buffer &msg, bool sync) {
     if (sync) {

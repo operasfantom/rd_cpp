@@ -3,11 +3,10 @@
 //
 #include <gtest/gtest.h>
 
-#include <cstdint>
 #include <RdProperty.h>
 #include "RdList.h"
-#include "../../../../rd_core_cpp/src/test/util/util.h"
 #include "../util/RdFrameworkTestBase.h"
+#include "../../../../rd_core_cpp/src/test/util/util.h"
 
 TEST_F(RdFrameworkTestBase, rd_list_static) {
     int32_t id = 1;

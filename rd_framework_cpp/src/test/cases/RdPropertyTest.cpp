@@ -109,11 +109,11 @@ public:
     std::vector<bool> clientLog;
     std::vector<bool> serverLog;
 
-    client_property.advise(Lifetime::Eternal(), [&](DynamicEntity entity) {
-        entity.foo.advise(Lifetime::Eternal(), [&](bool it) { clientLog.push_back(it); });
+    client_property.advise(Lifetime::Eternal(), [&](DynamicEntity const& entity) {
+        entity.foo.advise(Lifetime::Eternal(), [&](bool const& it) { clientLog.push_back(it); });
     });
-    server_property.advise(Lifetime::Eternal(), [&](DynamicEntity entity) {
-        entity.foo.advise(Lifetime::Eternal(), [&](bool it) { serverLog.push_back(it); });
+    server_property.advise(Lifetime::Eternal(), [&](DynamicEntity const& entity) {
+        entity.foo.advise(Lifetime::Eternal(), [&](bool const& it) { serverLog.push_back(it); });
     });
 
     EXPECT_EQ(listOf(), clientLog);
@@ -150,7 +150,7 @@ public:
     EXPECT_TRUE(server_property.get().foo.get().has_value());
     server_property.get().foo.set(nullptr);
     EXPECT_EQ((listOf{nullptr, false, true, nullptr, true, nullptr}), clientLog);
-    EXPECT_EQ((listOf{nullptr, false, true, nullptr, true, nullptr}), serverLog);*//**//*
+    EXPECT_EQ((listOf{nullptr, false, true, nullptr, true, nullptr}), serverLog);*//**//**//**//**//**//**//**//*
 
 
 //    client_property.set(DynamicEntity(false));

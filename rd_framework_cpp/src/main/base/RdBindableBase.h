@@ -19,21 +19,24 @@ protected:
 
     bool is_bound() const;
 
-    IProtocol *get_protocol();
+    IProtocol *get_protocol() const;
 
     std::vector<std::pair<std::string, std::any> > bindable_children;
 
-    SerializationCtx const& get_serialization_context() const;
+    SerializationCtx const &get_serialization_context() const;
 
 public:
+    //region ctor/dtor
+
     RdBindableBase() {
         location = RName("<<not bound>>");
     };
 
+    virtual ~RdBindableBase() = default;
+    //endregion
+
     //need to implement in subclasses
     virtual void init(Lifetime lifetime);
-
-    virtual ~RdBindableBase() = default;
 
     virtual void bind(Lifetime lf, IRdDynamic *parent, const std::string &name);
 

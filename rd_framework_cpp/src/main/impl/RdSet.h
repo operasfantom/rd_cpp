@@ -43,7 +43,7 @@ public:
 
     virtual void on_wire_received(Buffer const &buffer) {
         AddRemove kind = static_cast<AddRemove>(buffer.read_pod<int32_t>());
-        T value = S::read(this->get_serialization_context(), buffer);
+        T const& value = S::read(this->get_serialization_context(), buffer);
 
         //todo maybe identify is forgotten
 
@@ -88,7 +88,7 @@ public:
         return local_change<bool>([&]() { return set.empty(); });
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) {
+    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) const {
         if (is_bound()) assert_threading();
         set.advise(lifetime, handler);
     }

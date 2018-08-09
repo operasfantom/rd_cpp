@@ -21,7 +21,7 @@ private:
 public:
     virtual ~ViewableMap() {}
 
-    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) {
+    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) const {
         change.advise(lifetime, handler);
         for (auto p : map) {
             handler(Event(typename Event::Add(p.first, p.second)));;

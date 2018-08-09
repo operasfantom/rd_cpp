@@ -20,7 +20,7 @@ private:
 public:
     virtual ~ViewableList() {}
 
-    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) {
+    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) const {
         if (lifetime->is_terminated()) return;
         change.advise(lifetime, handler);
         auto it = list.begin();
@@ -83,11 +83,11 @@ public:
         }
     }
 
-    virtual size_t size() {
+    virtual size_t size() const {
         return list.size();
     }
 
-    virtual bool empty() {
+    virtual bool empty() const {
         return list.empty();
     }
 

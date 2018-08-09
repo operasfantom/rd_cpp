@@ -28,7 +28,7 @@ enum class AddRemove {
 template<typename T>
 class IViewableSet : public IViewable<T> {
 protected:
-    std::unordered_map<Lifetime, std::unordered_map<T, LifetimeDefinition>, Lifetime::Hash> lifetimes;
+    mutable std::unordered_map<Lifetime, std::unordered_map<T, LifetimeDefinition>, Lifetime::Hash> lifetimes;
 public:
     class Event {
     public:
@@ -40,14 +40,14 @@ public:
 
     virtual ~IViewableSet() {}
 
-    virtual void advise(Lifetime lifetime, std::function<void(AddRemove, T)> handler) {
+    virtual void advise(Lifetime lifetime, std::function<void(AddRemove, T)> handler) const {
         this->advise(lifetime, [handler](Event e) {
             handler(e.kind, e.value);
         });
     }
 
 
-    virtual void view(Lifetime lifetime, std::function<void(Lifetime, T)> handler) {
+    virtual void view(Lifetime lifetime, std::function<void(Lifetime, T)> handler) const {
         advise(lifetime, [this, lifetime, handler](AddRemove kind, T key) {
             switch (kind) {
                 case AddRemove::ADD: {
@@ -65,7 +65,7 @@ public:
         });
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) = 0;
+    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) const = 0;
 
     virtual bool add(T const &) = 0;
 
@@ -85,7 +85,7 @@ template<typename K, typename V>
 class IViewableMap
         : public IViewable<const std::pair<K, V>> {
 protected:
-    std::unordered_map<Lifetime, std::unordered_map<K, LifetimeDefinition>, Lifetime::Hash> lifetimes;
+    mutable std::unordered_map<Lifetime, std::unordered_map<K, LifetimeDefinition>, Lifetime::Hash> lifetimes;
 public:
     class Event {
     public:
@@ -154,8 +154,7 @@ public:
 
     virtual ~IViewableMap() {}
 
-    virtual void view(Lifetime lifetime,
-                      std::function<void(Lifetime lifetime, const std::pair<K, V>)> handler) {
+    virtual void view(Lifetime lifetime, std::function<void(Lifetime lifetime, const std::pair<K, V>)> handler) const {
         advise_add_remove(lifetime, [this, lifetime, handler](AddRemove kind, K const &key, V const &value) {
             const std::pair<K, V> entry = std::make_pair(key, value);
             switch (kind) {
@@ -179,7 +178,7 @@ public:
         });
     }
 
-    void advise_add_remove(Lifetime lifetime, std::function<void(AddRemove, K, V)> handler) {
+    void advise_add_remove(Lifetime lifetime, std::function<void(AddRemove, K, V)> handler) const {
         advise(lifetime, [handler](Event const &e) {
             std::visit(overloaded{
                     [handler](typename Event::Add const &e) {
@@ -202,7 +201,7 @@ public:
         });
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) = 0;
+    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) const = 0;
 
     virtual V get(K const &) const = 0;
 
@@ -282,11 +281,11 @@ public:
     };
 
 protected:
-    std::unordered_map<Lifetime, std::vector<LifetimeDefinition>, Lifetime::Hash> lifetimes;
+    mutable std::unordered_map<Lifetime, std::vector<LifetimeDefinition>, Lifetime::Hash> lifetimes;
 public:
     virtual ~IViewableList() {}
 
-    void advise_add_remove(Lifetime lifetime, std::function<void(AddRemove, size_t, V)> handler) {
+    void advise_add_remove(Lifetime lifetime, std::function<void(AddRemove, size_t, V)> handler) const {
         advise(lifetime, [handler](Event const &e) {
             std::visit(overloaded{
                     [handler](typename Event::Add const &e) {
@@ -303,14 +302,14 @@ public:
         });
     }
 
-    void view(Lifetime lifetime,
-              std::function<void(Lifetime lifetime, const std::pair<size_t, V>)> handler) {
+    virtual void
+    view(Lifetime lifetime, std::function<void(Lifetime lifetime, const std::pair<size_t, V>)> handler) const {
         view(lifetime, [handler](Lifetime lt, size_t idx, V v) {
             handler(lt, std::make_pair(idx, v));
         });
     }
 
-    void view(Lifetime lifetime, std::function<void(Lifetime, size_t, V)> handler) {
+    void view(Lifetime lifetime, std::function<void(Lifetime, size_t, V)> handler) const {
         advise_add_remove(lifetime, [this, lifetime, handler](AddRemove kind, size_t idx, V value) {
             switch (kind) {
                 case AddRemove::ADD: {
@@ -331,7 +330,7 @@ public:
         });
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) = 0;
+    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) const = 0;
 
     virtual bool add(V const &element) = 0;
 
@@ -349,9 +348,9 @@ public:
 
     virtual void clear() = 0;
 
-    virtual size_t size() = 0;
+    virtual size_t size() const = 0;
 
-    virtual bool empty() = 0;
+    virtual bool empty() const = 0;
 
     virtual std::vector<V> toList() = 0;
 };

@@ -138,4 +138,5 @@ std::string to_string_map_event/*<K, std::string>*/(typename IViewableMap<K, std
     }, e.v);
     return res;
 }
+
 #endif //RD_CPP_CORE_UTIL_H

@@ -12,7 +12,7 @@
 #include "../serialization/ISerializable.h"
 
 template<typename T, typename S = Polymorphic<T>>
-class RdProperty : public RdPropertyBase<T, S>/*, public IProperty<T> */, ISerializable {
+class RdProperty : public RdPropertyBase<T, S>/*, public IProperty<T> */, public ISerializable {
 public:
     //region ctor/dtor
 
@@ -28,7 +28,7 @@ public:
     static RdProperty<T, S> read(SerializationCtx const &ctx, Buffer const &buffer) {
         RdId id = RdId::read(buffer);
 //        val value = if (buffer.readBool()) valueSerializer.read(ctx, buffer) else null;
-        T value = S::read(ctx, buffer);
+        T const& value = S::read(ctx, buffer);
         RdProperty<T, S> property(value);
         withId(property, id);
         return property;
@@ -38,11 +38,11 @@ public:
 
     }
 
-    void advise(Lifetime lifetime, std::function<void(T)> handler) {
+    void advise(Lifetime lifetime, std::function<void(const T &)> handler) const {
         RdPropertyBase<T, S>::advise(lifetime, handler);
     }
 
-    virtual T get() {
+    virtual T const &get() const {
         return this->value;
     }
 

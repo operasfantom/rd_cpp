@@ -39,7 +39,7 @@ public:
     }
 
 //    static std::shared_ptr<LifetimeDefinition> eternal;
-        static std::shared_ptr<LifetimeDefinition> get_shared_eternal();
+    static std::shared_ptr<LifetimeDefinition> get_shared_eternal();
 
     bool is_terminated() const;
 

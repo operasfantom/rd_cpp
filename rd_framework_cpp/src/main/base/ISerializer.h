@@ -11,7 +11,7 @@
 template<typename T>
 class ISerializer {
 public:
-    virtual ISerializable const& read(SerializationCtx const &ctx, Buffer const &buffer) = 0;
+    virtual ISerializable const &read(SerializationCtx const &ctx, Buffer const &buffer) = 0;
 
     virtual void write(SerializationCtx const &ctx, Buffer const &buffer, T const &value) = 0;
 };

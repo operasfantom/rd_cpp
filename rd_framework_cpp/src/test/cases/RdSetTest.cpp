@@ -15,12 +15,13 @@ TEST_F(RdFrameworkTestBase, set_statics) {
     RdSet<int> server_set_storage;
     RdSet<int> client_server_set_storage;
 
-    RdSet<int>& serverSet = statics(server_set_storage, id);
-    RdSet<int>& clientSet = statics(client_server_set_storage, id);
+    RdSet<int> &serverSet = statics(server_set_storage, id);
+    RdSet<int> &clientSet = statics(client_server_set_storage, id);
 
     vi log;
 
-    serverSet.advise(serverLifetimeDef.lifetime, [&](AddRemove kind, int v) { log.push_back((kind == AddRemove::ADD)  ? v : -v);});
+    serverSet.advise(serverLifetimeDef.lifetime,
+                     [&](AddRemove kind, int v) { log.push_back((kind == AddRemove::ADD) ? v : -v); });
 
     clientSet.add(2);
     clientSet.add(0);

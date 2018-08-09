@@ -43,7 +43,7 @@ void RdBindableBase::identify(IIdentities *identities, RdId id) {
     }
 }
 
-IProtocol *RdBindableBase::get_protocol() {
+IProtocol *RdBindableBase::get_protocol() const {
     if (parent && parent->get_protocol()) {
         return parent->get_protocol();
     } else {

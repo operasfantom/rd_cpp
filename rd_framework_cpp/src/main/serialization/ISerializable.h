@@ -10,6 +10,7 @@
 
 //#include "SerializationCtx.h"
 class SerializationCtx;
+
 class IProtocol;
 
 //template <int id>

@@ -18,9 +18,9 @@ private:
 //    std::vector<std::function<void(T)> > listeners;
     using counter_t = int32_t;
 //    std::atomic<counter_t> advise_id = 0;
-    counter_t advise_id = 0;
+    mutable counter_t advise_id = 0;
 
-    std::map<counter_t, std::function<void(T)> > listeners;
+    mutable std::map<counter_t, std::function<void(T const &)> > listeners;
 public:
     Signal() {}
 
@@ -34,7 +34,7 @@ public:
         }
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(T)> handler) {
+    virtual void advise(Lifetime lifetime, std::function<void(const T &)> handler) const {
         lifetime->bracket(
                 [this, handler]() { listeners[advise_id] = handler; },
                 [this, advise_id = advise_id, handler]() {

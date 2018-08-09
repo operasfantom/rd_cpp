@@ -36,7 +36,7 @@ public:
     //addAll(collection)?
 
     virtual void clear() {
-        for (auto element : set){
+        for (auto element : set) {
             change.fire(Event(AddRemove::REMOVE, element));
         }
         set.clear();
@@ -51,7 +51,7 @@ public:
         return true;
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) {
+    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) const {
         for (auto x : set) {
             handler(Event(AddRemove::ADD, x));
         }

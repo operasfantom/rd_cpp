@@ -4,8 +4,8 @@
 
 #include <gtest/gtest.h>
 #include <RdMap.h>
-#include "../../../../rd_core_cpp/src/test/util/util.h"
 #include "../util/RdFrameworkTestBase.h"
+#include "../../../../rd_core_cpp/src/test/util/util.h"
 
 TEST_F(RdFrameworkTestBase, rd_map_statics) {
     int32_t id = 1;

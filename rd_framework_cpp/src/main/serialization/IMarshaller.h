@@ -7,7 +7,7 @@
 
 #include "typeinfo"
 
-template <typename T>
+template<typename T>
 class IMarshaller {
 
 };

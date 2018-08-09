@@ -126,9 +126,20 @@ template<typename K>
 class Foo : public ISerializable {
     K x, y;
 public:
+    //region ctor/dtor
+
     explicit Foo(K x = 0, K y = 0) : x(x), y(y) {};
 
+//    Foo(Foo const&) = delete;
+
+    Foo(Foo &&other) noexcept = default;
+
+    Foo&operator=(Foo const& other) = default;
+
+//    Foo& operator=(Foo&& other) = default;
+
     virtual ~Foo() = default;
+    //endregion
 
     static void registry(IProtocol *protocol) {
         protocol->serializers.registry<Foo>([](SerializationCtx const &ctx, Buffer const &buffer) {
@@ -170,8 +181,8 @@ TEST_F(RdFrameworkTestBase, signal_custom_iserializable) {
     Foo<char> client_log;
     Foo<char> server_log;
 
-    client_signal.advise(Lifetime::Eternal(), [&client_log](Foo<char> v) { client_log = v; });
-    server_signal.advise(Lifetime::Eternal(), [&server_log](Foo<char> v) { server_log = v; });
+    client_signal.advise(Lifetime::Eternal(), [&client_log](Foo<char> const &v) { client_log = v; });
+    server_signal.advise(Lifetime::Eternal(), [&server_log](Foo<char> const &v) { server_log = v; });
 
     bindStatic(serverProtocol.get(), server_signal, "top");
     bindStatic(clientProtocol.get(), client_signal, "top");

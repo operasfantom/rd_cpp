@@ -18,7 +18,7 @@ class ISource {
 public:
     virtual ~ISource() = default;
 
-    virtual void advise(Lifetime lifetime, std::function<void(T)> handler) = 0;
+    virtual void advise(Lifetime lifetime, std::function<void(const T &)> handler) const = 0;
 };
 
 template<typename T>
@@ -26,7 +26,7 @@ class IViewable {
 public:
     virtual ~IViewable() = default;
 
-    virtual void view(Lifetime lifetime, std::function<void(Lifetime, T)> handler) = 0;
+    virtual void view(Lifetime lifetime, std::function<void(Lifetime, T)> handler) const = 0;
 };
 
 template<typename T>
@@ -34,7 +34,7 @@ class IPropertyBase : public ISource<T>, public IViewable<T> {
 public:
     virtual ~IPropertyBase() = default;
 
-    virtual void view(Lifetime lifetime, std::function<void(Lifetime, T)> handler) {
+    virtual void view(Lifetime lifetime, std::function<void(Lifetime, T)> handler) const {
         if (lifetime->is_terminated()) return;
 
         Lifetime lf = lifetime.create_nested();
@@ -65,9 +65,9 @@ public:
     virtual ~IProperty() = default;
     //endregion
 
-    virtual T get() = 0;
+    virtual T const &get() const = 0;
 
-    virtual void advise(Lifetime lifetime, std::function<void(T)> handler) {
+    virtual void advise(Lifetime lifetime, std::function<void(const T &)> handler) const {
         if (lifetime->is_terminated()) {
             return;
         }

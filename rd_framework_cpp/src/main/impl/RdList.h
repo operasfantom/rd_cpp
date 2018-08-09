@@ -20,11 +20,14 @@ private:
 
     using Event = typename IViewableList<V>::Event;
 public:
+    //region ctor/dtor
+
     RdList() = default;
 
     explicit RdList(const ViewableList<V> &list, int64_t nextVersion) : list(list), nextVersion(nextVersion) {}
 
     virtual ~RdList() = default;
+    //endregion
 
     enum class Op {
         Add, Update, Remove
@@ -51,9 +54,9 @@ public:
             advise(lifetime, [this, lifetime](typename IViewableList<V>::Event e) {
                 if (!is_local_change) return;
 
-                if (!optimizeNested){
+                if (!optimizeNested) {
                     std::optional<V> new_value = e.get_new_value();
-                    if (new_value.has_value()){
+                    if (new_value.has_value()) {
                         identifyPolymorphic(e, get_protocol()->identity, get_protocol()->identity->next(rd_id));
                     }
                 }
@@ -65,7 +68,7 @@ public:
                     buffer.write_pod<int32_t>(e.get_index());
 
                     std::optional<V> new_value = e.get_new_value();
-                    if (new_value){
+                    if (new_value) {
                         S::write(this->get_serialization_context(), buffer, *new_value);
                     }
 
@@ -77,9 +80,9 @@ public:
         get_wire()->advise(lifetime, *this);
 
         if (!optimizeNested)
-            this->view(lifetime,
-                       [this](Lifetime lf, size_t index,
-                              V const &value) { bindPolymorphic(value, lf, this, "[" + std::to_string(index) + "]"); });
+            this->view(lifetime, [this](Lifetime lf, size_t index, V const &value) {
+                bindPolymorphic(value, lf, this, "[" + std::to_string(index) + "]");
+            });
     }
 
     virtual void on_wire_received(Buffer const &buffer) {
@@ -98,12 +101,12 @@ public:
 
         switch (op) {
             case Op::Add: {
-                V value = S::read(this->get_serialization_context(), buffer);
+                V const& value = S::read(this->get_serialization_context(), buffer);
                 (index < 0) ? list.add(value) : list.add(index, value);
                 break;
             }
             case Op::Update: {
-                V value = S::read(this->get_serialization_context(), buffer);
+                V const& value = S::read(this->get_serialization_context(), buffer);
                 list.set(index, value);
                 break;
             }
@@ -114,7 +117,7 @@ public:
         }
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(typename IViewableList<V>::Event)> handler) {
+    virtual void advise(Lifetime lifetime, std::function<void(typename IViewableList<V>::Event)> handler) const {
         if (is_bound()) assert_threading();
         list.advise(lifetime, handler);
     }
@@ -140,9 +143,9 @@ public:
 
     virtual void clear() { return local_change([&]() { list.clear(); }); }
 
-    virtual size_t size() { return local_change<size_t>([&]() { return list.size(); }); }
+    virtual size_t size() const { return local_change<size_t>([&]() { return list.size(); }); }
 
-    virtual bool empty() { return local_change<bool>([&]() { return list.empty(); }); }
+    virtual bool empty() const { return local_change<bool>([&]() { return list.empty(); }); }
 
     std::vector<V> toList() { return local_change<std::vector<V>>([&]() { return list.toList(); }); }
 };

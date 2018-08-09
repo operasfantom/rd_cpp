@@ -39,7 +39,7 @@ public:
         return get_protocol()->serializers;
     }
 
-    IScheduler *get_default_scheduler() {
+    IScheduler *get_default_scheduler() const {
         return get_protocol()->scheduler;
     }
 
@@ -47,7 +47,7 @@ public:
         return get_default_scheduler();
     }
 
-    void assert_threading() {
+    void assert_threading() const {
         if (!async && !get_default_scheduler()->is_active()) {
 
         }

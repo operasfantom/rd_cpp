@@ -21,13 +21,13 @@ public:
         }
     };
 
-    static Lifetime const& Eternal();
+    static Lifetime const &Eternal();
 
     Lifetime() = delete;
 
     Lifetime(Lifetime const &other) = default;
 
-    Lifetime &operator=(Lifetime const &other)  = default;
+    Lifetime &operator=(Lifetime const &other) = default;
 
     Lifetime(Lifetime &&other) noexcept : ptr(std::move(other.ptr)) {}
 
