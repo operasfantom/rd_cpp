@@ -19,7 +19,11 @@ public:
     RdProperty(RdProperty &&other) = default;
 
     explicit RdProperty(T const &value) : RdPropertyBase<T, S>(value) {
-        this->property = std::unique_ptr<Property<T>>(new Property<T>(value));
+//        this->property = std::unique_ptr<Property<T>>(new Property<T>(value));
+    }
+
+    explicit RdProperty(T && value) : RdPropertyBase<T, S>(value) {
+//        this->property = std::unique_ptr<Property<T>>(new Property<T>(value));
     }
 
     virtual ~RdProperty() = default;
@@ -47,9 +51,9 @@ public:
     }
 
     virtual void set(T const &new_value) {
-        this->template local_change<T>([this, new_value]() -> T {
+        this->template local_change<T>([this, &new_value]() -> T {
             this->default_value_changed = true;
-            this->property->set(new_value);
+            RdPropertyBase<T, S>::set(new_value);
             return {};
         });
     }

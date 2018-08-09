@@ -12,6 +12,7 @@
 
 #include "Lifetime.h"
 //#include "SignalX.h"
+//#include "SignalX.h"
 
 template<typename T>
 class ISource {
@@ -61,6 +62,8 @@ public:
     IProperty(IProperty &&other) = default;
 
     explicit IProperty(T const &value) : value(value) {}
+
+    explicit IProperty(T &&value) : value(std::move(value)) {}
 
     virtual ~IProperty() = default;
     //endregion

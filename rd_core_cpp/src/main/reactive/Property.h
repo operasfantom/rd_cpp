@@ -17,11 +17,16 @@ private:
     }
 
 public:
+    //region ctor/dtor
+
+    Property(Property &&) = default;
+
     virtual ~Property() = default;
 
     explicit Property(T const &value) : IProperty<T>(value) {
         this->change = std::unique_ptr<Signal<T>>(new Signal<T>());
     }
+    //endregion
 
 
     virtual T const &get() const {

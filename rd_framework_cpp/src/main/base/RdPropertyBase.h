@@ -10,9 +10,10 @@
 #include "ISerializer.h"
 #include "../../../../rd_core_cpp/src/main/reactive/SignalX.h"
 #include "../serialization/Polymorphic.h"
+#include "Property.h"
 
 template<typename T, typename S = Polymorphic<T>>
-class RdPropertyBase : public RdReactiveBase, public IProperty<T> {
+class RdPropertyBase : public RdReactiveBase, public Property<T> {
 protected:
     //mastering
     bool is_master = true;
@@ -21,16 +22,15 @@ protected:
 
     //init
     bool optimize_nested = false;
-    std::unique_ptr<IProperty<T>> property;
 public:
 
     //region ctor/dtor
 
     RdPropertyBase(RdPropertyBase &&other) = default;
 
-    explicit RdPropertyBase(const T &value) : IProperty<T>(value) {
-        this->change = std::unique_ptr<Signal<T>>(new Signal<T>());
-    }
+    explicit RdPropertyBase(const T &value) : Property<T>(value) {}
+
+    explicit RdPropertyBase(T &&value) : IProperty<T>(std::move(value)) {}
 
     virtual ~RdPropertyBase() = default;
     //endregion
@@ -40,7 +40,7 @@ public:
 
 
         if (!optimize_nested) {
-            property->change->advise(lifetime, [this](T v) {
+            this->change->advise(lifetime, [this](T v) {
                 if (is_local_change) {
                     identifyPolymorphic(v, get_protocol()->identity, get_protocol()->identity->next(rd_id));
                 }
@@ -72,7 +72,7 @@ public:
 
     virtual void on_wire_received(Buffer const &buffer) {
         int32_t version = buffer.read_pod<int32_t>();
-        T const& v = S::read(this->get_serialization_context(), buffer);
+        T const &v = S::read(this->get_serialization_context(), buffer);
 
         bool rejected = is_master && version < master_version;
         if (rejected) {
@@ -80,16 +80,15 @@ public:
         }
         master_version = version;
 
-        this->property->set(v);
+        Property<T>::set(v);
     };
 
     virtual void advise(Lifetime lifetime, std::function<void(const T &)> handler) const {
         if (is_bound()) {
 //            assertThreading();
         }
-        property->advise(lifetime, handler);
+        Property<T>::advise(lifetime, handler);
     }
-
 };
 
 
