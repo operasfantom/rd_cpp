@@ -81,9 +81,7 @@ public:
         handler(value);
     }
 
-    virtual void set(T const &) const = 0;
-
-    virtual void set(T &&) const = 0;
+    virtual void set(T) const = 0;
 };
 
 template<typename T>

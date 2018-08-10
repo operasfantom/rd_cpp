@@ -50,10 +50,10 @@ TEST_F(RdFrameworkTestBase, property_statics) {
     serverLifetimeDef.terminate();
 }
 
-/*class DynamicEntity : public RdBindableBase, public ISerializable {
-    using S = FrameworkMarshallers::Bool;
+class DynamicEntity : public RdBindableBase, public ISerializable {
+    using S = FrameworkMarshallers::Int32;
 public:
-    RdProperty<bool, S> foo;
+    RdProperty<int32_t, S> foo;
 
     //region ctor/dtor
 
@@ -71,14 +71,14 @@ public:
     virtual ~DynamicEntity() = default;
     //endregion
 
-    explicit DynamicEntity(RdProperty<bool, S> &&foo) : foo(std::move(foo)) {}
+    explicit DynamicEntity(RdProperty<int32_t, S> &&foo) : foo(std::move(foo)) {}
 
-    explicit DynamicEntity(bool value) : DynamicEntity(RdProperty<bool, S>(value)) {};
+    explicit DynamicEntity(int32_t value) : DynamicEntity(RdProperty<int32_t, S>(value)) {};
     //endregion
 
     static void registry(IProtocol *protocol) {
         protocol->serializers.registry<DynamicEntity>([](SerializationCtx const &ctx, Buffer const &buffer) {
-            return std::make_unique<DynamicEntity>(std::move(RdProperty<bool, S>::read(ctx, buffer)));
+            return std::make_unique<DynamicEntity>(std::move(RdProperty<int32_t, S>::read(ctx, buffer)));
             //todo avoid heap alloc
         });
     }
@@ -106,12 +106,12 @@ public:
 
 
 TEST_F(RdFrameworkTestBase, property_dynamic) {
-    using listOf = std::vector<bool>;
+    using listOf = std::vector<int32_t>;
 
     int property_id = 1;
 
-    RdProperty<DynamicEntity> client_property_storage{DynamicEntity(false)};
-    RdProperty<DynamicEntity> server_property_storage{DynamicEntity(false)};
+    RdProperty<DynamicEntity> client_property_storage{DynamicEntity(0)};
+    RdProperty<DynamicEntity> server_property_storage{DynamicEntity(0)};
 
     RdProperty<DynamicEntity> &client_property = statics(client_property_storage, (property_id));
     RdProperty<DynamicEntity> &server_property = statics(server_property_storage, (property_id)).slave();
@@ -122,18 +122,38 @@ TEST_F(RdFrameworkTestBase, property_dynamic) {
     bindStatic(serverProtocol.get(), server_property, "top");
     bindStatic(clientProtocol.get(), client_property, "top");
 
-    using listOf = std::vector<bool>;
+    using listOf = std::vector<int32_t>;
 
-    std::vector<bool> clientLog;
-    std::vector<bool> serverLog;
+    std::vector<int32_t> clientLog;
+    std::vector<int32_t> serverLog;
 
     client_property.advise(Lifetime::Eternal(), [&](DynamicEntity const &entity) {
-        entity.foo.advise(Lifetime::Eternal(), [&](bool const &it) { clientLog.push_back(it); });
+        entity.foo.advise(Lifetime::Eternal(), [&](int32_t const &it) { clientLog.push_back(it); });
     });
     server_property.advise(Lifetime::Eternal(), [&](DynamicEntity const &entity) {
-        entity.foo.advise(Lifetime::Eternal(), [&](bool const &it) { serverLog.push_back(it); });
+        entity.foo.advise(Lifetime::Eternal(), [&](int32_t const &it) { serverLog.push_back(it); });
     });
 
-    EXPECT_EQ((listOf{false}), clientLog);
-    EXPECT_EQ((listOf{false}), serverLog);
-}*/
+    EXPECT_EQ((listOf{0}), clientLog);
+    EXPECT_EQ((listOf{0}), serverLog);
+
+    client_property.set(DynamicEntity(2));
+
+    EXPECT_EQ((listOf{0, 2}), clientLog);
+    EXPECT_EQ((listOf{0, 2}), serverLog);
+
+    client_property.get().foo.set(5);
+
+    EXPECT_EQ((listOf{0, 2, 5}), clientLog);
+    EXPECT_EQ((listOf{0, 2, 5}), serverLog);
+
+    client_property.get().foo.set(5);
+
+    EXPECT_EQ((listOf{0, 2, 5}), clientLog);
+    EXPECT_EQ((listOf{0, 2, 5}), serverLog);
+
+    client_property.set(DynamicEntity(5));
+
+    EXPECT_EQ((listOf{0, 2, 5, 5}), clientLog);
+    EXPECT_EQ((listOf{0, 2, 5, 5}), serverLog);
+}

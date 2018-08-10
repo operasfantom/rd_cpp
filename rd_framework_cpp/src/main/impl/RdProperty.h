@@ -37,7 +37,8 @@ public:
     }
 
     virtual void write(SerializationCtx const &ctx, Buffer const &buffer) const {
-
+        this->rd_id.write(buffer);
+        S::write(ctx, buffer, this->value);
     }
 
     void advise(Lifetime lifetime, std::function<void(const T &)> handler) const {

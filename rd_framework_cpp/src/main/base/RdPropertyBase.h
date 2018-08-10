@@ -82,7 +82,7 @@ public:
         }
         master_version = version;
 
-        this->set(std::move(v));
+        Property<T>::set(std::move(v));
     };
 
     virtual void advise(Lifetime lifetime, std::function<void(const T &)> handler) const {
@@ -97,14 +97,7 @@ public:
         return this->value;
     }
 
-    virtual void set(T const& new_value) const {
-        this->local_change([this, &new_value]() {
-            this->default_value_changed = true;
-            Property<T>::set(new_value);
-        });
-    }
-
-    virtual void set(T &&new_value) const {
+    virtual void set(T new_value) const {
         this->local_change([this, &new_value]() {
             this->default_value_changed = true;
             Property<T>::set(std::move(new_value));

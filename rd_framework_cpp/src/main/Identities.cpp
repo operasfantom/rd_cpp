@@ -5,5 +5,7 @@
 #include "Identities.h"
 
 RdId Identities::next(const RdId &parent) const {
-    return parent.mix(id_acc += 2);
+    RdId result = parent.mix(id_acc);
+    id_acc += 2;
+    return result;
 }
