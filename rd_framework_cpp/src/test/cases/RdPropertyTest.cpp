@@ -50,7 +50,7 @@ TEST_F(RdFrameworkTestBase, property_statics) {
     serverLifetimeDef.terminate();
 }
 
-class DynamicEntity : public RdBindableBase, public ISerializable {
+/*class DynamicEntity : public RdBindableBase, public ISerializable {
     using S = FrameworkMarshallers::Bool;
 public:
     RdProperty<bool, S> foo;
@@ -59,9 +59,17 @@ public:
 
 //    DynamicEntity() = default;
 
+
+    //region ctor/dtor
+
+    DynamicEntity(DynamicEntity const& other) = delete;
+
     DynamicEntity(DynamicEntity &&other) = default;
 
     DynamicEntity &operator=(DynamicEntity &&other) = default;
+
+    virtual ~DynamicEntity() = default;
+    //endregion
 
     explicit DynamicEntity(RdProperty<bool, S> &&foo) : foo(std::move(foo)) {}
 
@@ -126,6 +134,6 @@ TEST_F(RdFrameworkTestBase, property_dynamic) {
         entity.foo.advise(Lifetime::Eternal(), [&](bool const &it) { serverLog.push_back(it); });
     });
 
-    EXPECT_EQ(listOf(), clientLog);
-    EXPECT_EQ(listOf(), serverLog);
-}
+    EXPECT_EQ((listOf{false}), clientLog);
+    EXPECT_EQ((listOf{false}), serverLog);
+}*/

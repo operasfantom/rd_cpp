@@ -25,7 +25,7 @@ public:
 
     RName &operator=(RName &&other) noexcept = default;
 
-    RName(RName *parent, const std::string &localName, const std::string &separator);
+    RName(RName *const parent, const std::string &localName, const std::string &separator);
 
     explicit RName(std::string local_name);
     //endregion

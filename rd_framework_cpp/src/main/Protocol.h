@@ -12,10 +12,10 @@
 
 class Protocol : /*IRdDynamic, */public IProtocol {
 public:
-    Protocol(IIdentities *identity, IScheduler *scheduler, IWire *wire) :
+    Protocol(const IIdentities *const identity, const IScheduler *const scheduler, const IWire *const wire) :
             IProtocol(identity, scheduler, wire) {}
 
-    virtual IProtocol const *get_protocol() const;
+    virtual IProtocol const * const get_protocol() const;
 //    static std::string log_category = "protocol";
 //    fun sublogger(subcategory: String) = getLogger("$logCategory.$subcategory")
 };

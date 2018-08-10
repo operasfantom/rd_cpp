@@ -24,17 +24,17 @@ class TestWire : public WireBase {
 protected:
     bool auto_flush = true;
 public:
-    TestWire *counterpart = nullptr;
-    std::queue<RdMessage> msgQ;
-    int64_t bytesWritten = 0;
+    mutable TestWire const *counterpart = nullptr;
+    mutable std::queue<RdMessage> msgQ;
+    mutable int64_t bytesWritten = 0;
 
-    explicit TestWire(IScheduler *scheduler);
+    explicit TestWire(IScheduler const *const scheduler);
 
-    virtual void send(RdId id, std::function<void(Buffer const &buffer)> writer);
+    virtual void send(RdId id, std::function<void(Buffer const &buffer)> writer) const;
 
-    void process_all_messages();
+    void process_all_messages() const;
 
-    void process_one_message();
+    void process_one_message() const;
 
     void set_auto_flush(bool value);
 };

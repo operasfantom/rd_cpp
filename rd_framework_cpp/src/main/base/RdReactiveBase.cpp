@@ -4,11 +4,11 @@
 
 #include "RdReactiveBase.h"
 
-IWire *RdReactiveBase::get_wire() const {
+const IWire *const RdReactiveBase::get_wire() const {
     return get_protocol()->wire;
 }
 
-IScheduler *RdReactiveBase::get_wire_scheduler() const {
+const IScheduler *const RdReactiveBase::get_wire_scheduler() const {
     return get_default_scheduler();
 }
 

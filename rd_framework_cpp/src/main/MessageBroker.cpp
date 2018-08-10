@@ -4,7 +4,7 @@
 
 #include "MessageBroker.h"
 
-void MessageBroker::invoke(const IRdReactive *that, const Buffer &msg, bool sync) {
+void MessageBroker::invoke(const IRdReactive *that, const Buffer &msg, bool sync) const {
     if (sync) {
         that->on_wire_received(msg);
     } else {
@@ -18,9 +18,9 @@ void MessageBroker::invoke(const IRdReactive *that, const Buffer &msg, bool sync
     }
 }
 
-MessageBroker::MessageBroker(IScheduler *defaultScheduler) : defaultScheduler(defaultScheduler) {}
+MessageBroker::MessageBroker(IScheduler const *defaultScheduler) : defaultScheduler(defaultScheduler) {}
 
-void MessageBroker::dispatch(RdId id, std::shared_ptr<Buffer> message) {
+void MessageBroker::dispatch(RdId id, std::shared_ptr<Buffer> message) const {
 //        require(!id.isNull) { "id mustn't be null" }
 
 //        synchronized(lock) {

@@ -17,11 +17,11 @@
 class TestScheduler : public IScheduler {
     virtual void flush() {}
 
-    virtual void queue(std::function<void()> action) {
+    virtual void queue(std::function<void()> action) const {
         action();
     }
 
-    bool is_active() {
+    bool is_active() const {
         return true;
     }
 };
@@ -62,11 +62,11 @@ public:
                 new Protocol(/*serializers,*/ &serverIdentities, &serverScheduler, serverTestWire.get()));
 
 
-        std::pair<TestWire *, TestWire *> p = std::make_pair(
-                dynamic_cast<TestWire *>(clientProtocol->wire),
-                dynamic_cast<TestWire *>(serverProtocol->wire));
-        TestWire *w1 = p.first;
-        TestWire *w2 = p.second;
+        std::pair<TestWire const *, TestWire const *> p = std::make_pair(
+                dynamic_cast<TestWire const *>(clientProtocol->wire),
+                dynamic_cast<TestWire const *>(serverProtocol->wire));
+        TestWire const *w1 = p.first;
+        TestWire const *w2 = p.second;
         w1->counterpart = w2;
         w2->counterpart = w1;
     }

@@ -4,6 +4,6 @@
 
 #include "IRdDynamic.h"
 
-IProtocol const *IRdDynamic::get_protocol() const {
+const IProtocol *const IRdDynamic::get_protocol() const {
     return protocol;
 }

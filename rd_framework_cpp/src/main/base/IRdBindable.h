@@ -27,10 +27,10 @@ public:
 
     virtual void bind(Lifetime lf, IRdDynamic const *parent, std::string const &name) const = 0;
 
-    virtual void identify(IIdentities *identities, RdId id) const = 0;
+    virtual void identify(const IIdentities *identities, const RdId &id) const = 0;
 };
 
-void identifyPolymorphic(const IRdBindable &that, IIdentities *identities, RdId const &id);
+void identifyPolymorphic(const IRdBindable &that, const IIdentities *identities, RdId const &id);
 
 template<typename T>
 void identifyPolymorphic(std::vector<T> const &that, IIdentities *identities, RdId const &id) {
@@ -39,9 +39,9 @@ void identifyPolymorphic(std::vector<T> const &that, IIdentities *identities, Rd
     }
 }
 
-void identifyPolymorphic(std::any const &that, IIdentities *identities, RdId const &id);
+void identifyPolymorphic(std::any const &that, const IIdentities *identities, RdId const &id);
 
-void bindPolymorphic(IRdBindable const &that, Lifetime lf, IRdDynamic const *parent, std::string const &name);
+void bindPolymorphic(IRdBindable const &that, Lifetime lf, const IRdDynamic *parent, std::string const &name);
 
 template<typename T>
 void bindPolymorphic(std::vector<T> const &that, Lifetime lf, IRdDynamic const *parent, std::string const &name) {
@@ -50,7 +50,7 @@ void bindPolymorphic(std::vector<T> const &that, Lifetime lf, IRdDynamic const *
     }
 }
 
-void bindPolymorphic(std::any const &that, Lifetime lf, IRdDynamic const *parent, std::string const &name);
+void bindPolymorphic(std::any const &that, Lifetime lf, const IRdDynamic *parent, std::string const &name);
 
 /*void bindPolymorphic(? &that, Lifetime lf, IRdDynamic *parent, std::string const &name){
     for (auto &x){

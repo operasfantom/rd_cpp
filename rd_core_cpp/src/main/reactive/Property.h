@@ -12,7 +12,7 @@ template<typename T>
 class Property : public IProperty<T> {
 
 private:
-    Signal<T> *get_change() const {
+    Signal<T> * const get_change() const {
         return dynamic_cast<Signal<T> *>(this->change.get());
     }
 
@@ -39,19 +39,19 @@ public:
         return this->value;
     }
 
-    void set(T &&new_value) const {
+    void set(T const &new_value) const {
         if (this->value != new_value) {
-            this->value = std::forward<T>(new_value);
+            this->value = new_value;
             this->get_change()->fire(this->value);
         }
     }
 
-    /*void set(T &&new_value) {
+    void set(T &&new_value) const {
         if (this->value != new_value) {
             this->value = std::move(new_value);
             this->get_change()->fire(this->value);
         }
-    }*/
+    }
 
     friend bool operator==(const Property &lhs, const Property &rhs) {
         return &lhs == &rhs;

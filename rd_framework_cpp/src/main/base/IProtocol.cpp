@@ -7,9 +7,9 @@
 #include "IWire.h"
 #include "IProtocol.h"
 
-IProtocol::IProtocol(IIdentities *identity, IScheduler *scheduler, IWire *wire) : identity(identity),
-                                                                                  scheduler(scheduler), wire(wire),
-                                                                                  context(&serializers) {}
+IProtocol::IProtocol(const IIdentities *const identity, const IScheduler *const scheduler, const IWire *const wire) : identity(identity),
+                                                                                                                      scheduler(scheduler), wire(wire),
+                                                                                                                      context(&serializers) {}
 
 const SerializationCtx &IProtocol::get_serialization_context() const {
     return context;

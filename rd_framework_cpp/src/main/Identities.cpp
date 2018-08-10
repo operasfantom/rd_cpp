@@ -4,6 +4,6 @@
 
 #include "Identities.h"
 
-RdId Identities::next(RdId parent) {
+RdId Identities::next(const RdId &parent) const {
     return parent.mix(id_acc += 2);
 }

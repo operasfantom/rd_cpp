@@ -39,7 +39,7 @@ public:
 
     //local change
 
-    IWire *get_wire() const;
+    const IWire *const get_wire() const;
 
     //local change
     mutable bool is_local_change = false;
@@ -49,11 +49,11 @@ public:
         return get_protocol()->serializers;
     }
 
-    IScheduler *get_default_scheduler() const {
+    const IScheduler *const get_default_scheduler() const {
         return get_protocol()->scheduler;
     }
 
-    IScheduler *get_wire_scheduler() const;
+    const IScheduler *const get_wire_scheduler() const;
 
     void assert_threading() const;
 

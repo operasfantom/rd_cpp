@@ -4,7 +4,7 @@
 
 #include "RName.h"
 
-RName::RName(RName *parent, const std::string &localName, const std::string &separator) : parent(
+RName::RName(RName * const parent, const std::string &localName, const std::string &separator) : parent(
         parent), local_name(localName), separator(separator) {}
 
 RName RName::sub(std::string localName, std::string separator) {

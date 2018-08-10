@@ -9,7 +9,7 @@
 
 class IIdentities {
 public:
-    virtual RdId next(RdId parent) = 0;
+    virtual RdId next(const RdId &parent) const = 0;
 };
 
 

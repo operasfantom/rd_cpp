@@ -15,17 +15,17 @@ public:
 
 class MessageBroker {
 private:
-    IScheduler *defaultScheduler = nullptr;
+    IScheduler const *defaultScheduler = nullptr;
     mutable std::unordered_map<RdId, IRdReactive const *, RdId::Hasher> subscriptions;
     mutable std::unordered_map<RdId, Mq, RdId::Hasher> broker;
 
-    void invoke(const IRdReactive *that, Buffer const &msg, bool sync = false);
+    void invoke(const IRdReactive *that, Buffer const &msg, bool sync = false) const;
 
 public:
 
-    explicit MessageBroker(IScheduler *defaultScheduler);
+    explicit MessageBroker(IScheduler const * const defaultScheduler);
 
-    void dispatch(RdId id, std::shared_ptr<Buffer> message);
+    void dispatch(RdId id, std::shared_ptr<Buffer> message) const;
 
     void advise_on(Lifetime lifetime, IRdReactive const &entity) const;
 };

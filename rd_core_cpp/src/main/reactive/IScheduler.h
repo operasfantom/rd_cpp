@@ -12,7 +12,7 @@ class IScheduler {
 protected:
     bool is_active_ = false;
 public:
-    virtual void queue(std::function<void()> action) = 0;
+    virtual void queue(std::function<void()> action) const = 0;
 
     /*void assertThread(debugInfo: Any? = null) {
         if (!isActive) {
@@ -35,7 +35,7 @@ public:
 
     virtual void flush() = 0;
 
-    virtual bool is_active() = 0;
+    virtual bool is_active() const = 0;
 };
 
 

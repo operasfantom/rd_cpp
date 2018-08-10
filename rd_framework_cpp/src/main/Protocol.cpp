@@ -4,6 +4,6 @@
 
 #include "Protocol.h"
 
-IProtocol const *Protocol::get_protocol() const {
+IProtocol const * const Protocol::get_protocol() const {
     return this;
 }

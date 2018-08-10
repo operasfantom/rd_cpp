@@ -30,7 +30,7 @@ void RdBindableBase::bind(Lifetime lf, IRdDynamic const *parent, const std::stri
 //    }
 }
 
-void RdBindableBase::identify(IIdentities *identities, RdId id) const {
+void RdBindableBase::identify(const IIdentities *identities, const RdId &id) const {
 //        require(rdid.isNull) { "Already has RdId: $rdid, entity: $this" }
 //        require(!id.isNull) { "Assigned RdId mustn't be null, entity: $this" }
 
@@ -43,7 +43,7 @@ void RdBindableBase::identify(IIdentities *identities, RdId id) const {
     }
 }
 
-IProtocol const *RdBindableBase::get_protocol() const {
+const IProtocol *const RdBindableBase::get_protocol() const {
     if (parent && parent->get_protocol()) {
         return parent->get_protocol();
     } else {

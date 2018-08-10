@@ -4,11 +4,11 @@
 
 #include "TestWire.h"
 
-TestWire::TestWire(IScheduler *scheduler) : WireBase(scheduler) {
+TestWire::TestWire(IScheduler const * const scheduler) : WireBase(scheduler) {
     this->connected.set(true);
 }
 
-void TestWire::send(RdId id, std::function<void(Buffer const &buffer)> writer) {
+void TestWire::send(RdId id, std::function<void(Buffer const &buffer)> writer) const {
 //        require(!id.isNull)
     std::shared_ptr<Buffer> ostream(new Buffer(10));
     writer(*ostream);
@@ -23,13 +23,13 @@ void TestWire::send(RdId id, std::function<void(Buffer const &buffer)> writer) {
     }
 }
 
-void TestWire::process_all_messages() {
+void TestWire::process_all_messages() const {
     while (!msgQ.empty()) {
         process_one_message();
     }
 }
 
-void TestWire::process_one_message() {
+void TestWire::process_one_message() const {
     if (msgQ.empty()) {
         return;
     }

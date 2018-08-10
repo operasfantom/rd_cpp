@@ -97,6 +97,13 @@ public:
         return this->value;
     }
 
+    virtual void set(T const& new_value) const {
+        this->local_change([this, &new_value]() {
+            this->default_value_changed = true;
+            Property<T>::set(new_value);
+        });
+    }
+
     virtual void set(T &&new_value) const {
         this->local_change([this, &new_value]() {
             this->default_value_changed = true;

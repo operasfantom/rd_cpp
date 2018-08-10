@@ -19,7 +19,7 @@ protected:
 
     bool is_bound() const;
 
-    IProtocol const *get_protocol() const;
+    const IProtocol *const get_protocol() const;
 
     std::vector<std::pair<std::string, std::any> > bindable_children;
 
@@ -49,7 +49,7 @@ public:
 
 //    getOrCreateExtension
 
-    virtual void identify(IIdentities *identities, RdId id) const;
+    virtual void identify(const IIdentities *identities, const RdId &id) const;
 
     /*void print(PrettyPrinter printer) {
         printer.print(toString())

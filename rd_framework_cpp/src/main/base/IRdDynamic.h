@@ -13,7 +13,7 @@ class IProtocol;
 
 class IRdDynamic {
 public:
-    IProtocol *protocol = nullptr;
+    IProtocol const *protocol = nullptr;
     SerializationCtx serialization_context;
     mutable RName location;
 
@@ -32,7 +32,7 @@ public:
     virtual ~IRdDynamic() = default;
     //endregion
 
-    virtual IProtocol const *get_protocol() const;
+    virtual const IProtocol *const get_protocol() const;
 
     virtual SerializationCtx const &get_serialization_context() const = 0;
 };

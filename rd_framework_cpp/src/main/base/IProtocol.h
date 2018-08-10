@@ -16,15 +16,17 @@
 class IProtocol : public IRdDynamic {
 public:
     Serializers serializers;
-    IIdentities *identity;
-    IScheduler *scheduler;
-    IWire *wire;
+    IIdentities const *identity;
+    IScheduler const *scheduler;
+    IWire const *wire;
     SerializationCtx context;
 
-    IProtocol(IIdentities *identity, IScheduler *scheduler, IWire *wire);
+    //region ctor/dtor
 
-    //    ViewableSet <RdExtBase> out_of_sync_models;
+    IProtocol(const IIdentities *identity, const IScheduler *scheduler, const IWire *wire);
+
     virtual ~IProtocol() = default;
+    //endregion
 
     virtual const SerializationCtx &get_serialization_context() const;
 };

@@ -48,7 +48,7 @@ inline hash_t getPlatformIndependentHash<int64_t>(int64_t that, hash_t initial) 
 
 class Identities : public IIdentities {
 private:
-    int32_t id_acc;
+    mutable int32_t id_acc;
 public:
     static const int32_t BASE_CLIENT_ID = RdId::MAX_STATIC_ID;
 
@@ -57,7 +57,7 @@ public:
     explicit Identities(IdKind dynamicKind = IdKind::Client) : id_acc(
             dynamicKind == IdKind::Client ? BASE_CLIENT_ID : BASE_SERVER_ID) {}
 
-    virtual RdId next(RdId parent);
+    virtual RdId next(const RdId &parent) const;
 };
 
 
