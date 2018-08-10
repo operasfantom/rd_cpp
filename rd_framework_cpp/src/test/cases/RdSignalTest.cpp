@@ -130,13 +130,13 @@ public:
 
     explicit Foo(K x = 0, K y = 0) : x(x), y(y) {};
 
-//    Foo(Foo const&) = delete;
+    Foo(Foo const &) = delete;
 
     Foo(Foo &&other) noexcept = default;
 
-    Foo&operator=(Foo const& other) = default;
+    Foo &operator=(Foo const &) = default;
 
-//    Foo& operator=(Foo&& other) = default;
+    Foo &operator=(Foo &&) = default;
 
     virtual ~Foo() = default;
     //endregion

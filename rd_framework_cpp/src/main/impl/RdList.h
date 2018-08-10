@@ -15,8 +15,8 @@ template<typename V, typename S = Polymorphic<V>>
 class RdList : public RdReactiveBase, public IViewableList<V> {
 private:
 //    using list = typename ViewableList<V>;
-    ViewableList<V> list;
-    int64_t nextVersion;
+    mutable ViewableList<V> list;
+    mutable int64_t nextVersion;
 
     using Event = typename IViewableList<V>::Event;
 public:
@@ -47,7 +47,7 @@ public:
 
     bool optimizeNested = false;
 
-    virtual void init(Lifetime lifetime) {
+    virtual void init(Lifetime lifetime) const {
         RdBindableBase::init(lifetime);
 
         local_change([this, lifetime]() {
@@ -85,7 +85,7 @@ public:
             });
     }
 
-    virtual void on_wire_received(Buffer const &buffer) {
+    virtual void on_wire_received(Buffer const &buffer) const {
         int64_t header = (buffer.read_pod<int64_t>());
 //        int64_t version = header >> versionedFlagShift;
         Op op = static_cast<Op>((header & ((1 << versionedFlagShift) - 1L)));
@@ -122,32 +122,32 @@ public:
         list.advise(lifetime, handler);
     }
 
-    virtual bool add(V const &element) { return local_change<bool>([&]() { return list.add(element); }); }
+    virtual bool add(V const &element) const { return local_change<bool>([&]() { return list.add(element); }); }
 
-    virtual bool add(size_t index, V const &element) {
+    virtual bool add(size_t index, V const &element) const {
         return local_change<bool>([&]() { return list.add(index, element); });
     }
 
-    virtual bool remove(V const &element) { return local_change<bool>([&]() { return list.remove(element); }); }
+    virtual bool remove(V const &element) const { return local_change<bool>([&]() { return list.remove(element); }); }
 
 //    virtual bool removeAll(elements: Collection<V>): Boolean = local_change { list.removeAll(elements) }
-    virtual V removeAt(size_t index) { return local_change<V>([&]() { return list.removeAt(index); }); }
+    virtual V removeAt(size_t index) const { return local_change<V>([&]() { return list.removeAt(index); }); }
 
 //    virtual bool retainAll(elements: Collection<V>): Boolean = local_change { list.retainAll(elements) }
 
-    virtual V get(size_t index) { return local_change<V>([&]() { return list.get(index); }); };
+    virtual V get(size_t index) const { return local_change<V>([&]() { return list.get(index); }); };
 
-    virtual V set(size_t index, V const &element) {
+    virtual V set(size_t index, V const &element) const {
         return local_change<V>([&]() { return list.set(index, element); });
     }
 
-    virtual void clear() { return local_change([&]() { list.clear(); }); }
+    virtual void clear() const { return local_change([&]() { list.clear(); }); }
 
     virtual size_t size() const { return local_change<size_t>([&]() { return list.size(); }); }
 
     virtual bool empty() const { return local_change<bool>([&]() { return list.empty(); }); }
 
-    std::vector<V> toList() { return local_change<std::vector<V>>([&]() { return list.toList(); }); }
+    std::vector<V> toList() const { return local_change<std::vector<V>>([&]() { return list.toList(); }); }
 };
 
 

@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 #include "Property.h"
 
-TEST(property, advise) {
+/*TEST(property, advise) {
     int acc = 0;
 
     std::unique_ptr<IProperty<int> > property(new Property<int>(acc));
@@ -37,7 +37,7 @@ TEST(property, advise) {
 
     std::vector<int> expected{-1, 1, -2, 11, 2, -3, 12, 3, 0, 13};
     EXPECT_EQ(expected, log);
-}
+}*/
 
 TEST(property, when_true) {
     int acc1 = 0;

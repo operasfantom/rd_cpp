@@ -16,15 +16,13 @@ class RdProperty : public RdPropertyBase<T, S>/*, public IProperty<T> */, public
 public:
     //region ctor/dtor
 
-    RdProperty(RdProperty &&other) = default;
+    RdProperty(RdProperty &&) = default;
 
-    explicit RdProperty(T const &value) : RdPropertyBase<T, S>(value) {
-//        this->property = std::unique_ptr<Property<T>>(new Property<T>(value));
-    }
+    RdProperty &operator=(RdProperty &&) = default;
 
-    explicit RdProperty(T && value) : RdPropertyBase<T, S>(value) {
-//        this->property = std::unique_ptr<Property<T>>(new Property<T>(value));
-    }
+    explicit RdProperty(T const &value) : RdPropertyBase<T, S>(value) {}
+
+    explicit RdProperty(T &&value) : RdPropertyBase<T, S>(std::move(value)) {}
 
     virtual ~RdProperty() = default;
     //endregion
@@ -32,7 +30,7 @@ public:
     static RdProperty<T, S> read(SerializationCtx const &ctx, Buffer const &buffer) {
         RdId id = RdId::read(buffer);
 //        val value = if (buffer.readBool()) valueSerializer.read(ctx, buffer) else null;
-        T const& value = S::read(ctx, buffer);
+        T const &value = S::read(ctx, buffer);
         RdProperty<T, S> property(value);
         withId(property, id);
         return property;
@@ -44,18 +42,6 @@ public:
 
     void advise(Lifetime lifetime, std::function<void(const T &)> handler) const {
         RdPropertyBase<T, S>::advise(lifetime, handler);
-    }
-
-    virtual T const &get() const {
-        return this->value;
-    }
-
-    virtual void set(T const &new_value) {
-        this->template local_change<T>([this, &new_value]() -> T {
-            this->default_value_changed = true;
-            RdPropertyBase<T, S>::set(new_value);
-            return {};
-        });
     }
 
     RdProperty<T> &slave() {
@@ -82,6 +68,14 @@ public:
         }
         printer.print("]")*//*
     }*/
+
+    friend bool operator==(const RdProperty &lhs, const RdProperty &rhs) {
+        return &lhs == &rhs;
+    }
+
+    friend bool operator!=(const RdProperty &lhs, const RdProperty &rhs) {
+        return !(rhs == lhs);
+    }
 };
 
 

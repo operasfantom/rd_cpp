@@ -11,14 +11,24 @@
 #include "IWire.h"
 #include "IProtocol.h"
 
-class RdReactiveBase : public virtual RdBindableBase, public virtual IRdReactive {
+class RdReactiveBase : public RdBindableBase, public IRdReactive {
 public:
 
     //region ctor/dtor
 
     RdReactiveBase() = default;
 
-    RdReactiveBase(RdReactiveBase &&other) = default;
+    RdReactiveBase(RdReactiveBase &&other) noexcept : RdBindableBase(std::move(other))/*, async(other.async)*/ {
+
+    };
+
+    RdReactiveBase &operator=(RdReactiveBase &&other) noexcept {
+        static_cast<RdBindableBase&>(*this) = std::move(other);
+        async = other.async;
+        return *this;
+        /*RdReactiveBase tmp(std::move(other));
+        std::swap(*this, tmp);*/
+    };
 
     virtual ~RdReactiveBase() = default;
     //endregion
@@ -29,7 +39,7 @@ public:
 
     //local change
 
-    IWire *get_wire();
+    IWire *get_wire() const;
 
     //local change
     mutable bool is_local_change = false;
@@ -43,21 +53,11 @@ public:
         return get_protocol()->scheduler;
     }
 
-    IScheduler *get_wire_scheduler() {
-        return get_default_scheduler();
-    }
+    IScheduler *get_wire_scheduler() const;
 
-    void assert_threading() const {
-        if (!async && !get_default_scheduler()->is_active()) {
+    void assert_threading() const;
 
-        }
-    }
-
-    void assert_bound() {
-        if (!is_bound()) {
-            throw std::invalid_argument("Not bound");
-        }
-    }
+    void assert_bound() const;
 
     template<typename T>
     T local_change(std::function<T()> action) const {

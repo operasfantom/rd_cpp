@@ -22,7 +22,7 @@ public:
 
     bool optimizeNested = false;
 
-    void init(Lifetime lifetime) {
+    void init(Lifetime lifetime) const {
         RdBindableBase::init(lifetime);
 
         local_change([this, lifetime]() {
@@ -41,9 +41,9 @@ public:
         get_wire()->advise(lifetime, *this);
     }
 
-    virtual void on_wire_received(Buffer const &buffer) {
+    virtual void on_wire_received(Buffer const &buffer) const {
         AddRemove kind = static_cast<AddRemove>(buffer.read_pod<int32_t>());
-        T const& value = S::read(this->get_serialization_context(), buffer);
+        T const &value = S::read(this->get_serialization_context(), buffer);
 
         //todo maybe identify is forgotten
 
@@ -64,27 +64,27 @@ public:
         }
     }
 
-    virtual bool add(T const &value) {
+    virtual bool add(T const &value) const {
         return local_change<bool>([&]() { return set.add(value); });
     }
 
-    virtual void clear() {
+    virtual void clear() const {
         return local_change([&]() { return set.clear(); });
     }
 
-    virtual bool remove(T const &value) {
+    virtual bool remove(T const &value) const {
         return local_change<bool>([&]() { return set.remove(value); });
     }
 
-    virtual size_t size() {
+    virtual size_t size() const {
         return local_change<size_t>([&]() { return set.size(); });
     }
 
-    virtual bool contains(T const &value) {
+    virtual bool contains(T const &value) const {
         return local_change<bool>([&]() { return set.contains(value); });
     }
 
-    virtual bool empty() {
+    virtual bool empty() const {
         return local_change<bool>([&]() { return set.empty(); });
     }
 

@@ -16,10 +16,10 @@ public:
 class MessageBroker {
 private:
     IScheduler *defaultScheduler = nullptr;
-    std::unordered_map<RdId, IRdReactive *, RdId::Hasher> subscriptions;
-    std::unordered_map<RdId, Mq, RdId::Hasher> broker;
+    mutable std::unordered_map<RdId, IRdReactive const *, RdId::Hasher> subscriptions;
+    mutable std::unordered_map<RdId, Mq, RdId::Hasher> broker;
 
-    void invoke(IRdReactive *that, Buffer const &msg, bool sync = false);
+    void invoke(const IRdReactive *that, Buffer const &msg, bool sync = false);
 
 public:
 
@@ -27,7 +27,7 @@ public:
 
     void dispatch(RdId id, std::shared_ptr<Buffer> message);
 
-    void advise_on(Lifetime lifetime, IRdReactive &entity);
+    void advise_on(Lifetime lifetime, IRdReactive const &entity) const;
 };
 
 #endif //RD_CPP_MESSAGEBROKER_H

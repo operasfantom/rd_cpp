@@ -12,17 +12,20 @@
 
 class IRdReactive : public virtual IRdBindable {
 protected:
-    bool async = false;
+    bool async = false;//todo not moved in RdReactiveBase
 public:
+    //region ctor/dtor
+
     IRdReactive() = default;
 
     virtual ~IRdReactive() = default;
+    //endregion
 
 //    IScheduler *wire_scheduler = nullptr;
 
-    virtual IScheduler *get_wire_scheduler() = 0;
+    virtual IScheduler *get_wire_scheduler() const = 0;
 
-    virtual void on_wire_received(Buffer const &buffer) = 0;
+    virtual void on_wire_received(Buffer const &buffer) const = 0;
 };
 
 

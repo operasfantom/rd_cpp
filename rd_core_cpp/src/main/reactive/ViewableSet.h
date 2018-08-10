@@ -19,12 +19,12 @@ private:
     Signal<Event> change;
 
 //    std::set<T> set;
-    tsl::ordered_set<T> set;
+    mutable tsl::ordered_set<T> set;
 
 public:
     virtual ~ViewableSet() = default;
 
-    virtual bool add(T const &element) {
+    virtual bool add(T const &element) const {
         auto p = set.insert(element);
         if (!p.second) {
             return false;
@@ -35,14 +35,14 @@ public:
 
     //addAll(collection)?
 
-    virtual void clear() {
+    virtual void clear() const {
         for (auto element : set) {
             change.fire(Event(AddRemove::REMOVE, element));
         }
         set.clear();
     }
 
-    virtual bool remove(T const &element) {
+    virtual bool remove(T const &element) const {
         if (!contains(element)) {
             return false;
         }
@@ -58,15 +58,15 @@ public:
         change.advise(lifetime, handler);
     }
 
-    virtual size_t size() {
+    virtual size_t size() const {
         return set.size();
     }
 
-    virtual bool contains(T const &element) {
+    virtual bool contains(T const &element) const {
         return set.count(element) > 0;
     }
 
-    virtual bool empty() {
+    virtual bool empty() const {
         return set.empty();
     }
 };

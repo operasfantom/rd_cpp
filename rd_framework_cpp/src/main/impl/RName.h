@@ -13,11 +13,22 @@ private:
     RName *parent = nullptr;
     std::string local_name, separator;
 public:
+    //region ctor/dtor
+
     RName() = default;
+
+    RName(const RName &other) = default;
+
+    RName(RName &&other) noexcept = default;
+
+    RName &operator=(const RName &other) = default;
+
+    RName &operator=(RName &&other) noexcept = default;
 
     RName(RName *parent, const std::string &localName, const std::string &separator);
 
     explicit RName(std::string local_name);
+    //endregion
 
     RName sub(std::string localName, std::string separator);
 

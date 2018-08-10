@@ -17,8 +17,8 @@ class RdPropertyBase : public RdReactiveBase, public Property<T> {
 protected:
     //mastering
     bool is_master = true;
-    int32_t master_version = 0;
-    bool default_value_changed = false;
+    mutable int32_t master_version = 0;
+    mutable bool default_value_changed = false;
 
     //init
     bool optimize_nested = false;
@@ -26,35 +26,37 @@ public:
 
     //region ctor/dtor
 
-    RdPropertyBase(RdPropertyBase &&other) = default;
+    RdPropertyBase(RdPropertyBase &&other) noexcept = default;
+
+    RdPropertyBase &operator=(RdPropertyBase &&other) noexcept = default;
 
     explicit RdPropertyBase(const T &value) : Property<T>(value) {}
 
-    explicit RdPropertyBase(T &&value) : IProperty<T>(std::move(value)) {}
+    explicit RdPropertyBase(T &&value) : Property<T>(std::move(value)) {}
 
     virtual ~RdPropertyBase() = default;
     //endregion
 
-    virtual void init(Lifetime lifetime) {
+    virtual void init(Lifetime lifetime) const {
         RdReactiveBase::init(lifetime);
 
 
         if (!optimize_nested) {
-            this->change->advise(lifetime, [this](T v) {
+            this->change->advise(lifetime, [this](T const &v) {
                 if (is_local_change) {
                     identifyPolymorphic(v, get_protocol()->identity, get_protocol()->identity->next(rd_id));
                 }
             });
         }
 
-        advise(lifetime, [this](T v) {
+        advise(lifetime, [this](T const &v) {
             if (!is_local_change) {
                 return;
             }
             if (is_master) {
                 master_version++;
             }
-            get_wire()->send(rd_id, [this, v](Buffer const &buffer) {
+            get_wire()->send(rd_id, [this, &v](Buffer const &buffer) {
                 buffer.write_pod<int32_t>(master_version);
                 S::write(this->get_serialization_context(), buffer, v);
 //                logSend.trace{ "property `$location` ($rdid):: ver = $masterVersion, value = ${v.printToString()}" }
@@ -64,15 +66,15 @@ public:
         get_wire()->advise(lifetime, *this);
 
         if (!optimize_nested) {
-            this->view(lifetime, [this](Lifetime lf, T v) {
+            this->view(lifetime, [this](Lifetime lf, T const &v) {
                 bindPolymorphic(v, lf, this, "\'$");
             });
         }
     }
 
-    virtual void on_wire_received(Buffer const &buffer) {
+    virtual void on_wire_received(Buffer const &buffer) const {
         int32_t version = buffer.read_pod<int32_t>();
-        T const &v = S::read(this->get_serialization_context(), buffer);
+        T v = std::move(S::read(this->get_serialization_context(), buffer));
 
         bool rejected = is_master && version < master_version;
         if (rejected) {
@@ -80,7 +82,7 @@ public:
         }
         master_version = version;
 
-        Property<T>::set(v);
+        this->set(std::move(v));
     };
 
     virtual void advise(Lifetime lifetime, std::function<void(const T &)> handler) const {
@@ -88,6 +90,26 @@ public:
 //            assertThreading();
         }
         Property<T>::advise(lifetime, handler);
+    }
+
+
+    virtual T const &get() const {
+        return this->value;
+    }
+
+    virtual void set(T &&new_value) const {
+        this->local_change([this, &new_value]() {
+            this->default_value_changed = true;
+            Property<T>::set(std::move(new_value));
+        });
+    }
+
+    friend bool operator==(const RdPropertyBase &lhs, const RdPropertyBase &rhs) {
+        return &lhs == &rhs;
+    }
+
+    friend bool operator!=(const RdPropertyBase &lhs, const RdPropertyBase &rhs) {
+        return !(rhs == lhs);
     }
 };
 

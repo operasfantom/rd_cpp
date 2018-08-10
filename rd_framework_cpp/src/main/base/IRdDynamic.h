@@ -15,16 +15,24 @@ class IRdDynamic {
 public:
     IProtocol *protocol = nullptr;
     SerializationCtx serialization_context;
-    RName location;
+    mutable RName location;
 
     //region ctor/dtor
 
     IRdDynamic() = default;
 
+    IRdDynamic(const IRdDynamic &other) = default;
+
+    IRdDynamic(IRdDynamic &&other) noexcept = default;
+
+    IRdDynamic &operator=(const IRdDynamic &other) = default;
+
+    IRdDynamic &operator=(IRdDynamic &&other) noexcept = default;
+
     virtual ~IRdDynamic() = default;
     //endregion
 
-    virtual IProtocol *get_protocol();
+    virtual IProtocol const *get_protocol() const;
 
     virtual SerializationCtx const &get_serialization_context() const = 0;
 };

@@ -57,9 +57,11 @@ public:
 
     //region ctor/dtor
 
-    DynamicEntity() = default;
+//    DynamicEntity() = default;
 
     DynamicEntity(DynamicEntity &&other) = default;
+
+    DynamicEntity &operator=(DynamicEntity &&other) = default;
 
     explicit DynamicEntity(RdProperty<bool, S> &&foo) : foo(std::move(foo)) {}
 
@@ -77,17 +79,25 @@ public:
         foo.write(ctx, buffer);
     }
 
-    void init(Lifetime lifetime) {
+    void init(Lifetime lifetime) const {
         foo.bind(lifetime, this, "foo");
     }
 
     void identify(IIdentities *identities, RdId id) {
         foo.identify(identities, id.mix("foo"));
     }
+
+    friend bool operator==(const DynamicEntity &lhs, const DynamicEntity &rhs) {
+        return lhs.foo == rhs.foo;
+    }
+
+    friend bool operator!=(const DynamicEntity &lhs, const DynamicEntity &rhs) {
+        return !(rhs == lhs);
+    }
 };
 
 
-/*TEST_F(RdFrameworkTestBase, property_dynamic) {
+TEST_F(RdFrameworkTestBase, property_dynamic) {
     using listOf = std::vector<bool>;
 
     int property_id = 1;
@@ -118,43 +128,4 @@ public:
 
     EXPECT_EQ(listOf(), clientLog);
     EXPECT_EQ(listOf(), serverLog);
-
-//    client_property.set(DynamicEntity(nullopt));
-
-    *//*EXPECT_EQ(listOf{nullptr}, clientLog);
-    EXPECT_EQ(listOf{nullptr}, serverLog);
-
-
-    EXPECT_TRUE(client_property.get().foo.get().has_value());
-    client_property.get().foo.set(false);
-
-    EXPECT_EQ((listOf{nullptr, false}), clientLog);
-    EXPECT_EQ((listOf{nullptr, false}), serverLog);
-
-    EXPECT_TRUE(server_property.get().foo.get().has_value());
-    server_property.get().foo.set(true);
-    EXPECT_EQ((listOf{nullptr, false, true}), clientLog);
-    EXPECT_EQ((listOf{nullptr, false, true}), serverLog);
-
-    EXPECT_TRUE(server_property.get().foo.get().has_value());
-    server_property.get().foo.set(nullptr);
-    EXPECT_EQ((listOf{nullptr, false, true, nullptr}), clientLog);
-    EXPECT_EQ((listOf{nullptr, false, true, nullptr}), serverLog);
-
-
-//    DynamicEntity e(true);
-//    client_property.set(e); //no listen - no change
-    EXPECT_EQ((listOf{nullptr, false, true, nullptr, true}), clientLog);
-    EXPECT_EQ((listOf{nullptr, false, true, nullptr, true}), serverLog);
-
-    EXPECT_TRUE(server_property.get().foo.get().has_value());
-    server_property.get().foo.set(nullptr);
-    EXPECT_EQ((listOf{nullptr, false, true, nullptr, true, nullptr}), clientLog);
-    EXPECT_EQ((listOf{nullptr, false, true, nullptr, true, nullptr}), serverLog);*//**//**//**//**//**//**//**//**//**//**//**//**//**//**//**//*
-
-
-//    client_property.set(DynamicEntity(false));
-    //reuse
-//    client_property.set(e);
- *//*
-}*/
+}

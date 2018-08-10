@@ -8,7 +8,7 @@ bool RdBindableBase::is_bound() const {
     return parent != nullptr;
 }
 
-void RdBindableBase::bind(Lifetime lf, IRdDynamic *parent, const std::string &name) {
+void RdBindableBase::bind(Lifetime lf, IRdDynamic const *parent, const std::string &name) const {
 //    require (this.parent == null) { "Trying to bound already bound $this to ${parent.location}" }
     lf->bracket([this, lf, parent, name]() {
                     this->parent = parent;
@@ -30,7 +30,7 @@ void RdBindableBase::bind(Lifetime lf, IRdDynamic *parent, const std::string &na
 //    }
 }
 
-void RdBindableBase::identify(IIdentities *identities, RdId id) {
+void RdBindableBase::identify(IIdentities *identities, RdId id) const {
 //        require(rdid.isNull) { "Already has RdId: $rdid, entity: $this" }
 //        require(!id.isNull) { "Assigned RdId mustn't be null, entity: $this" }
 
@@ -43,7 +43,7 @@ void RdBindableBase::identify(IIdentities *identities, RdId id) {
     }
 }
 
-IProtocol *RdBindableBase::get_protocol() const {
+IProtocol const *RdBindableBase::get_protocol() const {
     if (parent && parent->get_protocol()) {
         return parent->get_protocol();
     } else {
@@ -59,7 +59,7 @@ SerializationCtx const &RdBindableBase::get_serialization_context() const {
     }
 }
 
-void RdBindableBase::init(Lifetime lifetime) {
+void RdBindableBase::init(Lifetime lifetime) const {
     for (auto &p : bindable_children) {
         auto &name = p.first;
         auto &child = p.second;

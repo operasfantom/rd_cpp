@@ -47,8 +47,8 @@ public:
     }
 
 
-    virtual void view(Lifetime lifetime, std::function<void(Lifetime, T)> handler) const {
-        advise(lifetime, [this, lifetime, handler](AddRemove kind, T key) {
+    virtual void view(Lifetime lifetime, std::function<void(Lifetime, T const &)> handler) const {
+        advise(lifetime, [this, lifetime, handler](AddRemove kind, T const &key) {
             switch (kind) {
                 case AddRemove::ADD: {
                     LifetimeDefinition &def = lifetimes[lifetime][key] = std::move(LifetimeDefinition(lifetime));
@@ -67,17 +67,17 @@ public:
 
     virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) const = 0;
 
-    virtual bool add(T const &) = 0;
+    virtual bool add(T const &) const = 0;
 
-    virtual void clear() = 0;
+    virtual void clear() const = 0;
 
-    virtual bool remove(T const &) = 0;
+    virtual bool remove(T const &) const = 0;
 
-    virtual size_t size() = 0;
+    virtual size_t size() const = 0;
 
-    virtual bool contains(T const &) = 0;
+    virtual bool contains(T const &) const = 0;
 
-    virtual bool empty() = 0;
+    virtual bool empty() const = 0;
 };
 
 
@@ -154,7 +154,8 @@ public:
 
     virtual ~IViewableMap() {}
 
-    virtual void view(Lifetime lifetime, std::function<void(Lifetime lifetime, const std::pair<K, V>)> handler) const {
+    virtual void
+    view(Lifetime lifetime, std::function<void(Lifetime lifetime, std::pair<K, V> const &)> handler) const {
         advise_add_remove(lifetime, [this, lifetime, handler](AddRemove kind, K const &key, V const &value) {
             const std::pair<K, V> entry = std::make_pair(key, value);
             switch (kind) {
@@ -178,7 +179,7 @@ public:
         });
     }
 
-    void advise_add_remove(Lifetime lifetime, std::function<void(AddRemove, K, V)> handler) const {
+    void advise_add_remove(Lifetime lifetime, std::function<void(AddRemove, K const &, V const &)> handler) const {
         advise(lifetime, [handler](Event const &e) {
             std::visit(overloaded{
                     [handler](typename Event::Add const &e) {
@@ -195,7 +196,7 @@ public:
         });
     }
 
-    void view(Lifetime lifetime, std::function<void(Lifetime, K, V)> handler) {
+    void view(Lifetime lifetime, std::function<void(Lifetime, K const &, V const &)> handler) const {
         view(lifetime, [handler](Lifetime lf, const std::pair<K, V> entry) {
             handler(lf, entry.first, entry.second);
         });
@@ -205,11 +206,11 @@ public:
 
     virtual V get(K const &) const = 0;
 
-    virtual std::optional<V> set(K const &, V const &) = 0;
+    virtual std::optional<V> set(K const &, V const &) const = 0;
 
-    virtual std::optional<V> remove(K const &) = 0;
+    virtual std::optional<V> remove(K const &) const = 0;
 
-    virtual void clear() = 0;
+    virtual void clear() const = 0;
 };
 
 template<typename V>
@@ -303,13 +304,13 @@ public:
     }
 
     virtual void
-    view(Lifetime lifetime, std::function<void(Lifetime lifetime, const std::pair<size_t, V>)> handler) const {
-        view(lifetime, [handler](Lifetime lt, size_t idx, V v) {
+    view(Lifetime lifetime, std::function<void(Lifetime lifetime, std::pair<size_t, V> const &)> handler) const {
+        view(lifetime, [handler](Lifetime lt, size_t idx, V const &v) {
             handler(lt, std::make_pair(idx, v));
         });
     }
 
-    void view(Lifetime lifetime, std::function<void(Lifetime, size_t, V)> handler) const {
+    void view(Lifetime lifetime, std::function<void(Lifetime, size_t, V const &)> handler) const {
         advise_add_remove(lifetime, [this, lifetime, handler](AddRemove kind, size_t idx, V value) {
             switch (kind) {
                 case AddRemove::ADD: {
@@ -332,27 +333,27 @@ public:
 
     virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) const = 0;
 
-    virtual bool add(V const &element) = 0;
+    virtual bool add(V const &element) const = 0;
 
-    virtual bool add(size_t index, V const &element) = 0;
+    virtual bool add(size_t index, V const &element) const = 0;
 
-    virtual V removeAt(size_t index) = 0;
+    virtual V removeAt(size_t index) const = 0;
 
-    virtual bool remove(V const &element) = 0;
+    virtual bool remove(V const &element) const = 0;
 
-    virtual V get(size_t index) = 0;
+    virtual V get(size_t index) const = 0;
 
-    virtual V set(size_t index, V const &element) = 0;
+    virtual V set(size_t index, V const &element) const = 0;
 
     //addAll(collection)?
 
-    virtual void clear() = 0;
+    virtual void clear() const = 0;
 
     virtual size_t size() const = 0;
 
     virtual bool empty() const = 0;
 
-    virtual std::vector<V> toList() = 0;
+    virtual std::vector<V> toList() const = 0;
 };
 
 

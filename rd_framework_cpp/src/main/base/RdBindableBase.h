@@ -11,15 +11,15 @@
 
 class RdBindableBase : public virtual IRdBindable/*, IPrintable*/ {
 protected:
-    IRdDynamic *parent = nullptr;
+    mutable IRdDynamic const *parent = nullptr;
 
-    std::optional<Lifetime> bind_lifetime;
+    mutable std::optional<Lifetime> bind_lifetime;
 
     //bound state: inferred
 
     bool is_bound() const;
 
-    IProtocol *get_protocol() const;
+    IProtocol const *get_protocol() const;
 
     std::vector<std::pair<std::string, std::any> > bindable_children;
 
@@ -32,20 +32,24 @@ public:
         location = RName("<<not bound>>");
     };
 
+    RdBindableBase(RdBindableBase &&) = default;
+
+    RdBindableBase &operator=(RdBindableBase &&) = default;
+
     virtual ~RdBindableBase() = default;
     //endregion
 
     //need to implement in subclasses
-    virtual void init(Lifetime lifetime);
+    virtual void init(Lifetime lifetime) const;
 
-    virtual void bind(Lifetime lf, IRdDynamic *parent, const std::string &name);
+    virtual void bind(Lifetime lf, IRdDynamic const *parent, const std::string &name) const;
 
 
     /*concurrent*/std::map<std::string, std::any> extensions;
 
 //    getOrCreateExtension
 
-    virtual void identify(IIdentities *identities, RdId id);
+    virtual void identify(IIdentities *identities, RdId id) const;
 
     /*void print(PrettyPrinter printer) {
         printer.print(toString())

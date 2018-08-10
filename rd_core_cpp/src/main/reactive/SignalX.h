@@ -28,7 +28,7 @@ public:
 
     virtual ~Signal() = default;
 
-    virtual void fire(T const &value) {
+    virtual void fire(T const &value) const {
         for (auto p : listeners) {
             p.second(value);
         }

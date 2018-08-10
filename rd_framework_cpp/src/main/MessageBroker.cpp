@@ -4,7 +4,7 @@
 
 #include "MessageBroker.h"
 
-void MessageBroker::invoke(IRdReactive *that, const Buffer &msg, bool sync) {
+void MessageBroker::invoke(const IRdReactive *that, const Buffer &msg, bool sync) {
     if (sync) {
         that->on_wire_received(msg);
     } else {
@@ -25,7 +25,7 @@ void MessageBroker::dispatch(RdId id, std::shared_ptr<Buffer> message) {
 
 //        synchronized(lock) {
 
-    IRdReactive *s = subscriptions[id];
+    IRdReactive const *s = subscriptions[id];
     if (s == nullptr) {
         if (broker.count(id) == 0) {
             broker[id] = Mq();
@@ -33,7 +33,7 @@ void MessageBroker::dispatch(RdId id, std::shared_ptr<Buffer> message) {
         broker[id].defaultSchedulerMessages++;
 
         defaultScheduler->queue([this, id, &message]() {
-            IRdReactive *subscription = subscriptions[id]; //no lock because can be changed only under default scheduler
+            IRdReactive const *subscription = subscriptions[id]; //no lock because can be changed only under default scheduler
 
             if (subscription != nullptr) {
                 if (subscription->get_wire_scheduler() == defaultScheduler)
@@ -74,7 +74,7 @@ void MessageBroker::dispatch(RdId id, std::shared_ptr<Buffer> message) {
 //        }
 }
 
-void MessageBroker::advise_on(Lifetime lifetime, IRdReactive &entity) {
+void MessageBroker::advise_on(Lifetime lifetime, IRdReactive const &entity) const {
 //        require(!entity.rdid.isNull) {"id is null for entity: $entity"}
 
     //advise MUST happen under default scheduler, not custom
@@ -85,7 +85,7 @@ void MessageBroker::advise_on(Lifetime lifetime, IRdReactive &entity) {
 //        subscriptions.blockingPutUnique(lifetime, lock, entity.rdid, entity)
     if (!lifetime->is_terminated()) {
         auto key = entity.rd_id;
-        IRdReactive *value = &entity;
+        IRdReactive const *value = &entity;
         subscriptions[key] = value;
         lifetime->add_action([this, key]() {
             subscriptions.erase(key);

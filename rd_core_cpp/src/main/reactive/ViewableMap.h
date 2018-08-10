@@ -16,7 +16,7 @@ public:
     using Event = typename IViewableMap<K, V>::Event;
 private:
 //    std::map<K, V> map;
-    tsl::ordered_map<K, V> map;
+    mutable tsl::ordered_map<K, V> map;
     Signal<Event> change;
 public:
     virtual ~ViewableMap() {}
@@ -28,7 +28,7 @@ public:
         }
     }
 
-    void put_all(std::unordered_map<K, V> const &from) {
+    void put_all(std::unordered_map<K, V> const &from) const {
         for (auto p : from) {
             map.insert(p);
         }
@@ -38,7 +38,7 @@ public:
         return map.at(key);
     }
 
-    std::optional<V> set(K const &key, V const &value) {
+    std::optional<V> set(K const &key, V const &value) const {
         if (map.count(key) == 0) {
             map[key] = value;
             change.fire(typename Event::Add(key, value));
@@ -53,7 +53,7 @@ public:
         }
     }
 
-    std::optional<V> remove(K const &key) {
+    std::optional<V> remove(K const &key) const {
         if (map.count(key) > 0) {
             V old_value = map[key];
             map.erase(key);
@@ -63,7 +63,7 @@ public:
         return std::nullopt;
     }
 
-    virtual void clear() {
+    virtual void clear() const {
         std::vector<Event> changes;
         for (auto p : map) {
             changes.push_back(typename Event::Remove(p.first, p.second));

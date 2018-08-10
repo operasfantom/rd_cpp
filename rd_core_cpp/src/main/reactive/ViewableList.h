@@ -15,7 +15,7 @@ class ViewableList : public IViewableList<T> {
 public:
     using Event = typename IViewableList<T>::Event;
 private:
-    std::vector<T> list;
+    mutable std::vector<T> list;
     Signal<Event> change;
 public:
     virtual ~ViewableList() {}
@@ -29,19 +29,19 @@ public:
         }
     }
 
-    virtual bool add(T const &element) {
+    virtual bool add(T const &element) const {
         list.push_back(element);
         change.fire(typename Event::Add(size() - 1, element));
         return true;
     }
 
-    virtual bool add(size_t index, T const &element) {
+    virtual bool add(size_t index, T const &element) const {
         list.insert(list.begin() + index, element);
         change.fire(typename Event::Add(index, element));
         return true;
     }
 
-    virtual T removeAt(size_t index) {
+    virtual T removeAt(size_t index) const {
         T res = list[index];
         list.erase(list.begin() + index);
 
@@ -49,7 +49,7 @@ public:
         return res;
     }
 
-    virtual bool remove(T const &element) {
+    virtual bool remove(T const &element) const {
         auto it = std::find(list.begin(), list.end(), element);
         if (it == list.end()) {
             return false;
@@ -58,11 +58,11 @@ public:
         return true;
     }
 
-    virtual T get(size_t index) {
+    virtual T get(size_t index) const {
         return list[index];
     }
 
-    virtual T set(size_t index, T const &element) {
+    virtual T set(size_t index, T const &element) const {
         T old_value = list[index];
         list[index] = element;
         change.fire(typename Event::Update(index, old_value, element));
@@ -71,7 +71,7 @@ public:
 
     //addAll(collection)?
 
-    virtual void clear() {
+    virtual void clear() const {
         std::vector<Event> changes;
         auto it = list.rbegin();
         for (size_t i = size(); i > 0; --i, ++it) {
@@ -91,7 +91,7 @@ public:
         return list.empty();
     }
 
-    virtual std::vector<T> toList() {
+    virtual std::vector<T> toList() const {
         return list;
     }
 };

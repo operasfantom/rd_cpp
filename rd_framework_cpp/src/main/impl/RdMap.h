@@ -17,12 +17,12 @@ class RdMap : public RdReactiveBase, public IViewableMap<K, V> {
 private:
 //    using list = typename ViewableMap<K, V>;
     ViewableMap<K, V> map;
-    int64_t nextVersion = 0;
-    std::map<K, int64_t> pendingForAck;
+    mutable int64_t nextVersion = 0;
+    mutable std::map<K, int64_t> pendingForAck;
 
     std::optional<bool> manualMaster;
 
-    bool is_master() {
+    bool is_master() const {
         return manualMaster.has_value() ? *manualMaster : !optimizeNested;
     }
 
@@ -55,7 +55,7 @@ public:
 
     static const int32_t versionedFlagShift = 8; // update when changing Op
 
-    virtual void init(Lifetime lifetime) {
+    virtual void init(Lifetime lifetime) const {
         RdBindableBase::init(lifetime);
 
         local_change([this, lifetime]() {
@@ -95,19 +95,19 @@ public:
         get_wire()->advise(lifetime, *this);
 
         if (!optimizeNested)
-            this->view(lifetime, [this](Lifetime lf, std::pair<K, V> const entry) {
+            this->view(lifetime, [this](Lifetime lf, std::pair<K, V> const &entry) {
                 bindPolymorphic(entry.second, lf, this, "[" + std::to_string(entry.first) + "]");
             });
     }
 
-    virtual void on_wire_received(Buffer const &buffer) {
+    virtual void on_wire_received(Buffer const &buffer) const {
         int32_t header = buffer.read_pod<int32_t>();
         bool msgVersioned = (header >> versionedFlagShift) != 0;
         Op op = static_cast<Op>(header & ((1 << versionedFlagShift) - 1));
 
         int64_t version = msgVersioned ? buffer.read_pod<int64_t>() : 0;
 
-        K const& key = KS::read(this->get_serialization_context(), buffer);
+        K const &key = KS::read(this->get_serialization_context(), buffer);
 
         if (op == Op::Ack) {
             /*val errmsg =
@@ -168,15 +168,15 @@ public:
         return local_change<V>([&]() { return map.get(key); });
     }
 
-    virtual std::optional<V> set(K const &key, V const &value) {
+    virtual std::optional<V> set(K const &key, V const &value) const {
         return local_change<std::optional<V>>([&]() { return map.set(key, value); });
     }
 
-    virtual std::optional<V> remove(K const &key) {
+    virtual std::optional<V> remove(K const &key) const {
         return local_change<std::optional<V>>([&]() { return map.remove(key); });
     }
 
-    virtual void clear() {
+    virtual void clear() const {
         return local_change([&]() { return map.clear(); });
     }
 

@@ -27,7 +27,7 @@ class IViewable {
 public:
     virtual ~IViewable() = default;
 
-    virtual void view(Lifetime lifetime, std::function<void(Lifetime, T)> handler) const = 0;
+    virtual void view(Lifetime lifetime, std::function<void(Lifetime, T const &)> handler) const = 0;
 };
 
 template<typename T>
@@ -35,7 +35,7 @@ class IPropertyBase : public ISource<T>, public IViewable<T> {
 public:
     virtual ~IPropertyBase() = default;
 
-    virtual void view(Lifetime lifetime, std::function<void(Lifetime, T)> handler) const {
+    virtual void view(Lifetime lifetime, std::function<void(Lifetime, T const &)> handler) const {
         if (lifetime->is_terminated()) return;
 
         Lifetime lf = lifetime.create_nested();
@@ -52,14 +52,16 @@ public:
 template<typename T>
 class IProperty : public IPropertyBase<T> {
 protected:
-    T value;
+    mutable T value;
 
 public:
     std::unique_ptr<ISource<T>> change;
 
     //region ctor/dtor
 
-    IProperty(IProperty &&other) = default;
+    IProperty(IProperty &&other) noexcept = default;
+
+    IProperty &operator=(IProperty &&other) noexcept = default;
 
     explicit IProperty(T const &value) : value(value) {}
 
@@ -79,7 +81,7 @@ public:
         handler(value);
     }
 
-    virtual void set(T const &) = 0;
+    virtual void set(T &&) const = 0;
 };
 
 template<typename T>
@@ -87,7 +89,7 @@ class ISignal : public ISource<T> {
 public:
     virtual ~ISignal() = default;
 
-    virtual void fire(T const &value) = 0;
+    virtual void fire(T const &value) const = 0;
 };
 
 #endif //RD_CPP_CORE_INTERFACES_H

@@ -27,7 +27,18 @@ public:
         return left.hash == right.hash;
     }
 
+    //region ctor/dtor
+
+    RdId(const RdId &other) = default;
+
+    RdId(RdId &&other) noexcept = default;
+
+    RdId &operator=(const RdId &other) = default;
+
+    RdId &operator=(RdId &&other) noexcept = default;
+
     explicit RdId(hash_t hash);
+    //endregion
 
 //    static std::shared_ptr<RdId> NULL_ID;
     static RdId Null();
