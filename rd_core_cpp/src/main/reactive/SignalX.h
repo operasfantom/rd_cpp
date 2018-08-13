@@ -29,15 +29,15 @@ public:
     virtual ~Signal() = default;
 
     virtual void fire(T const &value) const {
-        for (auto p : listeners) {
+        for (auto &p : listeners) {
             p.second(value);
         }
     }
 
     virtual void advise(Lifetime lifetime, std::function<void(const T &)> handler) const {
         lifetime->bracket(
-                [this, handler]() { listeners[advise_id] = handler; },
-                [this, advise_id = advise_id, handler]() {
+                [this, lifetime, handler]() { listeners[advise_id] = handler; },
+                [this, lifetime, advise_id = advise_id, handler]() {
                     listeners.erase(advise_id/*.load()*/);
                 }
         );

@@ -24,7 +24,7 @@ TEST(viewable_list, add_remove_view) {
     std::unique_ptr<IViewableList<int> > list(new ViewableList<int>());
     std::vector<std::string> log;
     Lifetime::use<int>([&](Lifetime lifetime) {
-        list->view(lifetime, [&log](Lifetime lt, const std::pair<size_t, int> value) {
+        list->view(lifetime, [&log](Lifetime lt, std::pair<size_t, int const *> value) {
             log.push_back("View " + to_string(value));
             lt->add_action([&log, value]() { log.push_back("UnView " + to_string(value)); });
         });

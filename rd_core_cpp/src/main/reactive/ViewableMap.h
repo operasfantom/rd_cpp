@@ -44,18 +44,18 @@ public:
             change.fire(typename Event::Add(key, value));
             return std::nullopt;
         } else {
-            V old_value = map[key];
             if (map[key] != value) {
+                V old_value = std::move(map[key]);
                 map[key] = value;
                 change.fire(typename Event::Update(key, old_value, value));
             }
-            return old_value;
+            return map[key];
         }
     }
 
     std::optional<V> remove(K const &key) const {
         if (map.count(key) > 0) {
-            V old_value = map[key];
+            V old_value = std::move(map[key]);
             map.erase(key);
             change.fire(typename Event::Remove(key, old_value));
             return old_value;
@@ -65,7 +65,7 @@ public:
 
     virtual void clear() const {
         std::vector<Event> changes;
-        for (auto p : map) {
+        for (auto const& p : map) {
             changes.push_back(typename Event::Remove(p.first, p.second));
         }
         map.clear();

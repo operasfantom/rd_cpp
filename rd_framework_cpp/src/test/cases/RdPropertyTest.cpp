@@ -6,6 +6,7 @@
 #include <RdProperty.h>
 #include "../util/RdFrameworkTestBase.h"
 #include "../../main/FrameworkMarshallers.h"
+#include "../util/DynamicEntity.h"
 
 using vi = std::vector<int>;
 
@@ -49,61 +50,6 @@ TEST_F(RdFrameworkTestBase, property_statics) {
     clientLifetimeDef.terminate();
     serverLifetimeDef.terminate();
 }
-
-class DynamicEntity : public RdBindableBase, public ISerializable {
-    using S = FrameworkMarshallers::Int32;
-public:
-    RdProperty<int32_t, S> foo;
-
-    //region ctor/dtor
-
-//    DynamicEntity() = default;
-
-
-    //region ctor/dtor
-
-    DynamicEntity(DynamicEntity const& other) = delete;
-
-    DynamicEntity(DynamicEntity &&other) = default;
-
-    DynamicEntity &operator=(DynamicEntity &&other) = default;
-
-    virtual ~DynamicEntity() = default;
-    //endregion
-
-    explicit DynamicEntity(RdProperty<int32_t, S> &&foo) : foo(std::move(foo)) {}
-
-    explicit DynamicEntity(int32_t value) : DynamicEntity(RdProperty<int32_t, S>(value)) {};
-    //endregion
-
-    static void registry(IProtocol *protocol) {
-        protocol->serializers.registry<DynamicEntity>([](SerializationCtx const &ctx, Buffer const &buffer) {
-            return std::make_unique<DynamicEntity>(std::move(RdProperty<int32_t, S>::read(ctx, buffer)));
-            //todo avoid heap alloc
-        });
-    }
-
-    virtual void write(SerializationCtx const &ctx, Buffer const &buffer) const {
-        foo.write(ctx, buffer);
-    }
-
-    void init(Lifetime lifetime) const {
-        foo.bind(lifetime, this, "foo");
-    }
-
-    void identify(IIdentities *identities, RdId id) {
-        foo.identify(identities, id.mix("foo"));
-    }
-
-    friend bool operator==(const DynamicEntity &lhs, const DynamicEntity &rhs) {
-        return lhs.foo == rhs.foo;
-    }
-
-    friend bool operator!=(const DynamicEntity &lhs, const DynamicEntity &rhs) {
-        return !(rhs == lhs);
-    }
-};
-
 
 TEST_F(RdFrameworkTestBase, property_dynamic) {
     using listOf = std::vector<int32_t>;

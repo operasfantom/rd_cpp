@@ -28,6 +28,7 @@ public:
         stream.check_available(size);
 
         if (readers.count(id) == 0) {
+//            std::cerr << std::endl << ' ' << id.get_hash() << '\n';
             throw std::invalid_argument("no reader");
         }
         auto const &reader = readers.at(id);
@@ -37,20 +38,22 @@ public:
 
     template<typename T>
     void registry(std::function<std::unique_ptr<ISerializable>(SerializationCtx const &, Buffer const &)> reader) {
-        auto h = getPlatformIndependentHash(std::string(typeid(T).name()));
-        std::cout << std::endl << typeid(T).name() << std::endl;
+        hash_t h = getPlatformIndependentHash(std::string(typeid(T).name()));
+        std::cerr << "registry: " << std::string(typeid(T).name()) << " with hash: " << h << std::endl;
+//        std::cout << std::endl << typeid(T).name() << std::endl;
         RdId id(h);
 //        Protocol.initializationLogger.trace { "Registering type ${t.simpleName}, id = $id" }
+
 
         readers[id] = reader;
     }
 
     template<typename T>
     void writePolymorphic(SerializationCtx const &ctx, Buffer const &stream, const T &value) const {
-        hash_t h = getPlatformIndependentHash(std::string(typeid(value).name()));
+        hash_t h = getPlatformIndependentHash(std::string(typeid(T).name()));
+        std::cerr << "write: " << std::string(typeid(T).name()) << " with hash: " << h << std::endl;
         RdId(h).write(stream);
 
-        std::cout << std::endl << typeid(value).name() << std::endl;
 
         size_t lengthTagPosition = stream.get_position();
         stream.write_pod<int32_t>(0);

@@ -68,9 +68,9 @@ public:
 //        require(!isLocalChange){ "!isLocalChange" }
 
         is_local_change = true;
-        T res = action();
+        T res(action());
         is_local_change = false;
-        return res;
+        return std::move(res);
     }
 
     void local_change(std::function<void()> action) const {

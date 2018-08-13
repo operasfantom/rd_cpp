@@ -6,6 +6,7 @@
 #include <RdProperty.h>
 #include "RdList.h"
 #include "../util/RdFrameworkTestBase.h"
+#include "../util/DynamicEntity.h"
 #include "../../../../rd_core_cpp/src/test/util/util.h"
 
 TEST_F(RdFrameworkTestBase, rd_list_static) {
@@ -31,7 +32,7 @@ TEST_F(RdFrameworkTestBase, rd_list_static) {
     EXPECT_EQ(0, client_list.size());
 
     server_list.add("Server value 1");
-//    server_list.addAll(listOf("Server value 2", "Server value 3"));
+//    server_list.push_backAll(listOf("Server value 2", "Server value 3"));
     server_list.add("Server value 2");
     server_list.add("Server value 3");
 
@@ -66,4 +67,51 @@ TEST_F(RdFrameworkTestBase, rd_list_static) {
                                         "Add 4:Client value 5",
                                         "Update 4:Server value 5"})
     );
+}
+
+TEST_F(RdFrameworkTestBase, rd_list_dynamic) {
+    int32_t id = 1;
+
+    RdList<DynamicEntity> server_list_storage;
+    RdList<DynamicEntity> client_list_storage;
+
+    RdList<DynamicEntity> &server_list = statics(server_list_storage, id);
+    RdList<DynamicEntity> &client_list = statics(client_list_storage, id);
+
+    DynamicEntity::registry(clientProtocol.get());
+    DynamicEntity::registry(serverProtocol.get());
+
+    EXPECT_EQ(0, server_list.size());
+    EXPECT_EQ(0, client_list.size());
+
+    bindStatic(clientProtocol.get(), client_list, "top");
+    bindStatic(serverProtocol.get(), server_list, "top");
+
+    std::vector<std::string> log;
+
+    server_list.view(Lifetime::Eternal(), [&](Lifetime lf, size_t k, DynamicEntity const &v) {
+        lf->bracket(
+                [&log, &k]() { log.push_back("start " + std::to_string(k)); },
+                [&log, &k]() { log.push_back("finish " + std::to_string(k)); }
+        );
+        v.foo.advise(lf, [&log](bool const &fooval) { log.push_back(std::to_string(fooval)); });
+    });
+    /*client_list.push_back(DynamicEntity(null))
+    client_list[0].foo.value = true
+    client_list[0].foo.value = true //no action
+
+    client_list[0] = DynamicEntity(true)
+
+    server_list.push_back(DynamicEntity(false))
+
+    client_list.removeAt(1)
+    client_list.push_back(DynamicEntity(true))
+
+    client_list.clear()
+
+    EXPECT_EQ(log, listOf("start 0", "null", "true",
+                             "finish 0", "start 0", "true",
+                             "start 1", "false",
+                             "finish 1", "start 1", "true",
+                             "finish 1", "finish 0"))*/
 }

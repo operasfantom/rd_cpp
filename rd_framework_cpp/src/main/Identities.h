@@ -10,6 +10,7 @@
 #include <memory>
 #include <IIdentities.h>
 
+#include "iostream"
 
 #include "interfaces.h"
 #include "RdId.h"
@@ -26,23 +27,25 @@ const hash_t HASH_FACTOR = 31;
 
 //PLEASE DO NOT CHANGE IT!!! IT'S EXACTLY THE SAME ON C# SIDE
 template<typename T>
-inline hash_t getPlatformIndependentHash(T that, hash_t initial = DEFAULT_HASH);
+inline hash_t getPlatformIndependentHash(T const& that, hash_t initial = DEFAULT_HASH);
 
 template<>
-inline hash_t getPlatformIndependentHash<std::string>(std::string that, hash_t initial) {
-    for (char c : that) {
-        initial = initial * HASH_FACTOR + static_cast<int>(c);
+inline hash_t getPlatformIndependentHash<std::string>(std::string const& that, hash_t initial) {
+//    std::cerr << that << " " << initial << std::endl;
+    for (auto c : that) {
+        initial = initial * HASH_FACTOR + static_cast<hash_t>(c);
     }
+//    std::cerr << initial << std::endl;
     return initial;
 }
 
 template<>
-inline hash_t getPlatformIndependentHash<int32_t>(int32_t that, hash_t initial) {
+inline hash_t getPlatformIndependentHash<int32_t>(int32_t const& that, hash_t initial) {
     return initial * HASH_FACTOR + (that + 1);
 }
 
 template<>
-inline hash_t getPlatformIndependentHash<int64_t>(int64_t that, hash_t initial) {
+inline hash_t getPlatformIndependentHash<int64_t>(int64_t const& that, hash_t initial) {
     return initial * HASH_FACTOR + (that + 1);
 }
 

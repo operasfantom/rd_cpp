@@ -20,13 +20,14 @@ private:
     mutable int64_t nextVersion = 0;
     mutable std::map<K, int64_t> pendingForAck;
 
-    std::optional<bool> manualMaster;
-
     bool is_master() const {
         return manualMaster.has_value() ? *manualMaster : !optimizeNested;
     }
 
 public:
+
+    std::optional<bool> manualMaster;
+
     bool optimizeNested = false;
 
     using Event = typename IViewableMap<K, V>::Event;

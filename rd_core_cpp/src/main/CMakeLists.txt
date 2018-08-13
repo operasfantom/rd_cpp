@@ -14,7 +14,7 @@ add_library(rd_core_cpp STATIC
         util/ordered_hash.h
         util/ordered_set.h
         util/ordered_map.h
-        Logger.cpp Logger.h lifetime/Lifetime.cpp lifetime/Lifetime.h reactive/IScheduler.cpp reactive/IScheduler.h)
+        Logger.cpp Logger.h lifetime/Lifetime.cpp lifetime/Lifetime.h reactive/IScheduler.cpp reactive/IScheduler.h reactive/base/IViewableList.cpp reactive/base/IViewableList.h util/util.cpp util/util.h)
 
 
 target_include_directories(rd_core_cpp PUBLIC util)

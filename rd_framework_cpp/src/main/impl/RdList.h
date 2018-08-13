@@ -51,7 +51,7 @@ public:
         RdBindableBase::init(lifetime);
 
         local_change([this, lifetime]() {
-            advise(lifetime, [this, lifetime](typename IViewableList<V>::Event e) {
+            advise(lifetime, [this, lifetime](typename IViewableList<V>::Event const& e) {
                 if (!is_local_change) return;
 
                 if (!optimizeNested) {
@@ -61,7 +61,7 @@ public:
                     }
                 }
 
-                get_wire()->send(rd_id, [this, e](Buffer const &buffer) {
+                get_wire()->send(rd_id, [this, &e](Buffer const &buffer) {
                     Op op = static_cast<Op >(e.v.index());
 
                     buffer.write_pod<int64_t>(static_cast<int64_t>(op) | (nextVersion++ << versionedFlagShift));
@@ -101,13 +101,13 @@ public:
 
         switch (op) {
             case Op::Add: {
-                V const& value = S::read(this->get_serialization_context(), buffer);
+                V const &value = S::read(this->get_serialization_context(), buffer);
                 (index < 0) ? list.add(value) : list.add(index, value);
                 break;
             }
             case Op::Update: {
-                V const& value = S::read(this->get_serialization_context(), buffer);
-                list.set(index, value);
+                V value = std::move(S::read(this->get_serialization_context(), buffer));
+                list.set(index, std::move(value));
                 break;
             }
             case Op::Remove: {
@@ -117,7 +117,8 @@ public:
         }
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(typename IViewableList<V>::Event)> handler) const {
+    virtual void
+    advise(Lifetime lifetime, std::function<void(typename IViewableList<V>::Event const &)> handler) const {
         if (is_bound()) assert_threading();
         list.advise(lifetime, handler);
     }
@@ -135,19 +136,19 @@ public:
 
 //    virtual bool retainAll(elements: Collection<V>): Boolean = local_change { list.retainAll(elements) }
 
-    virtual V get(size_t index) const { return local_change<V>([&]() { return list.get(index); }); };
+    virtual V const& get(size_t index) const { return list.get(index); };
 
-    virtual V set(size_t index, V const &element) const {
-        return local_change<V>([&]() { return list.set(index, element); });
+    virtual V set(size_t index, V element) const {
+        return local_change<V>([&]() { return list.set(index, std::move(element)); });
     }
 
     virtual void clear() const { return local_change([&]() { list.clear(); }); }
 
-    virtual size_t size() const { return local_change<size_t>([&]() { return list.size(); }); }
+    virtual size_t size() const { return list.size(); }
 
-    virtual bool empty() const { return local_change<bool>([&]() { return list.empty(); }); }
+    virtual bool empty() const { return list.empty(); }
 
-    std::vector<V> toList() const { return local_change<std::vector<V>>([&]() { return list.toList(); }); }
+    std::vector<V> toList() const { return list.toList(); }
 };
 
 

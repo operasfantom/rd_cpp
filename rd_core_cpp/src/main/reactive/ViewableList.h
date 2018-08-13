@@ -6,6 +6,7 @@
 #define RD_CPP_CORE_VIEWABLELIST_H
 
 
+#include <base/IViewableList.h>
 #include "interfaces.h"
 #include "SignalX.h"
 #include "viewable_collections.h"
@@ -17,10 +18,12 @@ public:
 private:
     mutable std::vector<T> list;
     Signal<Event> change;
+
+    std::vector<Event> events;
 public:
     virtual ~ViewableList() {}
 
-    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) const {
+    virtual void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const {
         if (lifetime->is_terminated()) return;
         change.advise(lifetime, handler);
         auto it = list.begin();
@@ -29,7 +32,7 @@ public:
         }
     }
 
-    virtual bool add(T const &element) const {
+    virtual bool add(T element) const {
         list.push_back(element);
         change.fire(typename Event::Add(size() - 1, element));
         return true;
@@ -42,11 +45,11 @@ public:
     }
 
     virtual T removeAt(size_t index) const {
-        T res = list[index];
+        T res = std::move(list[index]);
         list.erase(list.begin() + index);
 
         change.fire(typename Event::Remove(index, res));
-        return res;
+        return std::move(res);
     }
 
     virtual bool remove(T const &element) const {
@@ -58,13 +61,13 @@ public:
         return true;
     }
 
-    virtual T get(size_t index) const {
+    virtual T const& get(size_t index) const {
         return list[index];
     }
 
-    virtual T set(size_t index, T const &element) const {
-        T old_value = list[index];
-        list[index] = element;
+    virtual T set(size_t index, T element) const {
+        T old_value = std::move(list[index]);
+        list[index] = std::move(element);
         change.fire(typename Event::Update(index, old_value, element));
         return old_value;
     }
@@ -78,7 +81,7 @@ public:
             changes.push_back(typename Event::Remove(i - 1, list[i - 1]));
         }
         list.clear();
-        for (auto e : changes) {
+        for (auto &e : changes) {
             change.fire(e);
         }
     }

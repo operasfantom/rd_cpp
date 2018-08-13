@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 #include <RdMap.h>
 #include "../util/RdFrameworkTestBase.h"
+#include "../util/DynamicEntity.h"
 #include "../../../../rd_core_cpp/src/test/util/util.h"
 
 TEST_F(RdFrameworkTestBase, rd_map_statics) {
@@ -64,3 +65,49 @@ TEST_F(RdFrameworkTestBase, rd_map_statics) {
               logUpdate
     );
 }
+
+/*
+TEST_F(RdFrameworkTestBase, rd_map_dynamic) {
+    int32_t id = 1;
+
+    RdMap<int32_t, DynamicEntity> server_map_storage;
+    RdMap<int32_t, DynamicEntity> client_map_storage;
+
+    RdMap<int32_t, DynamicEntity> &serverMap = statics(server_map_storage, id);
+    RdMap<int32_t, DynamicEntity> &clientMap = statics(client_map_storage, id);
+
+    serverMap.manualMaster = false;
+
+    DynamicEntity::registry(clientProtocol.get());
+    DynamicEntity::registry(serverProtocol.get());
+
+    EXPECT_TRUE(serverMap.size() == 0);
+    EXPECT_TRUE(clientMap.size() == 0);
+
+    bindStatic(clientProtocol.get(), clientMap, "top");
+    bindStatic(serverProtocol.get(), serverMap, "top");
+
+    std::vector<std::string> log;
+    serverMap.view(Lifetime::Eternal(), [&](Lifetime lf, int32_t const &k, DynamicEntity const &v) {
+        lf->bracket(
+                [&log, &k]() { log.push_back("start " + std::to_string(k)); },
+                [&log, &k]() { log.push_back("finish" + std::to_string(k)); }
+        );
+        v.foo.advise(lf, [&log](bool const &fooval) { log.push_back(std::to_string(fooval)); });
+    });
+
+    clientMap.set(1, DynamicEntity(true));
+
+    serverMap.set(2, DynamicEntity(false));
+
+    clientMap.remove(2);
+    clientMap.set(2, DynamicEntity(true));
+
+    clientMap.clear();
+
+    EXPECT_EQ((std::vector<std::string>{"start 1", "null", "true",
+                        "finish 1", "start 1", "true",
+                        "start 2", "false",
+                        "finish 2", "start 2", "true",
+                        "finish 1", "finish 2"}), log);
+}*/

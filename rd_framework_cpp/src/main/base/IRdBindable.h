@@ -30,16 +30,20 @@ public:
     virtual void identify(const IIdentities *identities, const RdId &id) const = 0;
 };
 
-void identifyPolymorphic(const IRdBindable &that, const IIdentities *identities, RdId const &id);
+template <typename T>
+inline void identifyPolymorphic(T const &that, const IIdentities *identities, RdId const &id) {}
+
+template <>
+inline void identifyPolymorphic<IRdBindable>(const IRdBindable &that, const IIdentities *identities, RdId const &id) {
+    that.identify(identities, id);
+}
 
 template<typename T>
-void identifyPolymorphic(std::vector<T> const &that, IIdentities *identities, RdId const &id) {
+inline void identifyPolymorphic(std::vector<T> const &that, IIdentities *identities, RdId const &id) {
     for (size_t i = 0; i < that.size(); ++i) {
         that[i].identify(identities, id.mix(static_cast<int32_t >(i)));
     }
 }
-
-void identifyPolymorphic(std::any const &that, const IIdentities *identities, RdId const &id);
 
 void bindPolymorphic(IRdBindable const &that, Lifetime lf, const IRdDynamic *parent, std::string const &name);
 

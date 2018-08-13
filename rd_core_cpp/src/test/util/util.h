@@ -8,6 +8,7 @@
 #include <vector>
 #include <type_traits>
 #include "viewable_collections.h"
+#include "../../main/reactive/base/IViewableList.h"
 
 std::string operator "" _s(char const *str, size_t len);
 
@@ -19,7 +20,7 @@ constexpr std::vector<T> arrayListOf(std::initializer_list<T> args) {
 
 template<typename F, typename S>
 std::string to_string(const std::pair<F, S> p) {
-    return "(" + std::to_string(p.first) + ", " + std::to_string(p.second) + ")";
+    return "(" + std::to_string(p.first) + ", " + std::to_string(*p.second) + ")";
 }
 
 std::string to_string(AddRemove kind);
