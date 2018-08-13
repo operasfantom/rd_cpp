@@ -19,27 +19,27 @@ public:
         class Add {
         public:
             size_t index;
-            V new_value;
+            V const *new_value;
 
-            Add(size_t index, V const &new_value) : index(index), new_value(new_value) {}
+            Add(size_t index, V const *new_value) : index(index), new_value(new_value) {}
         };
 
         class Update {
         public:
             size_t index;
-            V old_value;
-            V new_value;
+            V const *old_value;
+            V const *new_value;
 
-            Update(size_t index, V const &old_value, V const &new_value) : index(index), old_value(old_value),
+            Update(size_t index, V const *old_value, V const *new_value) : index(index), old_value(old_value),
                                                                            new_value(new_value) {}
         };
 
         class Remove {
         public:
             size_t index;
-            V old_value;
+            V const *old_value;
 
-            Remove(size_t index, V const &old_value) : index(index), old_value(old_value) {}
+            Remove(size_t index, V const *old_value) : index(index), old_value(old_value) {}
         };
 
         std::variant<Add, Update, Remove> v;
@@ -84,7 +84,7 @@ protected:
 public:
     virtual ~IViewableList() {}
 
-    void advise_add_remove(Lifetime lifetime, std::function<void(AddRemove, size_t, V const &)> handler) const {
+    void advise_add_remove(Lifetime lifetime, std::function<void(AddRemove, size_t, V const *)> handler) const {
         advise(lifetime, [handler](Event const &e) {
             std::visit(overloaded{
                     [handler](typename Event::Add const &e) {
@@ -103,14 +103,14 @@ public:
 
     virtual void
     view(Lifetime lifetime,
-std::function<void(Lifetime lifetime, std::pair<size_t, V const *> const &)> handler) const {
-        view(lifetime, [handler](Lifetime lt, size_t idx, V const &v) {
-            handler(lt, std::make_pair(idx, &v));
+         std::function<void(Lifetime lifetime, std::pair<size_t, V const *> const &)> handler) const {
+        view(lifetime, [handler](Lifetime lt, size_t idx, V const *v) {
+            handler(lt, std::make_pair(idx, v));
         });
     }
 
-    void view(Lifetime lifetime, std::function<void(Lifetime, size_t, V const &)> handler) const {
-        advise_add_remove(lifetime, [this, lifetime, handler](AddRemove kind, size_t idx, V const &value) {
+    void view(Lifetime lifetime, std::function<void(Lifetime, size_t, V const *)> handler) const {
+        advise_add_remove(lifetime, [this, lifetime, handler](AddRemove kind, size_t idx, V const *value) {
             switch (kind) {
                 case AddRemove::ADD: {
                     LifetimeDefinition def(lifetime);

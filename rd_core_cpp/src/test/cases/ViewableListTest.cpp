@@ -1,14 +1,13 @@
 #include <gtest/gtest.h>
 #include <ViewableList.h>
-#include "viewable_collections.h"
 #include "../util/util.h"
 
 TEST(viewable_list, add_remove_advise) {
     std::unique_ptr<IViewableList<int>> list(new ViewableList<int>());
     std::vector<std::string> log;
     Lifetime::use<int>([&](Lifetime lifetime) {
-        list->advise_add_remove(lifetime, [&log](AddRemove kind, size_t index, int value) {
-            log.push_back(to_string(kind) + " " + std::to_string(index) + " " + std::to_string(value));
+        list->advise_add_remove(lifetime, [&log](AddRemove kind, size_t index, int const *value) {
+            log.push_back(to_string(kind) + " " + std::to_string(index) + " " + std::to_string(*value));
         });
         list->add(0);
         list->remove(0);
@@ -39,12 +38,61 @@ TEST(viewable_list, add_remove_view) {
     EXPECT_EQ(expected, log);
 }
 
+TEST(viewable_list, add_remove_view2) {
+    std::unique_ptr<IViewableList<int> > list(new ViewableList<int>());
+    std::vector<std::string> log;
+    Lifetime::use<int>([&](Lifetime lifetime) {
+        list->view(lifetime, [&log](Lifetime lt, std::pair<size_t, int const *> value) {
+            log.push_back("View " + to_string(value));
+            lt->add_action([&log, value]() { log.push_back("UnView " + to_string(value)); });
+        });
+
+        list->add(0);
+        list->set(0, 1);
+        list->remove(1);
+
+        return 0;
+    });
+
+    std::vector<std::string> expected{"View (0, 0)", "UnView (0, 0)", "View (0, 1)", "UnView (0, 1)"};
+    EXPECT_EQ(expected, log);
+}
+
+TEST(viewable_list, add_remove_view3) {
+    std::unique_ptr<IViewableList<int> > list(new ViewableList<int>());
+    std::vector<std::string> log;
+
+    const int C = 10;
+
+    Lifetime::use<int>([&](Lifetime lifetime) {
+        list->view(lifetime, [&log](Lifetime lt, std::pair<size_t, int const *> value) {
+            log.push_back("View " + to_string(value));
+            lt->add_action([&log, value]() { log.push_back("UnView " + to_string(value)); });
+        });
+
+        for (int i = 0; i < C; ++i) {
+            list->add(0);
+        }
+//        list->remove(0);
+
+        return 0;
+    });
+
+    for (int i = 0; i < C; ++i){
+        EXPECT_EQ("View (" + std::to_string(i) + ", 0)", log[i]);
+        EXPECT_EQ("UnView (" + std::to_string(C - i - 1) + ", 0)", log[C + i]);
+    }
+    /*std::vector<std::string> expected{"View (0, 0)", "UnView (0, 0)", "View (0, 1)", "UnView (0, 1)"};
+
+    EXPECT_EQ(expected, log);*/
+}
+
 TEST(viewable_list, insert_middle) {
     std::unique_ptr<IViewableList<int> > list(new ViewableList<int>());
     std::vector<std::string> log;
     Lifetime::use<int>([&](Lifetime lifetime) {
-        list->advise_add_remove(lifetime, [&list, &log](AddRemove kind, size_t index, int value) {
-            log.push_back(to_string(kind) + " " + std::to_string(index) + " " + std::to_string(value));
+        list->advise_add_remove(lifetime, [&list, &log](AddRemove kind, size_t index, int const *value) {
+            log.push_back(to_string(kind) + " " + std::to_string(index) + " " + std::to_string(*value));
             list->add(0);
             list->add(2);
 
@@ -63,8 +111,8 @@ TEST(viewable_list, other_reactive_api) {
 
     Lifetime::use<int>([&](Lifetime lifetime) {
 
-        list->advise_add_remove(lifetime, [&list, &log](AddRemove kind, size_t index, int value) {
-            log.push_back(to_string(kind) + " " + std::to_string(index) + " " + std::to_string(value));
+        list->advise_add_remove(lifetime, [&list, &log](AddRemove kind, size_t index, int const *value) {
+            log.push_back(to_string(kind) + " " + std::to_string(index) + " " + std::to_string(*value));
             list->add(0);
             list->add(0, 1);
             //EXPECT_EQ(log, arrayListOf({"Add 0 0"_s, "Add 0 1"_s}));

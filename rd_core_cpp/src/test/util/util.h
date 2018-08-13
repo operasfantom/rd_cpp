@@ -78,13 +78,13 @@ inline std::string to_string_list_event<std::string>(typename IViewableList<std:
             [](typename Event::Add const &e) {
                 return "Add " +
                        std::to_string(e.index) + ":" +
-                       e.new_value;
+                       *e.new_value;
             },
             [](typename Event::Update const &e) {
                 return "Update " +
                        std::to_string(e.index) + ":" +
                        /*std::to_string(e.old_value) + ":" +*/
-                       e.new_value;
+                       *e.new_value;
             },
             [](typename Event::Remove const &e) {
                 return "Remove " +
