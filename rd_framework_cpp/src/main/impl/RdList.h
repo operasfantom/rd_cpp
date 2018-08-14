@@ -5,7 +5,6 @@
 #ifndef RD_CPP_RDLIST_H
 #define RD_CPP_RDLIST_H
 
-#include <viewable_collections.h>
 #include <ViewableList.h>
 #include <RdReactiveBase.h>
 #include "../serialization/Polymorphic.h"

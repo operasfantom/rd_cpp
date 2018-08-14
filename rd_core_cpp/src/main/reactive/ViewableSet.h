@@ -18,26 +18,61 @@ public:
 private:
     Signal<Event> change;
 
-//    std::set<T> set;
-    mutable tsl::ordered_set<T> set;
+    struct KeyEqual {
+        bool operator()(std::shared_ptr<T> const &ptr_l, std::shared_ptr<T> const &ptr_r) const {
+            return *ptr_l == *ptr_r;
+        }
+    };
+
+    struct Hash {
+        size_t operator()(std::shared_ptr<T> const &id) const noexcept {
+            return std::hash<T>()(*id);
+        }
+    };
+
+    mutable tsl::ordered_set<std::shared_ptr<T>, Hash, KeyEqual> set;
+
+    std::shared_ptr<T> factory(T element) const {
+        return std::make_unique<T>(std::move(element));
+    }
+
+    template<typename U = T>
+    typename std::enable_if_t<!std::is_trivial_v<U>, std::shared_ptr<U> >
+    deleted_unique_ptr(U const &element) const {
+        return std::shared_ptr<U>(&element, [](U *) {});
+    }
+
+    template<typename U = T>
+    typename std::enable_if_t<std::is_trivial_v<U>, std::shared_ptr<U> >
+    deleted_unique_ptr(U const &element) const {
+        return std::make_shared<U>(element);
+    }
 
 public:
+    //region ctor/dtor
+
     virtual ~ViewableSet() = default;
+    //endregion
 
     virtual bool add(T element) const {
-        auto p = set.insert(element);
+        const std::shared_ptr<T> &value = factory(std::move(element));
+        auto const &p = set.insert(value);
         if (!p.second) {
             return false;
         }
-        change.fire(Event(AddRemove::ADD, element));
+        change.fire(Event(AddRemove::ADD, value.get()));
         return true;
     }
 
     //addAll(collection)?
 
     virtual void clear() const {
-        for (auto element : set) {
-            change.fire(Event(AddRemove::REMOVE, element));
+        std::vector<Event> changes;
+        for (auto const &element : set) {
+            changes.push_back(Event(AddRemove::REMOVE, element.get()));
+        }
+        for (auto const &e : changes) {
+            change.fire(e);
         }
         set.clear();
     }
@@ -46,14 +81,16 @@ public:
         if (!contains(element)) {
             return false;
         }
-        set.erase(element);
-        change.fire(Event(AddRemove::REMOVE, element));
+        //todo
+        std::shared_ptr<T> pos = deleted_unique_ptr<T>(element);
+        set.erase(pos);
+        change.fire(Event(AddRemove::REMOVE, pos.get()));
         return true;
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) const {
-        for (auto const& x : set) {
-            handler(Event(AddRemove::ADD, x));
+    virtual void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const {
+        for (auto const &x : set) {
+            handler(Event(AddRemove::ADD, x.get()));
         }
         change.advise(lifetime, handler);
     }
@@ -63,7 +100,8 @@ public:
     }
 
     virtual bool contains(T const &element) const {
-        return set.count(element) > 0;
+        std::shared_ptr<T> pos = deleted_unique_ptr(element);
+        return set.count(pos) > 0;
     }
 
     virtual bool empty() const {

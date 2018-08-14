@@ -16,17 +16,17 @@ protected:
 public:
     class Event {
     public:
-        Event(AddRemove kind, T const &value) : kind(kind), value(value) {}
+        Event(AddRemove kind, T const *value) : kind(kind), value(value) {}
 
         AddRemove kind;
-        T value;
+        T const *value;
     };
 
     virtual ~IViewableSet() {}
 
-    virtual void advise(Lifetime lifetime, std::function<void(AddRemove, T const&)> handler) const {
-        this->advise(lifetime, [handler](Event e) {
-            handler(e.kind, e.value);
+    virtual void advise(Lifetime lifetime, std::function<void(AddRemove, T const &)> handler) const {
+        this->advise(lifetime, [handler](Event const &e) {
+            handler(e.kind, *e.value);
         });
     }
 
@@ -49,7 +49,7 @@ public:
         });
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) const = 0;
+    virtual void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const = 0;
 
     virtual bool add(T) const = 0;
 

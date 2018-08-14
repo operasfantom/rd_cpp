@@ -6,7 +6,6 @@
 #define RD_CPP_RDMAP_H
 
 
-#include <viewable_collections.h>
 #include <ViewableMap.h>
 #include <cstdint>
 #include <RdReactiveBase.h>

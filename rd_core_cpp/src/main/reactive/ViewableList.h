@@ -17,15 +17,16 @@ public:
 private:
     mutable std::vector<std::unique_ptr<T> > list;
     Signal<Event> change;
-public:
-    //region ctor/dtor
-
-    virtual ~ViewableList() {}
-    //endregion
 
     std::unique_ptr<T> factory(T element) const {
         return std::make_unique<T>(std::move(element));
     }
+public:
+
+    //region ctor/dtor
+    virtual ~ViewableList() {}
+
+    //endregion
 
     virtual void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const {
         if (lifetime->is_terminated()) return;
@@ -82,7 +83,7 @@ public:
         for (size_t i = size(); i > 0; --i) {
             changes.push_back(typename Event::Remove(i - 1, list[i - 1].get()));
         }
-        for (auto &e : changes) {
+        for (auto const &e : changes) {
             change.fire(e);
         }
         list.clear();

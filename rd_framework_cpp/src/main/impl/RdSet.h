@@ -6,7 +6,6 @@
 #define RD_CPP_RDSET_H
 
 
-#include <viewable_collections.h>
 #include <ViewableSet.h>
 #include <RdReactiveBase.h>
 #include "../serialization/Polymorphic.h"
@@ -64,8 +63,8 @@ public:
         }
     }
 
-    virtual bool add(T const &value) const {
-        return local_change<bool>([&]() { return set.add(value); });
+    virtual bool add(T value) const {
+        return local_change<bool>([&]() { return set.add(std::move(value)); });
     }
 
     virtual void clear() const {
@@ -88,7 +87,7 @@ public:
         return local_change<bool>([&]() { return set.empty(); });
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) const {
+    virtual void advise(Lifetime lifetime, std::function<void(Event const&)> handler) const {
         if (is_bound()) assert_threading();
         set.advise(lifetime, handler);
     }
