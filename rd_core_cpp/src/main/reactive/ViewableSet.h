@@ -5,7 +5,7 @@
 #ifndef RD_CPP_CORE_VIEWABLESET_H
 #define RD_CPP_CORE_VIEWABLESET_H
 
-#include "viewable_collections.h"
+#include <base/IViewableSet.h>
 #include "SignalX.h"
 #include "ordered_set.h"
 
@@ -24,7 +24,7 @@ private:
 public:
     virtual ~ViewableSet() = default;
 
-    virtual bool add(T const &element) const {
+    virtual bool add(T element) const {
         auto p = set.insert(element);
         if (!p.second) {
             return false;
@@ -52,7 +52,7 @@ public:
     }
 
     virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) const {
-        for (auto x : set) {
+        for (auto const& x : set) {
             handler(Event(AddRemove::ADD, x));
         }
         change.advise(lifetime, handler);

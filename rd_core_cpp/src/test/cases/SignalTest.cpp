@@ -17,7 +17,7 @@ TEST(signal, advice) {
 
     Lifetime::use<int>([&](Lifetime lf) {
                            s->advise(lf,
-                                     [&log](int x) { log.push_back(x); }
+                                     [&log](int const & x) { log.push_back(x); }
                            );
                            lf->add_action([&log]() { log.push_back(0); });
                            s->fire(++acc);

@@ -19,7 +19,7 @@ class ISource {
 public:
     virtual ~ISource() = default;
 
-    virtual void advise(Lifetime lifetime, std::function<void(const T &)> handler) const = 0;
+    virtual void advise(Lifetime lifetime, std::function<void(T const &)> handler) const = 0;
 };
 
 template<typename T>
@@ -72,7 +72,7 @@ public:
 
     virtual T const &get() const = 0;
 
-    virtual void advise(Lifetime lifetime, std::function<void(const T &)> handler) const {
+    virtual void advise(Lifetime lifetime, std::function<void(T const &)> handler) const {
         if (lifetime->is_terminated()) {
             return;
         }

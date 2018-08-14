@@ -42,8 +42,11 @@ public:
     TestScheduler clientScheduler;
     TestScheduler serverScheduler;
 
-    std::unique_ptr<IWire> clientTestWire = std::unique_ptr<IWire>(new TestWire(&clientScheduler));
-    std::unique_ptr<IWire> serverTestWire = std::unique_ptr<IWire>(new TestWire(&serverScheduler));
+    std::unique_ptr<TestWire> clientTestWire = std::unique_ptr<TestWire>(new TestWire(&clientScheduler));
+    std::unique_ptr<TestWire> serverTestWire = std::unique_ptr<TestWire>(new TestWire(&serverScheduler));
+
+//    /*std::unique_ptr<IWire>*/TestWire clientTestWire{&clientScheduler};
+//    /*std::unique_ptr<IWire>*/TestWire serverTestWire{&serverScheduler};
 
     Identities clientIdentities;
     Identities serverIdentities;
@@ -87,8 +90,13 @@ public:
     template<typename T>
     T &bindStatic(IProtocol *protocol, T &x, int id) const {
         Lifetime lf = (protocol == clientProtocol.get() ? clientLifetime : serverLifetime);
-        x.statics(id).bind(lf, this, "top");
+        statics(x, id).bind(lf, protocol, "top");
         return x;
+    }
+
+    void setWireAutoFlush(bool flag) {
+        clientTestWire->set_auto_flush(flag);
+        serverTestWire->set_auto_flush(flag);
     }
 };
 

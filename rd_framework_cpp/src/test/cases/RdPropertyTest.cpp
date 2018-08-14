@@ -5,7 +5,6 @@
 #include <gtest/gtest.h>
 #include <RdProperty.h>
 #include "../util/RdFrameworkTestBase.h"
-#include "../../main/FrameworkMarshallers.h"
 #include "../util/DynamicEntity.h"
 
 using vi = std::vector<int>;
@@ -84,6 +83,7 @@ TEST_F(RdFrameworkTestBase, property_dynamic) {
     EXPECT_EQ((listOf{0}), serverLog);
 
     client_property.set(DynamicEntity(2));
+	client_property.set(DynamicEntity(2));
 
     EXPECT_EQ((listOf{0, 2}), clientLog);
     EXPECT_EQ((listOf{0, 2}), serverLog);
@@ -103,3 +103,39 @@ TEST_F(RdFrameworkTestBase, property_dynamic) {
     EXPECT_EQ((listOf{0, 2, 5, 5}), clientLog);
     EXPECT_EQ((listOf{0, 2, 5, 5}), serverLog);
 }
+
+template<typename T, typename S = Polymorphic<T> >
+class Companion/* : public ISerializer<T>*/ {
+public:
+    static RdProperty<T, S> read(SerializationCtx const &ctx, Buffer const &buffer) {
+        return RdProperty<T, S>::read(ctx, buffer);
+    }
+
+    static void write(SerializationCtx const &ctx, Buffer const &buffer, RdProperty<T, S> const &value) {
+        value.write(ctx, buffer);
+    }
+
+};
+
+/*
+TEST_F(RdFrameworkTestBase, property_early_advise) {
+    setWireAutoFlush(false);
+
+    RdProperty<RdProperty<int32_t>, Companion<int32_t> > p1(RdProperty(0));
+    RdProperty<RdProperty<int32_t>, Companion<int32_t> > p2(RdProperty(0));
+
+    int32_t nxt = 10;
+    std::vector<int> log;
+    p1.view(clientLifetimeDef.lifetime, [&](Lifetime lf, RdProperty<int32_t> const &inner) {
+        inner.advise(lf, [&log](int32_t const &it) { log.push_back(it); });
+    });
+    p2.advise(serverLifetimeDef.lifetime, [&](RdProperty<int32_t> const &inner) { inner.set(++nxt); });
+
+    bindStatic(clientProtocol.get(), p1, 1);
+    bindStatic(serverProtocol.get(), p2, 1);
+    p1.set(RdProperty(0));
+
+    EXPECT_EQ((std::vector<int32_t>{0}), log);
+    setWireAutoFlush(true);
+    EXPECT_EQ((std::vector<int32_t>{0, 11}), log);
+}*/

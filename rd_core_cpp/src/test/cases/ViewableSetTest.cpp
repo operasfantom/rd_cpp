@@ -4,6 +4,7 @@
 
 #include <gtest/gtest.h>
 #include "ViewableSet.h"
+#include "../util/util.h"
 
 TEST (viewable_set, advise) {
     std::unique_ptr<IViewableSet<int>> set(new ViewableSet<int>());
@@ -56,4 +57,33 @@ TEST (viewable_set, advise) {
 
     std::vector<int> expectedView2{1, 2, -2, 2, -1, 1};
     EXPECT_EQ(expectedView2, logView2);
+}
+
+TEST (viewable_set, view) {
+    using listOf = std::vector<int>;
+
+    listOf elementsView{2, 0, 1, 8, 3};
+    listOf elementsUnView{1, 3, 8, 0, 2};
+
+    size_t C{elementsView.size()};
+
+    std::unique_ptr<IViewableSet<int>> set(new ViewableSet<int>());
+    std::vector<std::string> log;
+    Lifetime::use([&](Lifetime lifetime) {
+        set->view(lifetime, [&](Lifetime lt, int32_t const &value) {
+                      log.push_back("View " + std::to_string(value));
+                      lt->add_action([&log, &value]() { log.push_back("UnView " + std::to_string(value)); });
+                  }
+        );
+        for (auto x : elementsView) {
+            set->add(x);
+        }
+        set->remove(1);
+    });
+    std::vector<std::string> expected(2 * C);
+    for (size_t i = 0; i < C; ++i) {
+        expected[i] = "View " + std::to_string(elementsView[i]);
+        expected[C + i] = "UnView " + std::to_string(elementsUnView[i]);
+    }
+    EXPECT_EQ(expected, log);
 }

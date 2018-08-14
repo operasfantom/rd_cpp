@@ -64,7 +64,7 @@ TEST(viewable_list, add_remove_view3) {
 
     const int C = 10;
 
-    Lifetime::use<int>([&](Lifetime lifetime) {
+    Lifetime::use([&](Lifetime lifetime) {
         list->view(lifetime, [&log](Lifetime lt, std::pair<size_t, int const *> value) {
             log.push_back("View " + to_string(value));
             lt->add_action([&log, value]() { log.push_back("UnView " + to_string(value)); });
@@ -73,9 +73,6 @@ TEST(viewable_list, add_remove_view3) {
         for (int i = 0; i < C; ++i) {
             list->add(0);
         }
-//        list->remove(0);
-
-        return 0;
     });
 
     for (int i = 0; i < C; ++i){

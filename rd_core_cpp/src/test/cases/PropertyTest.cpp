@@ -17,7 +17,7 @@ TEST(property, advise) {
         property->advise(lifetime, [&log](int x) {
             log.push_back(-x);
         });
-        property->view(lifetime, [&log](Lifetime inner, int x) {
+        property->view(lifetime, [&log](Lifetime inner, int const &x) {
             inner->bracket(
                     [&log, x]() { log.push_back(x); },
                     [&log, x]() { log.push_back(10 + x); }

@@ -1,76 +1,13 @@
 //
-// Created by jetbrains on 10.07.2018.
+// Created by jetbrains on 14.08.2018.
 //
 
-#ifndef RD_CPP_CORE_VIEWABLE_COLLECTIONS_H
-#define RD_CPP_CORE_VIEWABLE_COLLECTIONS_H
+#ifndef RD_CPP_IVIEWABLEMAP_H
+#define RD_CPP_IVIEWABLEMAP_H
 
-#include "interfaces.h"
-
-#include <functional>
-#include <set>
-#include <unordered_set>
-#include <list>
 #include <variant>
-#include <optional>
-#include <LifetimeDefinition.h>
 #include <util.h>
-
-template<typename T>
-class IViewableSet : public IViewable<T> {
-protected:
-    mutable std::unordered_map<Lifetime, std::unordered_map<T, LifetimeDefinition>, Lifetime::Hash> lifetimes;
-public:
-    class Event {
-    public:
-        Event(AddRemove kind, T const &value) : kind(kind), value(value) {}
-
-        AddRemove kind;
-        T value;
-    };
-
-    virtual ~IViewableSet() {}
-
-    virtual void advise(Lifetime lifetime, std::function<void(AddRemove, T)> handler) const {
-        this->advise(lifetime, [handler](Event e) {
-            handler(e.kind, e.value);
-        });
-    }
-
-
-    virtual void view(Lifetime lifetime, std::function<void(Lifetime, T const &)> handler) const {
-        advise(lifetime, [this, lifetime, handler](AddRemove kind, T const &key) {
-            switch (kind) {
-                case AddRemove::ADD: {
-                    LifetimeDefinition &def = lifetimes[lifetime][key] = std::move(LifetimeDefinition(lifetime));
-                    handler(def.lifetime, key);
-                    break;
-                }
-                case AddRemove::REMOVE: {
-                    LifetimeDefinition def = std::move(lifetimes[lifetime][key]);
-                    lifetimes[lifetime].erase(key);
-                    def.terminate();
-                    break;
-                }
-            }
-        });
-    }
-
-    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) const = 0;
-
-    virtual bool add(T const &) const = 0;
-
-    virtual void clear() const = 0;
-
-    virtual bool remove(T const &) const = 0;
-
-    virtual size_t size() const = 0;
-
-    virtual bool contains(T const &) const = 0;
-
-    virtual bool empty() const = 0;
-};
-
+#include "interfaces.h"
 
 template<typename K, typename V>
 class IViewableMap
@@ -205,4 +142,4 @@ public:
 };
 
 
-#endif //RD_CPP_CORE_VIEWABLE_COLLECTIONS_H
+#endif //RD_CPP_IVIEWABLEMAP_H

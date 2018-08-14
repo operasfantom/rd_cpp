@@ -7,8 +7,9 @@
 
 #include <vector>
 #include <type_traits>
-#include "viewable_collections.h"
 #include "../../main/reactive/base/IViewableList.h"
+#include "../../main/reactive/base/IViewableSet.h"
+#include "../../main/reactive/base/IViewableMap.h"
 
 std::string operator "" _s(char const *str, size_t len);
 

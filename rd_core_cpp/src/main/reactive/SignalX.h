@@ -34,7 +34,7 @@ public:
         }
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(const T &)> handler) const {
+    virtual void advise(Lifetime lifetime, std::function<void(T const &)> handler) const {
         lifetime->bracket(
                 [this, lifetime, handler]() { listeners[advise_id] = handler; },
                 [this, lifetime, advise_id = advise_id, handler]() {

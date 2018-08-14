@@ -9,22 +9,22 @@
 #include <base/IViewableList.h>
 #include "interfaces.h"
 #include "SignalX.h"
-#include "viewable_collections.h"
 
 template<typename T>
 class ViewableList : public IViewableList<T> {
 public:
     using Event = typename IViewableList<T>::Event;
 private:
-    mutable std::vector<std::shared_ptr<T> > list;
+    mutable std::vector<std::unique_ptr<T> > list;
     Signal<Event> change;
-
-    std::vector<Event> events;
 public:
-    virtual ~ViewableList() {}
+    //region ctor/dtor
 
-    std::shared_ptr<T> factory(T element) const {
-        return std::make_shared<T>(std::move(element));
+    virtual ~ViewableList() {}
+    //endregion
+
+    std::unique_ptr<T> factory(T element) const {
+        return std::make_unique<T>(std::move(element));
     }
 
     virtual void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const {
@@ -56,7 +56,7 @@ public:
     }
 
     virtual bool remove(T const &element) const {
-        auto it = std::find_if(list.begin(), list.end(), [&element](auto p) { return *p == element; });
+        auto it = std::find_if(list.begin(), list.end(), [&element](auto const &p) { return *p == element; });
         if (it == list.end()) {
             return false;
         }

@@ -6,7 +6,7 @@
 #define RD_CPP_CORE_VIEWABLE_MAP_H
 
 //#include "Logger.h"
-#include "viewable_collections.h"
+#include <base/IViewableMap.h>
 #include "SignalX.h"
 #include "ordered_map.h"
 
