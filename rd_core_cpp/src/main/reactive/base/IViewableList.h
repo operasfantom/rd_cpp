@@ -64,16 +64,16 @@ public:
             }, v);
         }
 
-        std::optional<V> get_new_value() const {
+        V const * get_new_value() const {
             return std::visit(overloaded{
                     [](typename Event::Add const &e) {
-                        return std::make_optional<V>(e.new_value);
+                        return e.new_value;
                     },
                     [](typename Event::Update const &e) {
-                        return std::make_optional<V>(e.new_value);
+                        return e.new_value;
                     },
                     [](typename Event::Remove const &e) {
-                        return std::make_optional<V>();
+                        return static_cast<V const *>(nullptr);
                     }
             }, v);
         }
@@ -134,7 +134,7 @@ public:
 
     virtual bool add(V element) const = 0;
 
-    virtual bool add(size_t index, V const &element) const = 0;
+    virtual bool add(size_t index, V element) const = 0;
 
     virtual V removeAt(size_t index) const = 0;
 

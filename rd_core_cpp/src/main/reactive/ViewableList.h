@@ -41,8 +41,8 @@ public:
         return true;
     }
 
-    virtual bool add(size_t index, T const &element) const {
-        list.insert(list.begin() + index, factory(element));
+    virtual bool add(size_t index, T element) const {
+        list.insert(list.begin() + index, factory(std::move(element)));
         change.fire(typename Event::Add(index, list[index].get()));
         return true;
     }
@@ -70,17 +70,16 @@ public:
 
     virtual T set(size_t index, T element) const {
         auto old_value = std::move(list[index]);
-        list[index] = factory(element);
+        list[index] = factory(std::move(element));
         change.fire(typename Event::Update(index, old_value.get(), list[index].get()));//???
-        return *old_value;
+        return std::move(*old_value);
     }
 
     //addAll(collection)?
 
     virtual void clear() const {
         std::vector<Event> changes;
-        auto it = list.rbegin();
-        for (size_t i = size(); i > 0; --i, ++it) {
+        for (size_t i = size(); i > 0; --i) {
             changes.push_back(typename Event::Remove(i - 1, list[i - 1].get()));
         }
         for (auto &e : changes) {

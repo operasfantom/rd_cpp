@@ -55,8 +55,8 @@ public:
                 if (!is_local_change) return;
 
                 if (!optimizeNested) {
-                    std::optional<V> new_value = e.get_new_value();
-                    if (new_value.has_value()) {
+                    V const* new_value = e.get_new_value();
+                    if (new_value) {
                         identifyPolymorphic(e, get_protocol()->identity, get_protocol()->identity->next(rd_id));
                     }
                 }
@@ -67,7 +67,7 @@ public:
                     buffer.write_pod<int64_t>(static_cast<int64_t>(op) | (nextVersion++ << versionedFlagShift));
                     buffer.write_pod<int32_t>(e.get_index());
 
-                    std::optional<V> new_value = e.get_new_value();
+                    V const* new_value = e.get_new_value();
                     if (new_value) {
                         S::write(this->get_serialization_context(), buffer, *new_value);
                     }
@@ -80,8 +80,8 @@ public:
         get_wire()->advise(lifetime, *this);
 
         if (!optimizeNested)
-            this->view(lifetime, [this](Lifetime lf, size_t index, V const &value) {
-                bindPolymorphic(value, lf, this, "[" + std::to_string(index) + "]");
+            this->view(lifetime, [this](Lifetime lf, size_t index, V const *value) {
+                bindPolymorphic(*value, lf, this, "[" + std::to_string(index) + "]");
             });
     }
 
@@ -101,8 +101,8 @@ public:
 
         switch (op) {
             case Op::Add: {
-                V const &value = S::read(this->get_serialization_context(), buffer);
-                (index < 0) ? list.add(value) : list.add(index, value);
+                V value = std::move(S::read(this->get_serialization_context(), buffer));
+                (index < 0) ? list.add(std::move(value)) : list.add(index, std::move(value));
                 break;
             }
             case Op::Update: {
@@ -123,10 +123,10 @@ public:
         list.advise(lifetime, handler);
     }
 
-    virtual bool add(V const &element) const { return local_change<bool>([&]() { return list.add(element); }); }
+    virtual bool add(V element) const { return local_change<bool>([&]() { return list.add(std::move(element)); }); }
 
-    virtual bool add(size_t index, V const &element) const {
-        return local_change<bool>([&]() { return list.add(index, element); });
+    virtual bool add(size_t index, V element) const {
+        return local_change<bool>([&]() { return list.add(index, std::move(element)); });
     }
 
     virtual bool remove(V const &element) const { return local_change<bool>([&]() { return list.remove(element); }); }

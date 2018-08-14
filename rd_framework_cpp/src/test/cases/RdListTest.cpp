@@ -89,29 +89,35 @@ TEST_F(RdFrameworkTestBase, rd_list_dynamic) {
 
     std::vector<std::string> log;
 
-    server_list.view(Lifetime::Eternal(), [&](Lifetime lf, size_t k, DynamicEntity const &v) {
+    server_list.view(Lifetime::Eternal(), [&](Lifetime lf, size_t k, DynamicEntity const *v) {
         lf->bracket(
-                [&log, &k]() { log.push_back("start " + std::to_string(k)); },
-                [&log, &k]() { log.push_back("finish " + std::to_string(k)); }
+                [&log, k]() { log.push_back("start " + std::to_string(k)); },
+                [&log, k]() { log.push_back("finish " + std::to_string(k)); }
         );
-        v.foo.advise(lf, [&log](bool const &fooval) { log.push_back(std::to_string(fooval)); });
+        v->foo.advise(lf, [&log](int32_t const &fooval) { log.push_back(std::to_string(fooval)); });
     });
-    /*client_list.push_back(DynamicEntity(null))
-    client_list[0].foo.value = true
-    client_list[0].foo.value = true //no action
+    client_list.add(DynamicEntity(2));
+    client_list.get(0).foo.set(0);
+    client_list.get(0).foo.set(0);
 
-    client_list[0] = DynamicEntity(true)
+    client_list.get(0).foo.set(1);
 
-    server_list.push_back(DynamicEntity(false))
+    client_list.set(0, DynamicEntity(1));
 
-    client_list.removeAt(1)
-    client_list.push_back(DynamicEntity(true))
+    server_list.add(DynamicEntity(8));
 
-    client_list.clear()
+    client_list.removeAt(1);
+    client_list.add(DynamicEntity(3));
 
-    EXPECT_EQ(log, listOf("start 0", "null", "true",
-                             "finish 0", "start 0", "true",
-                             "start 1", "false",
-                             "finish 1", "start 1", "true",
-                             "finish 1", "finish 0"))*/
+    client_list.clear();
+
+//    EXPECT_EQ(log, (std::vector<std::string>{}));
+    EXPECT_EQ(log, (std::vector<std::string>{"start 0", "2",
+                                             "0",
+                                             "1",
+                                             "finish 0", "start 0", "1",
+                                             "start 1", "8",
+                                             "finish 1",
+                                             "start 1", "3",
+                                             "finish 1", "finish 0"}));
 }
