@@ -17,7 +17,8 @@ private:
 //    using list = typename ViewableMap<K, V>;
     ViewableMap<K, V> map;
     mutable int64_t nextVersion = 0;
-    mutable std::map<K, int64_t> pendingForAck;
+    mutable std::map<K, int64_t>
+            pendingForAck;
 
     bool is_master() const {
         return manualMaster.has_value() ? *manualMaster : !optimizeNested;
@@ -59,11 +60,11 @@ public:
         RdBindableBase::init(lifetime);
 
         local_change([this, lifetime]() {
-            advise(lifetime, [this, lifetime](Event e) {
+            advise(lifetime, [this, lifetime](Event const &e) {
                 if (!is_local_change) return;
 
-                std::optional<V> new_value = e.get_new_value();
-                if (new_value.has_value()) {
+                V const *new_value = e.get_new_value();
+                if (new_value) {
                     identifyPolymorphic(e, get_protocol()->identity, get_protocol()->identity->next(rd_id));
                 }
 
@@ -76,14 +77,14 @@ public:
                     int64_t version = is_master() ? ++nextVersion : 0L;
 
                     if (is_master()) {
-                        pendingForAck.insert(std::make_pair(e.get_key(), version));
+                        pendingForAck.insert(std::make_pair(*e.get_key(), version));
                         buffer.write_pod(version);
                     }
 
-                    KS::write(this->get_serialization_context(), buffer, e.get_key());
+                    KS::write(this->get_serialization_context(), buffer, *e.get_key());
 
-                    std::optional<V> new_value = e.get_new_value();
-                    if (new_value.has_value()) {
+                    V const *new_value = e.get_new_value();
+                    if (new_value) {
                         VS::write(this->get_serialization_context(), buffer, *new_value);
                     }
 
@@ -95,8 +96,8 @@ public:
         get_wire()->advise(lifetime, *this);
 
         if (!optimizeNested)
-            this->view(lifetime, [this](Lifetime lf, std::pair<K, V> const &entry) {
-                bindPolymorphic(entry.second, lf, this, "[" + std::to_string(entry.first) + "]");
+            this->view(lifetime, [this](Lifetime lf, std::pair<K const *, V const *> const &entry) {
+                bindPolymorphic(entry.second, lf, this, "[" + std::to_string(*entry.first) + "]");
             });
     }
 
@@ -159,13 +160,14 @@ public:
         }
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(typename IViewableMap<K, V>::Event)> handler) const {
+    virtual void
+    advise(Lifetime lifetime, std::function<void(typename IViewableMap<K, V>::Event const &)> handler) const {
         if (is_bound()) assert_threading();
         map.advise(lifetime, handler);
     }
 
-    virtual V get(K const &key) const {
-        return local_change<V>([&]() { return map.get(key); });
+    virtual V const &get(K const &key) const {
+        return local_change_ref<V>([&]() -> V const& { return map.get(key); });
     }
 
     virtual std::optional<V> set(K const &key, V const &value) const {
@@ -181,9 +183,12 @@ public:
     }
 
     virtual size_t size() const {
-        return local_change<size_t>([&]() { return map.size(); });
+        return map.size();
     }
 
+    virtual bool empty() const {
+        return map.empty();
+    }
 };
 
 

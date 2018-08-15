@@ -23,7 +23,7 @@ public:
     };
 
     RdReactiveBase &operator=(RdReactiveBase &&other) noexcept {
-        static_cast<RdBindableBase&>(*this) = std::move(other);
+        static_cast<RdBindableBase &>(*this) = std::move(other);
         async = other.async;
         return *this;
         /*RdReactiveBase tmp(std::move(other));
@@ -71,6 +71,20 @@ public:
         T res(action());
         is_local_change = false;
         return std::move(res);
+    }
+
+    template<typename T>
+    T const &local_change_ref(std::function<T const &()> action) const {
+        if (is_bound() && !async) {
+//            assertThreading();
+        }
+
+//        require(!isLocalChange){ "!isLocalChange" }
+
+        is_local_change = true;
+        T const &res = action();
+        is_local_change = false;
+        return res;
     }
 
     void local_change(std::function<void()> action) const {

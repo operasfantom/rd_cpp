@@ -18,34 +18,10 @@ public:
 private:
     Signal<Event> change;
 
-    struct KeyEqual {
-        bool operator()(std::shared_ptr<T> const &ptr_l, std::shared_ptr<T> const &ptr_r) const {
-            return *ptr_l == *ptr_r;
-        }
-    };
-
-    struct Hash {
-        size_t operator()(std::shared_ptr<T> const &id) const noexcept {
-            return std::hash<T>()(*id);
-        }
-    };
-
-    mutable tsl::ordered_set<std::shared_ptr<T>, Hash, KeyEqual> set;
+    mutable tsl::ordered_set<std::shared_ptr<T>, HashSharedPtr<T>, KeyEqualSharedPtr<T>> set;
 
     std::shared_ptr<T> factory(T element) const {
         return std::make_unique<T>(std::move(element));
-    }
-
-    template<typename U = T>
-    typename std::enable_if_t<!std::is_trivial_v<U>, std::shared_ptr<U> >
-    deleted_unique_ptr(U const &element) const {
-        return std::shared_ptr<U>(&element, [](U *) {});
-    }
-
-    template<typename U = T>
-    typename std::enable_if_t<std::is_trivial_v<U>, std::shared_ptr<U> >
-    deleted_unique_ptr(U const &element) const {
-        return std::make_shared<U>(element);
     }
 
 public:
@@ -82,9 +58,9 @@ public:
             return false;
         }
         //todo
-        std::shared_ptr<T> pos = deleted_unique_ptr<T>(element);
-        set.erase(pos);
-        change.fire(Event(AddRemove::REMOVE, pos.get()));
+        auto it = set.find(deleted_shared_ptr<T>(element));
+        change.fire(Event(AddRemove::REMOVE, it->get()));
+        set.erase(it);
         return true;
     }
 
@@ -100,7 +76,7 @@ public:
     }
 
     virtual bool contains(T const &element) const {
-        std::shared_ptr<T> pos = deleted_unique_ptr(element);
+        std::shared_ptr<T> pos = deleted_shared_ptr(element);
         return set.count(pos) > 0;
     }
 

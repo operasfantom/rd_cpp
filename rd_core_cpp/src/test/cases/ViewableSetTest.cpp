@@ -80,6 +80,8 @@ TEST (viewable_set, view) {
         }
         set->remove(1);
     });
+    EXPECT_EQ(C - 1, set->size());
+
     std::vector<std::string> expected(2 * C);
     for (size_t i = 0; i < C; ++i) {
         expected[i] = "View " + std::to_string(elementsView[i]);

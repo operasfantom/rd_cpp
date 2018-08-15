@@ -51,30 +51,30 @@ public:
 
         Event(Remove const &x) : v(x) {}
 
-        K const & get_key() const {
+        K const * get_key() const {
             return std::visit(overloaded{
                     [](typename Event::Add const &e) {
-                        return *e.key;
+                        return e.key;
                     },
                     [](typename Event::Update const &e) {
-                        return *e.key;
+                        return e.key;
                     },
                     [](typename Event::Remove const &e) {
-                        return *e.key;
+                        return e.key;
                     }
             }, v);
         }
 
-        std::optional<V const *> get_new_value() const {
+        V const * get_new_value() const {
             return std::visit(overloaded{
                     [](typename Event::Add const &e) {
-                        return std::make_optional<V>(e.new_value);
+                        return e.new_value;
                     },
                     [](typename Event::Update const &e) {
-                        return std::make_optional<V>(e.new_value);
+                        return e.new_value;
                     },
                     [](typename Event::Remove const &e) {
-                        return std::make_optional<V>();
+                        return static_cast<V const *>(nullptr);
                     }
             }, v);
         }
@@ -132,13 +132,17 @@ public:
 
     virtual void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const = 0;
 
-    virtual V get(K const &) const = 0;
+    virtual V const& get(K const &) const = 0;
 
     virtual std::optional<V> set(K const &, V const &) const = 0;
 
     virtual std::optional<V> remove(K const &) const = 0;
 
     virtual void clear() const = 0;
+
+    virtual size_t size() const = 0;
+
+    virtual bool empty() const = 0;
 };
 
 

@@ -17,10 +17,6 @@ public:
 private:
     mutable std::vector<std::unique_ptr<T> > list;
     Signal<Event> change;
-
-    std::unique_ptr<T> factory(T element) const {
-        return std::make_unique<T>(std::move(element));
-    }
 public:
 
     //region ctor/dtor
@@ -37,13 +33,13 @@ public:
     }
 
     virtual bool add(T element) const {
-        list.push_back(factory(std::move(element)));
+        list.push_back(factory_shared_ptr(std::move(element)));
         change.fire(typename Event::Add(size() - 1, list.back().get()));
         return true;
     }
 
     virtual bool add(size_t index, T element) const {
-        list.insert(list.begin() + index, factory(std::move(element)));
+        list.insert(list.begin() + index, factory_shared_ptr(std::move(element)));
         change.fire(typename Event::Add(index, list[index].get()));
         return true;
     }
@@ -71,7 +67,7 @@ public:
 
     virtual T set(size_t index, T element) const {
         auto old_value = std::move(list[index]);
-        list[index] = factory(std::move(element));
+        list[index] = factory_shared_ptr(std::move(element));
         change.fire(typename Event::Update(index, old_value.get(), list[index].get()));//???
         return std::move(*old_value);
     }

@@ -15,9 +15,13 @@ class ViewableMap : public IViewableMap<K, V> {
 public:
     using Event = typename IViewableMap<K, V>::Event;
 private:
-//    std::map<K, V> map;
-    mutable tsl::ordered_map<K, V> map;
+    mutable tsl::ordered_map<std::shared_ptr<K>, std::shared_ptr<V>, HashSharedPtr<K>, KeyEqualSharedPtr<K>> map;
     Signal<Event> change;
+
+    std::shared_ptr<V>& get_by(K const &key) const {
+		return map.at(deleted_shared_ptr(key));
+    }
+
 public:
     //region ctor/dtor
 
@@ -26,42 +30,38 @@ public:
 
     virtual void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const {
         change.advise(lifetime, handler);
-        for (auto const& p : map) {
-            handler(Event(typename Event::Add(&p.first, &p.second)));;
+        for (auto const &p : map) {
+            handler(Event(typename Event::Add(p.first.get(), p.second.get())));;
         }
     }
 
-    void put_all(std::unordered_map<K, V> const &from) const {
-        for (auto p : from) {
-            map.insert(p);
-        }
-    }
-
-    virtual V get(K const &key) const {
-        return map.at(key);
+    virtual V const &get(K const &key) const {
+        return *get_by(key);
     }
 
     std::optional<V> set(K const &key, V const &value) const {
-        if (map.count(key) == 0) {
-            map[key] = value;
-            change.fire(typename Event::Add(&key, &value));
+        if (map.count(deleted_shared_ptr(key)) == 0) {
+            auto it = map.insert(std::make_pair(factory_shared_ptr(key), factory_shared_ptr(value)));
+            change.fire(typename Event::Add(it.first->first.get(), it.first->second.get()));
             return std::nullopt;
         } else {
-            if (map[key] != value) {
-                V old_value = std::move(map[key]);
-                map[key] = value;
-                change.fire(typename Event::Update(&key, &old_value, &value));
+            if (*get_by(key) != value) {
+                std::shared_ptr<V> old_value = get_by(key);
+
+                std::shared_ptr<V> object = deleted_shared_ptr<V>(value);
+                map[deleted_shared_ptr(key)] = object;
+                change.fire(typename Event::Update(&key, old_value.get(), object.get()));
             }
-            return map[key];
+            return *get_by(key);
         }
     }
 
     std::optional<V> remove(K const &key) const {
-        if (map.count(key) > 0) {
-            V old_value = std::move(map[key]);
-            map.erase(key);
-            change.fire(typename Event::Remove(&key, &old_value));
-            return old_value;
+        if (map.count(deleted_shared_ptr(key)) > 0) {
+            std::shared_ptr<V> old_value = get_by(key);
+            change.fire(typename Event::Remove(&key, old_value.get()));
+            map.erase(deleted_shared_ptr(key));
+            return *old_value;
         }
         return std::nullopt;
     }
@@ -69,16 +69,20 @@ public:
     virtual void clear() const {
         std::vector<Event> changes;
         for (auto const &p : map) {
-            changes.push_back(typename Event::Remove(&p.first, &p.second));
+            changes.push_back(typename Event::Remove(p.first.get(), p.second.get()));
         }
-        map.clear();
-        for (auto it : changes) {
+        for (auto const& it : changes) {
             change.fire(it);
         }
+        map.clear();
     }
 
     virtual size_t size() const {
         return map.size();
+    }
+
+    virtual bool empty() const {
+        return map.empty();
     }
 };
 

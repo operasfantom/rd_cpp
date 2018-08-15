@@ -66,31 +66,36 @@ TEST(viewable_map, advise) {
     EXPECT_EQ(arrayListOf({"Add 0:0"_s, "Add 10:10"_s, "Remove 0:0"_s, "Remove 10:10"_s}), log_add_remove);
 }
 
-/*TEST (viewable_map, view) {
+TEST (viewable_map, view) {
     using listOf = std::vector<int>;
 
     listOf elementsView{2, 0, 1, 8, 3};
     listOf elementsUnView{1, 3, 8, 0, 2};
+
+    listOf indexesUnView{2, 4, 3, 1, 0};
 
     size_t C{elementsView.size()};
 
     std::unique_ptr<IViewableMap<int32_t, int32_t >> map(new ViewableMap<int32_t, int32_t>());
     std::vector<std::string> log;
     Lifetime::use([&](Lifetime lifetime) {
-        map->view(lifetime, [&](Lifetime lt, int32_t const &value) {
-                      log.push_back("View " + std::to_string(value));
-                      lt->add_action([&log, &value]() { log.push_back("UnView " + std::to_string(value)); });
+        map->view(lifetime, [&](Lifetime lt, std::pair<int32_t const *, int32_t const *> value) {
+                      log.push_back("View " + to_string(value));
+                      lt->add_action([&log, value]() { log.push_back("UnView " + to_string(value)); });
                   }
         );
-        for (auto x : elementsView) {
-            map->add(x);
+        for (size_t i = 0; i < elementsView.size(); ++i) {
+            map->set(i, elementsView[i]);
         }
-        map->remove(1);
+        map->remove(2);
     });
+
+    EXPECT_EQ(C - 1, map->size());
+
     std::vector<std::string> expected(2 * C);
     for (size_t i = 0; i < C; ++i) {
-        expected[i] = "View " + std::to_string(elementsView[i]);
-        expected[C + i] = "UnView " + std::to_string(elementsUnView[i]);
+        expected[i] = "View (" + std::to_string(i) + ", " + std::to_string(elementsView[i]) + ")";
+        expected[C + i] = "UnView (" + std::to_string(indexesUnView[i]) + ", " + std::to_string(elementsUnView[i]) + ")";
     }
     EXPECT_EQ(expected, log);
-}*/
+}
