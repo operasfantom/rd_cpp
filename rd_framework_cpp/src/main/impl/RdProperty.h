@@ -27,6 +27,17 @@ public:
     virtual ~RdProperty() = default;
     //endregion
 
+    class Companion/* : public ISerializer<T>*/ {
+    public:
+        static RdProperty<T, S> read(SerializationCtx const &ctx, Buffer const &buffer) {
+            return RdProperty<T, S>::read(ctx, buffer);
+        }
+
+        static void write(SerializationCtx const &ctx, Buffer const &buffer, RdProperty<T, S> const &value) {
+            value.write(ctx, buffer);
+        }
+    };
+
     static RdProperty<T, S> read(SerializationCtx const &ctx, Buffer const &buffer) {
         RdId id = RdId::read(buffer);
 //        val value = if (buffer.readBool()) valueSerializer.read(ctx, buffer) else null;

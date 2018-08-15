@@ -117,12 +117,9 @@ public:
 
 };
 
-/*
-TEST_F(RdFrameworkTestBase, property_early_advise) {
-    setWireAutoFlush(false);
-
-    RdProperty<RdProperty<int32_t>, Companion<int32_t> > p1(RdProperty(0));
-    RdProperty<RdProperty<int32_t>, Companion<int32_t> > p2(RdProperty(0));
+TEST_F(RdFrameworkTestBase, property_companion) {
+    RdProperty<RdProperty<int32_t>, RdProperty<int32_t>::Companion > p1(RdProperty(0));
+    RdProperty<RdProperty<int32_t>, RdProperty<int32_t>::Companion > p2(RdProperty(0));
 
     int32_t nxt = 10;
     std::vector<int> log;
@@ -133,9 +130,7 @@ TEST_F(RdFrameworkTestBase, property_early_advise) {
 
     bindStatic(clientProtocol.get(), p1, 1);
     bindStatic(serverProtocol.get(), p2, 1);
-    p1.set(RdProperty(0));
+//    p1.set(RdProperty(0));
 
     EXPECT_EQ((std::vector<int32_t>{0}), log);
-    setWireAutoFlush(true);
-    EXPECT_EQ((std::vector<int32_t>{0, 11}), log);
-}*/
+}
