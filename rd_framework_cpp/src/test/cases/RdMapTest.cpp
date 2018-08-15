@@ -92,21 +92,32 @@ TEST_F(RdFrameworkTestBase, rd_map_dynamic) {
                 [&log, &k]() { log.push_back("start " + std::to_string(k)); },
                 [&log, &k]() { log.push_back("finish " + std::to_string(k)); }
         );
-        v.foo.advise(lf, [&log](bool const &fooval) { log.push_back(std::to_string(fooval)); });
+        v.foo.advise(lf, [&log](int32_t const &fooval) {
+            log.push_back(std::to_string(fooval));
+        });
     });
 
     clientMap.set(2, DynamicEntity(1));
 
     serverMap.set(0, DynamicEntity(2));
+    serverMap.set(0, DynamicEntity(3));
+
+    EXPECT_EQ(2, clientMap.size());
+    EXPECT_EQ(2, serverMap.size());
 
     clientMap.remove(0);
-    clientMap.set(5, DynamicEntity(3));
+    clientMap.set(5, DynamicEntity(4));
 
     clientMap.clear();
 
+    EXPECT_TRUE(clientMap.empty());
+    EXPECT_TRUE(serverMap.empty());
+
     EXPECT_EQ((std::vector<std::string>{"start 2", "1",
-                                        "start 0", "1",
+                                        "start 0", "2",
                                         "finish 0",
-                                        "start 5", "1",
+                                        "start 0", "3",
+                                        "finish 0",
+                                        "start 5", "4",
                                         "finish 2", "finish 5"}), log);
 }

@@ -48,12 +48,13 @@ public:
             change.fire(typename Event::Add(it.first->first.get(), it.first->second.get()));
             return nullptr;
         } else {
-            if (*get_by(key) != value) {
+			auto it = map.find(deleted_shared_ptr(key));
+            if (*it->second != value) {
                 std::shared_ptr<V> old_value = get_by(key);
 
                 std::shared_ptr<V> object = std::make_shared<V>(std::move(value));
-                map[deleted_shared_ptr(key)] = object;
-                change.fire(typename Event::Update(&key, old_value.get(), object.get()));
+				map[deleted_shared_ptr(key)] = object;
+                change.fire(typename Event::Update(it->first.get(), old_value.get(), it->second.get()));
             }
             return get_by(key).get();
         }
