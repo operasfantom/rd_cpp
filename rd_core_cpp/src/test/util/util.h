@@ -27,23 +27,23 @@ std::string to_string(const std::pair<F, S> p) {
 std::string to_string(AddRemove kind);
 
 template<typename K, typename V>
-std::string to_string(typename IViewableMap<K, V>::Event const &e) {
+std::string to_string_map_event(typename IViewableMap<K, V>::Event const &e) {
     using Event = typename IViewableMap<K, V>::Event;
     std::string res = std::visit(overloaded{
             [](typename Event::Add const &e) {
                 return "Add " +
-                       std::to_string(e.key) + ":" +
-                       std::to_string(e.new_value);
+                       std::to_string(*e.key) + ":" +
+                       std::to_string(*e.new_value);
             },
             [](typename Event::Update const &e) {
                 return "Update " +
-                       std::to_string(e.key) + ":" +
+                       std::to_string(*e.key) + ":" +
                        /*std::to_string(e.old_value) + ":" +*/
-                       std::to_string(e.new_value);
+                       std::to_string(*e.new_value);
             },
             [](typename Event::Remove const &e) {
                 return "Remove " +
-                       std::to_string(e.key);
+                       std::to_string(*e.key);
             },
     }, e.v);
     return res;
@@ -94,7 +94,7 @@ inline std::string to_string_list_event<std::string>(typename IViewableList<std:
     }, e.v);
     return res;
 }
-
+/*
 template<typename K, typename V>
 std::string to_string_map_event(typename IViewableMap<K, V>::Event const &e) {
     using Event = typename IViewableMap<K, V>::Event;
@@ -107,7 +107,7 @@ std::string to_string_map_event(typename IViewableMap<K, V>::Event const &e) {
             [](typename Event::Update const &e) {
                 return "Update " +
                        std::to_string(e.key) + ":" +
-                       /*std::to_string(e.old_value) + ":" +*/
+                       *//*std::to_string(e.old_value) + ":" +*//*
                        std::to_string(e.new_value);
             },
             [](typename Event::Remove const &e) {
@@ -116,10 +116,10 @@ std::string to_string_map_event(typename IViewableMap<K, V>::Event const &e) {
             },
     }, e.v);
     return res;
-}
+}*/
 
 template<typename K>
-std::string to_string_map_event/*<K, std::string>*/(typename IViewableMap<K, std::string>::Event const &e) {
+std::string to_string_map_event(typename IViewableMap<K, std::string>::Event const &e) {
     using Event = typename IViewableMap<K, std::string>::Event;
     std::string res = std::visit(overloaded{
             [](typename Event::Add const &e) {

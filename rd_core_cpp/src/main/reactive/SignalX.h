@@ -22,14 +22,19 @@ private:
 
     mutable std::map<counter_t, std::function<void(T const &)> > listeners;
 public:
-    Signal() {}
+    //region ctor/dtor
+
+    Signal() = default;
 
     Signal(Signal const &other) = delete;
 
+    Signal &operator=(Signal const &other) = delete;
+
     virtual ~Signal() = default;
+    //endregion
 
     virtual void fire(T const &value) const {
-        for (auto &p : listeners) {
+        for (auto const &p : listeners) {
             p.second(value);
         }
     }

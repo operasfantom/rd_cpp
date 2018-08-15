@@ -27,12 +27,12 @@ TEST(viewable_map, advise) {
                                            to_string(kind) + " " + std::to_string(key) + ":" + std::to_string(value));
                                });
         map->advise(lifetime, [&log_update](typename IViewableMap<int, int>::Event entry) {
-            log_update.push_back(to_string<int, int>(entry));
+            log_update.push_back(to_string_map_event<int, int>(entry));
         });
-        map->view(lifetime, [&](Lifetime inner, const std::pair<int, int> x) {
+        map->view(lifetime, [&](Lifetime inner, const std::pair<int const *, int const *> x) {
             inner->bracket(
-                    [&log_view, x]() { log_view.push_back(x.first); },
-                    [&log_view, x]() { log_view.push_back(-x.second); }
+                    [&log_view, x]() { log_view.push_back(*x.first); },
+                    [&log_view, x]() { log_view.push_back(-*x.second); }
             );
         });
 
@@ -65,3 +65,32 @@ TEST(viewable_map, advise) {
 
     EXPECT_EQ(arrayListOf({"Add 0:0"_s, "Add 10:10"_s, "Remove 0:0"_s, "Remove 10:10"_s}), log_add_remove);
 }
+
+/*TEST (viewable_map, view) {
+    using listOf = std::vector<int>;
+
+    listOf elementsView{2, 0, 1, 8, 3};
+    listOf elementsUnView{1, 3, 8, 0, 2};
+
+    size_t C{elementsView.size()};
+
+    std::unique_ptr<IViewableMap<int32_t, int32_t >> map(new ViewableMap<int32_t, int32_t>());
+    std::vector<std::string> log;
+    Lifetime::use([&](Lifetime lifetime) {
+        map->view(lifetime, [&](Lifetime lt, int32_t const &value) {
+                      log.push_back("View " + std::to_string(value));
+                      lt->add_action([&log, &value]() { log.push_back("UnView " + std::to_string(value)); });
+                  }
+        );
+        for (auto x : elementsView) {
+            map->add(x);
+        }
+        map->remove(1);
+    });
+    std::vector<std::string> expected(2 * C);
+    for (size_t i = 0; i < C; ++i) {
+        expected[i] = "View " + std::to_string(elementsView[i]);
+        expected[C + i] = "UnView " + std::to_string(elementsUnView[i]);
+    }
+    EXPECT_EQ(expected, log);
+}*/

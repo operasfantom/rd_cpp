@@ -19,12 +19,15 @@ private:
     mutable tsl::ordered_map<K, V> map;
     Signal<Event> change;
 public:
-    virtual ~ViewableMap() {}
+    //region ctor/dtor
 
-    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) const {
+    virtual ~ViewableMap() {}
+    //endregion
+
+    virtual void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const {
         change.advise(lifetime, handler);
-        for (auto p : map) {
-            handler(Event(typename Event::Add(p.first, p.second)));;
+        for (auto const& p : map) {
+            handler(Event(typename Event::Add(&p.first, &p.second)));;
         }
     }
 
@@ -41,13 +44,13 @@ public:
     std::optional<V> set(K const &key, V const &value) const {
         if (map.count(key) == 0) {
             map[key] = value;
-            change.fire(typename Event::Add(key, value));
+            change.fire(typename Event::Add(&key, &value));
             return std::nullopt;
         } else {
             if (map[key] != value) {
                 V old_value = std::move(map[key]);
                 map[key] = value;
-                change.fire(typename Event::Update(key, old_value, value));
+                change.fire(typename Event::Update(&key, &old_value, &value));
             }
             return map[key];
         }
@@ -57,7 +60,7 @@ public:
         if (map.count(key) > 0) {
             V old_value = std::move(map[key]);
             map.erase(key);
-            change.fire(typename Event::Remove(key, old_value));
+            change.fire(typename Event::Remove(&key, &old_value));
             return old_value;
         }
         return std::nullopt;
@@ -65,8 +68,8 @@ public:
 
     virtual void clear() const {
         std::vector<Event> changes;
-        for (auto const& p : map) {
-            changes.push_back(typename Event::Remove(p.first, p.second));
+        for (auto const &p : map) {
+            changes.push_back(typename Event::Remove(&p.first, &p.second));
         }
         map.clear();
         for (auto it : changes) {
