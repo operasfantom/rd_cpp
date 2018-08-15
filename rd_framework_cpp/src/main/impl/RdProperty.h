@@ -12,7 +12,7 @@
 #include "../serialization/ISerializable.h"
 
 template<typename T, typename S = Polymorphic<T>>
-class RdProperty : public RdPropertyBase<T, S>/*, public IProperty<T> */, public ISerializable {
+class RdProperty : public RdPropertyBase<T, S>, public ISerializable {
 public:
     //region ctor/dtor
 
@@ -27,7 +27,7 @@ public:
     virtual ~RdProperty() = default;
     //endregion
 
-    class Companion/* : public ISerializer<T>*/ {
+    class Companion {
     public:
         static RdProperty<T, S> read(SerializationCtx const &ctx, Buffer const &buffer) {
             return RdProperty<T, S>::read(ctx, buffer);
@@ -67,19 +67,6 @@ public:
         if (!this->optimize_nested)
             identifyPolymorphic(this->get(), identities, identities->next(id));
     }
-
-    /*void print(PrettyPrinter printer) {
-        *//*super.print(printer)
-        printer.print("(ver=$masterVersion) [")
-        value.let {
-            when (it) {
-                null -> printer.print(" <null> ")
-                else -> printer.indent { it.print(printer) }
-            }
-            Unit
-        }
-        printer.print("]")*//*
-    }*/
 
     friend bool operator==(const RdProperty &lhs, const RdProperty &rhs) {
         return &lhs == &rhs;

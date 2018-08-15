@@ -83,7 +83,7 @@ TEST_F(RdFrameworkTestBase, property_dynamic) {
     EXPECT_EQ((listOf{0}), serverLog);
 
     client_property.set(DynamicEntity(2));
-	client_property.set(DynamicEntity(2));
+//	client_property.set(DynamicEntity(2));
 
     EXPECT_EQ((listOf{0, 2}), clientLog);
     EXPECT_EQ((listOf{0, 2}), serverLog);

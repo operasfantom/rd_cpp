@@ -89,3 +89,26 @@ TEST (viewable_set, view) {
     }
     EXPECT_EQ(expected, log);
 }
+
+TEST(viewable_set, add_remove_fuzz) {
+    std::unique_ptr<IViewableSet<int> > set(new ViewableSet<int>());
+    std::vector<std::string> log;
+
+    const int C = 10;
+
+    Lifetime::use([&](Lifetime lifetime) {
+        set->view(lifetime, [&log](Lifetime lt, int const & value) {
+            log.push_back("View " + std::to_string(value));
+            lt->add_action([&log, &value]() { log.push_back("UnView " + std::to_string(value)); });
+        });
+
+        for (int i = 0; i < C; ++i) {
+            set->add(i);
+        }
+    });
+
+    for (int i = 0; i < C; ++i){
+        EXPECT_EQ("View " + std::to_string(i), log[i]);
+        EXPECT_EQ("UnView " + std::to_string(C - i - 1), log[C + i]);
+    }
+}

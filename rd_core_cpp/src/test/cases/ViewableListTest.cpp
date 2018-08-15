@@ -58,7 +58,7 @@ TEST(viewable_list, add_remove_view2) {
     EXPECT_EQ(expected, log);
 }
 
-TEST(viewable_list, add_remove_view3) {
+TEST(viewable_list, add_remove_fuzz) {
     std::unique_ptr<IViewableList<int> > list(new ViewableList<int>());
     std::vector<std::string> log;
 
@@ -79,9 +79,6 @@ TEST(viewable_list, add_remove_view3) {
         EXPECT_EQ("View (" + std::to_string(i) + ", 0)", log[i]);
         EXPECT_EQ("UnView (" + std::to_string(C - i - 1) + ", 0)", log[C + i]);
     }
-    /*std::vector<std::string> expected{"View (0, 0)", "UnView (0, 0)", "View (0, 1)", "UnView (0, 1)"};
-
-    EXPECT_EQ(expected, log);*/
 }
 
 TEST(viewable_list, insert_middle) {

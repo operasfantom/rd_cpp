@@ -95,7 +95,31 @@ TEST (viewable_map, view) {
     std::vector<std::string> expected(2 * C);
     for (size_t i = 0; i < C; ++i) {
         expected[i] = "View (" + std::to_string(i) + ", " + std::to_string(elementsView[i]) + ")";
-        expected[C + i] = "UnView (" + std::to_string(indexesUnView[i]) + ", " + std::to_string(elementsUnView[i]) + ")";
+        expected[C + i] =
+                "UnView (" + std::to_string(indexesUnView[i]) + ", " + std::to_string(elementsUnView[i]) + ")";
     }
     EXPECT_EQ(expected, log);
+}
+
+TEST(viewable_map, add_remove_fuzz) {
+    std::unique_ptr<IViewableMap<int32_t, int32_t> > map(new ViewableMap<int32_t, int32_t>());
+    std::vector<std::string> log;
+
+    const int C = 10;
+
+    Lifetime::use([&](Lifetime lifetime) {
+        map->view(lifetime, [&log](Lifetime lt, std::pair<int32_t const *, int32_t const *> value) {
+            log.push_back("View " + to_string(value));
+            lt->add_action([&log, value]() { log.push_back("UnView " + to_string(value)); });
+        });
+
+        for (int i = 0; i < C; ++i) {
+            map->set(i, 0);
+        }
+    });
+
+    for (int i = 0; i < C; ++i){
+        EXPECT_EQ("View (" + std::to_string(i) + ", 0)", log[i]);
+        EXPECT_EQ("UnView (" + std::to_string(C - i - 1) + ", 0)", log[C + i]);
+    }
 }

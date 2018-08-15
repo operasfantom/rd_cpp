@@ -1,3 +1,5 @@
+#include <memory>
+
 //
 // Created by jetbrains on 24.07.2018.
 //
@@ -42,8 +44,8 @@ public:
     TestScheduler clientScheduler;
     TestScheduler serverScheduler;
 
-    std::unique_ptr<TestWire> clientTestWire = std::unique_ptr<TestWire>(new TestWire(&clientScheduler));
-    std::unique_ptr<TestWire> serverTestWire = std::unique_ptr<TestWire>(new TestWire(&serverScheduler));
+    std::unique_ptr<TestWire> clientTestWire = std::make_unique<TestWire>(&clientScheduler);
+    std::unique_ptr<TestWire> serverTestWire = std::make_unique<TestWire>(&serverScheduler);
 
 //    /*std::unique_ptr<IWire>*/TestWire clientTestWire{&clientScheduler};
 //    /*std::unique_ptr<IWire>*/TestWire serverTestWire{&serverScheduler};
