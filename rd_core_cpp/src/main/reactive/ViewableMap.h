@@ -18,8 +18,8 @@ private:
     mutable tsl::ordered_map<std::shared_ptr<K>, std::shared_ptr<V>, HashSharedPtr<K>, KeyEqualSharedPtr<K>> map;
     Signal<Event> change;
 
-    std::shared_ptr<V>& get_by(K const &key) const {
-		return map.at(deleted_shared_ptr(key));
+    std::shared_ptr<V> &get_by(K const &key) const {
+        return map.at(deleted_shared_ptr(key));
     }
 
 public:
@@ -39,20 +39,23 @@ public:
         return *get_by(key);
     }
 
-    std::optional<V> set(K const &key, V const &value) const {
+    const V *set(K key, V value) const {
         if (map.count(deleted_shared_ptr(key)) == 0) {
-            auto it = map.insert(std::make_pair(factory_shared_ptr(key), factory_shared_ptr(value)));
+            auto it = map.insert(std::make_pair(
+                    factory_shared_ptr(std::move(key)),
+                    factory_shared_ptr(std::move(value))
+            ));
             change.fire(typename Event::Add(it.first->first.get(), it.first->second.get()));
-            return std::nullopt;
+            return nullptr;
         } else {
             if (*get_by(key) != value) {
                 std::shared_ptr<V> old_value = get_by(key);
 
-                std::shared_ptr<V> object = deleted_shared_ptr<V>(value);
+                std::shared_ptr<V> object = std::make_shared<V>(std::move(value));
                 map[deleted_shared_ptr(key)] = object;
                 change.fire(typename Event::Update(&key, old_value.get(), object.get()));
             }
-            return *get_by(key);
+            return get_by(key).get();
         }
     }
 
@@ -61,7 +64,7 @@ public:
             std::shared_ptr<V> old_value = get_by(key);
             change.fire(typename Event::Remove(&key, old_value.get()));
             map.erase(deleted_shared_ptr(key));
-            return *old_value;
+            return std::move(*old_value);
         }
         return std::nullopt;
     }
@@ -71,7 +74,7 @@ public:
         for (auto const &p : map) {
             changes.push_back(typename Event::Remove(p.first.get(), p.second.get()));
         }
-        for (auto const& it : changes) {
+        for (auto const &it : changes) {
             change.fire(it);
         }
         map.clear();

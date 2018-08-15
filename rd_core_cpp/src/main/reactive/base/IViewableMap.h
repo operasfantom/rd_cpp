@@ -125,8 +125,8 @@ public:
     }
 
     void view(Lifetime lifetime, std::function<void(Lifetime, K const &, V const &)> handler) const {
-        view(lifetime, [handler](Lifetime lf, const std::pair<K, V> entry) {
-            handler(lf, entry.first, entry.second);
+        view(lifetime, [handler](Lifetime lf, const std::pair<K const *, V const *> entry) {
+            handler(lf, *entry.first, *entry.second);
         });
     }
 
@@ -134,7 +134,7 @@ public:
 
     virtual V const& get(K const &) const = 0;
 
-    virtual std::optional<V> set(K const &, V const &) const = 0;
+    virtual const V * set(K, V) const = 0;
 
     virtual std::optional<V> remove(K const &) const = 0;
 

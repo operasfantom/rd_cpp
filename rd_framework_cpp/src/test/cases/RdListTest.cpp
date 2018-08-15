@@ -111,7 +111,6 @@ TEST_F(RdFrameworkTestBase, rd_list_dynamic) {
 
     client_list.clear();
 
-//    EXPECT_EQ(log, (std::vector<std::string>{}));
     EXPECT_EQ(log, (std::vector<std::string>{"start 0", "2",
                                              "0",
                                              "1",

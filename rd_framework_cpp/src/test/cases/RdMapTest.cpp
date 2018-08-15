@@ -66,7 +66,6 @@ TEST_F(RdFrameworkTestBase, rd_map_statics) {
     );
 }
 
-/*
 TEST_F(RdFrameworkTestBase, rd_map_dynamic) {
     int32_t id = 1;
 
@@ -91,23 +90,23 @@ TEST_F(RdFrameworkTestBase, rd_map_dynamic) {
     serverMap.view(Lifetime::Eternal(), [&](Lifetime lf, int32_t const &k, DynamicEntity const &v) {
         lf->bracket(
                 [&log, &k]() { log.push_back("start " + std::to_string(k)); },
-                [&log, &k]() { log.push_back("finish" + std::to_string(k)); }
+                [&log, &k]() { log.push_back("finish " + std::to_string(k)); }
         );
         v.foo.advise(lf, [&log](bool const &fooval) { log.push_back(std::to_string(fooval)); });
     });
 
-    clientMap.set(1, DynamicEntity(true));
+    clientMap.set(2, DynamicEntity(1));
 
-    serverMap.set(2, DynamicEntity(false));
+    serverMap.set(0, DynamicEntity(2));
 
-    clientMap.remove(2);
-    clientMap.set(2, DynamicEntity(true));
+    clientMap.remove(0);
+    clientMap.set(5, DynamicEntity(3));
 
     clientMap.clear();
 
-    EXPECT_EQ((std::vector<std::string>{"start 1", "null", "true",
-                        "finish 1", "start 1", "true",
-                        "start 2", "false",
-                        "finish 2", "start 2", "true",
-                        "finish 1", "finish 2"}), log);
-}*/
+    EXPECT_EQ((std::vector<std::string>{"start 2", "1",
+                                        "start 0", "1",
+                                        "finish 0",
+                                        "start 5", "1",
+                                        "finish 2", "finish 5"}), log);
+}

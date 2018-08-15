@@ -15,7 +15,7 @@ class ViewableList : public IViewableList<T> {
 public:
     using Event = typename IViewableList<T>::Event;
 private:
-    mutable std::vector<std::unique_ptr<T> > list;
+    mutable std::vector<std::shared_ptr<T> > list;
     Signal<Event> change;
 public:
 

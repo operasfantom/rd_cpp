@@ -35,19 +35,19 @@ struct HashSharedPtr {
 };
 
 template<typename T>
-std::unique_ptr<T> factory_shared_ptr(T element) {
-    return std::make_unique<T>(std::move(element));
+std::shared_ptr<T> factory_shared_ptr(T element) {
+    return std::make_shared<T>(std::move(element));
 }
 
-/*template<typename U>
-typename std::enable_if_t<!std::is_trivially_copyable_v<U>, std::shared_ptr<U> >
+template<typename U>
+typename std::enable_if_t<! std::is_copy_constructible_v<U>, std::shared_ptr<U> >
 deleted_shared_ptr(U const &element) {
     return std::shared_ptr<U>(&element, [](U *) {});
-}*/
+}
 
 template<typename U>
-//typename std::enable_if_t<std::is_trivially_copyable_v<U>, std::shared_ptr<U> >
-std::shared_ptr<U>
+typename std::enable_if_t<std::is_copy_constructible_v<U>, std::shared_ptr<U> >
+//std::shared_ptr<U>
 deleted_shared_ptr(U const &element) {
     return std::make_shared<U>(element);
 }

@@ -108,7 +108,7 @@ public:
 
         int64_t version = msgVersioned ? buffer.read_pod<int64_t>() : 0;
 
-        K const &key = KS::read(this->get_serialization_context(), buffer);
+        K key = std::move(KS::read(this->get_serialization_context(), buffer));
 
         if (op == Op::Ack) {
             /*val errmsg =
@@ -130,13 +130,15 @@ public:
 
         } else {
             bool isPut = (op == Op::Add || op == Op::Update);
-            std::optional<V> value = isPut ? VS::read(this->get_serialization_context(), buffer) : nullptr;
+            std::optional<V> value;
+            if (isPut)
+                value = std::move(VS::read(this->get_serialization_context(), buffer));
 
             if (msgVersioned || !is_master() || pendingForAck.count(key) == 0) {
 //                    logReceived.trace { logmsg(op, version, key, value) }
 
                 if (value.has_value()) {
-                    map.set(key, *value);
+                    map.set(std::move(key), std::move(*value));
                 } else {
                     map.remove(key);
                 }
@@ -167,11 +169,17 @@ public:
     }
 
     virtual V const &get(K const &key) const {
-        return local_change_ref<V>([&]() -> V const& { return map.get(key); });
+        return local_change_ref<V>([&]() -> V const & { return map.get(key); });
     }
 
-    virtual std::optional<V> set(K const &key, V const &value) const {
-        return local_change<std::optional<V>>([&]() { return map.set(key, value); });
+    virtual V const *set(K key, V value) const {
+        /*return local_change_const<V *>([this, key = std::move(key), value = std::move(value)]() mutable -> V const * {
+            return map.set(std::move(key), std::move(value));
+        });*/
+        is_local_change = true;
+        V const *res = map.set(std::move(key), std::move(value));
+        is_local_change = false;
+        return res;
     }
 
     virtual std::optional<V> remove(K const &key) const {
