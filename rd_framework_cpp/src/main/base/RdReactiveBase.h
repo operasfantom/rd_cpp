@@ -79,7 +79,7 @@ public:
 //            assertThreading();
         }
 
-//        require(!isLocalChange){ "!isLocalChange" }
+        MY_ASSERT_MSG(!is_local_change, "!isLocalChange");
 
         is_local_change = true;
         T const &res = action();
@@ -92,7 +92,7 @@ public:
 //            assertThreading();
         }
 
-//        require(!isLocalChange){ "!isLocalChange" }
+        MY_ASSERT_MSG(!is_local_change, "!isLocalChange");
 
         is_local_change = true;
         action();

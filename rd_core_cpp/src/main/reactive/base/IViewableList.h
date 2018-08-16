@@ -84,18 +84,18 @@ protected:
 public:
     virtual ~IViewableList() {}
 
-    void advise_add_remove(Lifetime lifetime, std::function<void(AddRemove, size_t, V const *)> handler) const {
+    void advise_add_remove(Lifetime lifetime, std::function<void(AddRemove, size_t, V const &)> handler) const {
         advise(lifetime, [handler](Event const &e) {
             std::visit(overloaded{
                     [handler](typename Event::Add const &e) {
-                        handler(AddRemove::ADD, e.index, e.new_value);
+                        handler(AddRemove::ADD, e.index, *e.new_value);
                     },
                     [handler](typename Event::Update const &e) {
-                        handler(AddRemove::REMOVE, e.index, e.old_value);
-                        handler(AddRemove::ADD, e.index, e.new_value);
+                        handler(AddRemove::REMOVE, e.index, *e.old_value);
+                        handler(AddRemove::ADD, e.index, *e.new_value);
                     },
                     [handler](typename Event::Remove const &e) {
-                        handler(AddRemove::REMOVE, e.index, e.old_value);
+                        handler(AddRemove::REMOVE, e.index, *e.old_value);
                     }
             }, e.v);
         });
@@ -104,13 +104,13 @@ public:
     virtual void
     view(Lifetime lifetime,
          std::function<void(Lifetime lifetime, std::pair<size_t, V const *> const &)> handler) const {
-        view(lifetime, [handler](Lifetime lt, size_t idx, V const *v) {
-            handler(lt, std::make_pair(idx, v));
+        view(lifetime, [handler](Lifetime lt, size_t idx, V const &v) {
+            handler(lt, std::make_pair(idx, &v));
         });
     }
 
-    void view(Lifetime lifetime, std::function<void(Lifetime, size_t, V const *)> handler) const {
-        advise_add_remove(lifetime, [this, lifetime, handler](AddRemove kind, size_t idx, V const *value) {
+    void view(Lifetime lifetime, std::function<void(Lifetime, size_t, V const &)> handler) const {
+        advise_add_remove(lifetime, [this, lifetime, handler](AddRemove kind, size_t idx, V const &value) {
             switch (kind) {
                 case AddRemove::ADD: {
                     LifetimeDefinition def(lifetime);

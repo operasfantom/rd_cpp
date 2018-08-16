@@ -23,7 +23,7 @@ public:
 
     //region ctor/dtor
 
-    DynamicEntity(DynamicEntity const& other) = delete;
+    DynamicEntity(DynamicEntity const &other) = delete;
 
     DynamicEntity(DynamicEntity &&other) = default;
 
@@ -43,7 +43,7 @@ public:
 
     void init(Lifetime lifetime) const;
 
-    void identify(IIdentities *identities, RdId id);
+    virtual void identify(IIdentities const *identities, RdId const &id) const;
 
     friend bool operator==(const DynamicEntity &lhs, const DynamicEntity &rhs);
 

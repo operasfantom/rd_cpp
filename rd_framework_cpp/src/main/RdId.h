@@ -27,6 +27,10 @@ public:
         return left.hash == right.hash;
     }
 
+    friend bool operator!=(const RdId &lhs, const RdId &rhs) {
+        return !(rhs == lhs);
+    }
+
     //region ctor/dtor
 
     RdId(const RdId &other) = default;
@@ -49,15 +53,15 @@ public:
 
     void write(const Buffer &buffer);
 
-    hash_t get_hash();
+    hash_t get_hash() const;
 
 //    void write(AbstractBufefer& bufefer);
 
-    inline bool isNull();
+    bool isNull() const;
 
-    inline std::string toString();
+    std::string toString();
 
-    inline RdId notNull();
+    RdId notNull();
 
     RdId mix(const std::string &tail) const;
 

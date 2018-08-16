@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by jetbrains on 25.07.2018.
 //
@@ -44,8 +46,7 @@ public:
         RdId id(h);
 //        Protocol.initializationLogger.trace { "Registering type ${t.simpleName}, id = $id" }
 
-
-        readers[id] = reader;
+        readers[id] = std::move(reader);
     }
 
     template<typename T>

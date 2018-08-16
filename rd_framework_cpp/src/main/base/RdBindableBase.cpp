@@ -2,6 +2,7 @@
 // Created by jetbrains on 23.07.2018.
 //
 
+
 #include "RdBindableBase.h"
 
 bool RdBindableBase::is_bound() const {
@@ -9,7 +10,7 @@ bool RdBindableBase::is_bound() const {
 }
 
 void RdBindableBase::bind(Lifetime lf, IRdDynamic const *parent, const std::string &name) const {
-//    require (this.parent == null) { "Trying to bound already bound $this to ${parent.location}" }
+    MY_ASSERT_MSG((this->parent == nullptr), ("Trying to bound already bound this to " + parent->location.toString()));
     lf->bracket([this, lf, parent, name]() {
                     this->parent = parent;
                     location = parent->location.sub(name, ".");
@@ -31,8 +32,8 @@ void RdBindableBase::bind(Lifetime lf, IRdDynamic const *parent, const std::stri
 }
 
 void RdBindableBase::identify(const IIdentities *identities, const RdId &id) const {
-//        require(rdid.isNull) { "Already has RdId: $rdid, entity: $this" }
-//        require(!id.isNull) { "Assigned RdId mustn't be null, entity: $this" }
+    MY_ASSERT_MSG(rd_id.isNull(), "Already has RdId: " + rd_id.toString() + ", entity: $this");
+    MY_ASSERT_MSG(!id.isNull(), "Assigned RdId mustn't be null, entity: $this");
 
     this->rd_id = id;
     for (auto &p : bindable_children) {

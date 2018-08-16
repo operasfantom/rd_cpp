@@ -2,6 +2,8 @@
 // Created by jetbrains on 23.07.2018.
 //
 
+
+#include <util.h>
 #include "RdId.h"
 #include "Identities.h"
 
@@ -27,11 +29,11 @@ RdId RdId::mix(int64_t tail) const {
     return RdId(getPlatformIndependentHash(tail, hash));
 }
 
-hash_t RdId::get_hash() {
+hash_t RdId::get_hash() const {
     return hash;
 }
 
-bool RdId::isNull() {
+bool RdId::isNull() const {
     return get_hash() == NULL_ID.get_hash();
 }
 
@@ -40,7 +42,7 @@ std::string RdId::toString() {
 }
 
 RdId RdId::notNull() {
-//        require(!isNull) { "id is null" }
+    MY_ASSERT_MSG(!isNull(), "id is null");
     return *this;
 }
 

@@ -10,20 +10,19 @@
 #include "../serialization/Polymorphic.h"
 #include "../serialization/SerializationCtx.h"
 
+
 template<typename V, typename S = Polymorphic<V>>
 class RdList : public RdReactiveBase, public IViewableList<V> {
 private:
 //    using list = typename ViewableList<V>;
     mutable ViewableList<V> list;
-    mutable int64_t nextVersion;
+    mutable int64_t nextVersion = 1;
 
     using Event = typename IViewableList<V>::Event;
 public:
     //region ctor/dtor
 
     RdList() = default;
-
-    explicit RdList(const ViewableList<V> &list, int64_t nextVersion) : list(list), nextVersion(nextVersion) {}
 
     virtual ~RdList() = default;
     //endregion
@@ -32,14 +31,24 @@ public:
         Add, Update, Remove
     }; // update versionedFlagShift when changing
 
+    class Companion {
+    public:
+        static RdList<V, S> read(SerializationCtx const &ctx, Buffer const &buffer) {
+            return RdList<V, S>::read(ctx, buffer);
+        }
+
+        static void write(SerializationCtx const &ctx, Buffer const &buffer, RdList<V, S> const &value) {
+            value.write(ctx, buffer);
+        }
+    };
+
     static RdList<V> read(SerializationCtx ctx, Buffer const &buffer, ISerializer<V> *valSzr) {
 //        return withId<RdList<V>>(RdList(valSzr, ViewableList(), buffer.read_pod<int64_t>()), RdId::read(buffer));
     }
 
-    template<typename Y>
-    static void write(SerializationCtx ctx, Buffer const &buffer, RdList<Y> that) {
-        buffer.write_pod<int64_t>(that.nextVersion);
-        that.rd_id.write(buffer);
+    void write(SerializationCtx ctx, Buffer const &buffer) {
+        buffer.write_pod<int64_t>(nextVersion);
+        rd_id.write(buffer);
     }
 
     static const int32_t versionedFlagShift = 2; // update when changing Op
@@ -50,13 +59,13 @@ public:
         RdBindableBase::init(lifetime);
 
         local_change([this, lifetime]() {
-            advise(lifetime, [this, lifetime](typename IViewableList<V>::Event const& e) {
+            advise(lifetime, [this, lifetime](typename IViewableList<V>::Event const &e) {
                 if (!is_local_change) return;
 
                 if (!optimizeNested) {
-                    V const* new_value = e.get_new_value();
+                    V const *new_value = e.get_new_value();
                     if (new_value) {
-                        identifyPolymorphic(e, get_protocol()->identity, get_protocol()->identity->next(rd_id));
+                        identifyPolymorphic(*new_value, get_protocol()->identity, get_protocol()->identity->next(rd_id));
                     }
                 }
 
@@ -66,7 +75,7 @@ public:
                     buffer.write_pod<int64_t>(static_cast<int64_t>(op) | (nextVersion++ << versionedFlagShift));
                     buffer.write_pod<int32_t>(e.get_index());
 
-                    V const* new_value = e.get_new_value();
+                    V const *new_value = e.get_new_value();
                     if (new_value) {
                         S::write(this->get_serialization_context(), buffer, *new_value);
                     }
@@ -79,22 +88,25 @@ public:
         get_wire()->advise(lifetime, *this);
 
         if (!optimizeNested)
-            this->view(lifetime, [this](Lifetime lf, size_t index, V const *value) {
-                bindPolymorphic(*value, lf, this, "[" + std::to_string(index) + "]");
+            this->view(lifetime, [this](Lifetime lf, size_t index, V const &value) {
+                bindPolymorphic(value, lf, this, "[" + std::to_string(index) + "]");
             });
     }
 
     virtual void on_wire_received(Buffer const &buffer) const {
         int64_t header = (buffer.read_pod<int64_t>());
-//        int64_t version = header >> versionedFlagShift;
+        int64_t version = header >> versionedFlagShift;
         Op op = static_cast<Op>((header & ((1 << versionedFlagShift) - 1L)));
         int32_t index = (buffer.read_pod<int32_t>());
 
 //            logReceived.trace { logmsg(op, version, index, value) }
 
-        /*require(version == nextVersion) {
-            "Version conflict for $location}. Expected version $nextVersion, received $version. Are you modifying a list from two sides?"
-        }*/
+
+        MY_ASSERT_MSG(version == nextVersion, ("Version conflict for " + location.toString() + "}. Expected version " +
+                                              std::to_string(nextVersion) +
+                                              ", received " +
+                                              std::to_string(version) +
+                                              ". Are you modifying a list from two sides?"));
 
         nextVersion++;
 
@@ -135,7 +147,7 @@ public:
 
 //    virtual bool retainAll(elements: Collection<V>): Boolean = local_change { list.retainAll(elements) }
 
-    virtual V const& get(size_t index) const { return list.get(index); };
+    virtual V const &get(size_t index) const { return list.get(index); };
 
     virtual V set(size_t index, V element) const {
         return local_change<V>([&]() { return list.set(index, std::move(element)); });

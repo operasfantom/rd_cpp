@@ -7,6 +7,9 @@
 
 #include <type_traits>
 #include <memory>
+#include <cassert>
+
+#define MY_ASSERT_MSG(expr, msg) if(!(expr)){std::cerr<<(msg);assert(expr);}
 
 template<class... Ts>
 struct overloaded : Ts ... {

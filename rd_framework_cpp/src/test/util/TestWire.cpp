@@ -2,6 +2,7 @@
 // Created by jetbrains on 25.07.2018.
 //
 
+#include <cassert>
 #include "TestWire.h"
 
 TestWire::TestWire(IScheduler const * const scheduler) : WireBase(scheduler) {
@@ -9,7 +10,7 @@ TestWire::TestWire(IScheduler const * const scheduler) : WireBase(scheduler) {
 }
 
 void TestWire::send(RdId id, std::function<void(Buffer const &buffer)> writer) const {
-//        require(!id.isNull)
+    assert(!id.isNull());
     std::shared_ptr<Buffer> ostream(new Buffer(10));
     writer(*ostream);
 

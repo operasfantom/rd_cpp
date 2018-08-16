@@ -41,7 +41,7 @@ public:
     static RdProperty<T, S> read(SerializationCtx const &ctx, Buffer const &buffer) {
         RdId id = RdId::read(buffer);
 //        val value = if (buffer.readBool()) valueSerializer.read(ctx, buffer) else null;
-        T const &value = S::read(ctx, buffer);
+        T value = std::move(S::read(ctx, buffer));
         RdProperty<T, S> property(value);
         withId(property, id);
         return property;
@@ -62,7 +62,7 @@ public:
     }
 
 
-    virtual void identify(IIdentities *identities, RdId id) {
+    virtual void identify(IIdentities const *identities, RdId id) const {
         RdBindableBase::identify(identities, id);
         if (!this->optimize_nested)
             identifyPolymorphic(this->get(), identities, identities->next(id));

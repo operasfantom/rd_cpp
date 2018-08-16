@@ -2,6 +2,9 @@
 // Created by jetbrains on 26.07.2018.
 //
 
+
+#include <cassert>
+#include <util.h>
 #include "MessageBroker.h"
 
 void MessageBroker::invoke(const IRdReactive *that, const Buffer &msg, bool sync) const {
@@ -21,7 +24,7 @@ void MessageBroker::invoke(const IRdReactive *that, const Buffer &msg, bool sync
 MessageBroker::MessageBroker(IScheduler const *defaultScheduler) : defaultScheduler(defaultScheduler) {}
 
 void MessageBroker::dispatch(RdId id, std::shared_ptr<Buffer> message) const {
-//        require(!id.isNull) { "id mustn't be null" }
+    MY_ASSERT_MSG(!id.isNull(), "id mustn't be null");
 
 //        synchronized(lock) {
 
@@ -49,7 +52,7 @@ void MessageBroker::dispatch(RdId id, std::shared_ptr<Buffer> message) const {
                 auto t = broker[id];
                 broker.erase(id);
                 for (auto &it : t.customSchedulerMessages) {
-//                        require (wireScheduler != defaultScheduler);
+                    assert(subscription->get_wire_scheduler() != defaultScheduler);
                     invoke(subscription, *it);
                 }
             }
@@ -65,7 +68,7 @@ void MessageBroker::dispatch(RdId id, std::shared_ptr<Buffer> message) const {
                 invoke(s, *message);
             } else {
                 Mq mq = broker[id];
-//                    require(mq.defaultSchedulerMessages > 0)
+                assert(mq.defaultSchedulerMessages > 0);
                 mq.customSchedulerMessages.push_back(message);
             }
         }
@@ -75,7 +78,7 @@ void MessageBroker::dispatch(RdId id, std::shared_ptr<Buffer> message) const {
 }
 
 void MessageBroker::advise_on(Lifetime lifetime, IRdReactive const &entity) const {
-//        require(!entity.rdid.isNull) {"id is null for entity: $entity"}
+    MY_ASSERT_MSG(!entity.rd_id.isNull(), "id is null for entity: $entity");
 
     //advise MUST happen under default scheduler, not custom
 //        defaultScheduler.assertThread(entity)

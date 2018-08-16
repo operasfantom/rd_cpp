@@ -80,8 +80,8 @@ TEST_F(RdFrameworkTestBase, rd_map_dynamic) {
     DynamicEntity::registry(clientProtocol.get());
     DynamicEntity::registry(serverProtocol.get());
 
-    EXPECT_TRUE(serverMap.size() == 0);
-    EXPECT_TRUE(clientMap.size() == 0);
+    EXPECT_TRUE(serverMap.empty());
+    EXPECT_TRUE(clientMap.empty());
 
     bindStatic(clientProtocol.get(), clientMap, "top");
     bindStatic(serverProtocol.get(), serverMap, "top");

@@ -89,12 +89,12 @@ TEST_F(RdFrameworkTestBase, rd_list_dynamic) {
 
     std::vector<std::string> log;
 
-    server_list.view(Lifetime::Eternal(), [&](Lifetime lf, size_t k, DynamicEntity const *v) {
+    server_list.view(Lifetime::Eternal(), [&](Lifetime lf, size_t k, DynamicEntity const &v) {
         lf->bracket(
                 [&log, k]() { log.push_back("start " + std::to_string(k)); },
                 [&log, k]() { log.push_back("finish " + std::to_string(k)); }
         );
-        v->foo.advise(lf, [&log](int32_t const &fooval) { log.push_back(std::to_string(fooval)); });
+        v.foo.advise(lf, [&log](int32_t const &fooval) { log.push_back(std::to_string(fooval)); });
     });
     client_list.add(DynamicEntity(2));
     client_list.get(0).foo.set(0);
@@ -119,4 +119,54 @@ TEST_F(RdFrameworkTestBase, rd_list_dynamic) {
                                              "finish 1",
                                              "start 1", "3",
                                              "finish 1", "finish 0"}));
+}
+
+TEST_F(RdFrameworkTestBase, rd_list_of_rd_property) {
+    int32_t id = 1;
+
+    RdList<RdProperty<int32_t>, RdProperty<int32_t>::Companion> server_list_storage;
+    RdList<RdProperty<int32_t>, RdProperty<int32_t>::Companion> client_list_storage;
+
+    auto &server_list = statics(server_list_storage, id);
+    auto &client_list = statics(client_list_storage, id);
+
+    EXPECT_EQ(0, server_list.size());
+    EXPECT_EQ(0, client_list.size());
+
+    bindStatic(clientProtocol.get(), client_list, "top");
+    bindStatic(serverProtocol.get(), server_list, "top");
+
+    std::vector<std::string> log;
+
+    server_list.view(Lifetime::Eternal(), [&](Lifetime lf, size_t k, RdProperty<int32_t> const &v) {
+        lf->bracket(
+                [&log, k]() { log.push_back("start " + std::to_string(k)); },
+                [&log, k]() { log.push_back("finish " + std::to_string(k)); }
+        );
+        v.advise(lf, [&log](int32_t const &val) { log.push_back(std::to_string(val)); });
+    });
+
+
+    server_list.add(RdProperty<int32_t>(0));
+
+    client_list.add(RdProperty<int32_t>(0));
+
+    client_list.set(0, RdProperty<int32_t>(2));
+
+    server_list.add(RdProperty<int32_t>(1));
+
+    server_list.add(RdProperty<int32_t>(8));
+
+    client_list.clear();
+
+    EXPECT_EQ(log, (std::vector<std::string>{"start 0", "0",
+                                             "start 1", "0",
+                                             "finish 0", "start 0", "2",
+                                             "start 2", "1",
+                                             "start 3", "8",
+                                             "finish 3",
+                                             "finish 2",
+                                             "finish 1",
+                                             "finish 0",
+    }));
 }

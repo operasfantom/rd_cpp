@@ -51,7 +51,7 @@ public:
 //    /*std::unique_ptr<IWire>*/TestWire serverTestWire{&serverScheduler};
 
     Identities clientIdentities;
-    Identities serverIdentities;
+    Identities serverIdentities{IdKind::Server};
 
 //    private var disposeLoggerFactory: Closeable? = null
 
