@@ -16,6 +16,8 @@ class RdProperty : public RdPropertyBase<T, S>, public ISerializable {
 public:
     //region ctor/dtor
 
+    RdProperty(RdProperty const&) = delete;
+
     RdProperty(RdProperty &&) = default;
 
     RdProperty &operator=(RdProperty &&) = default;

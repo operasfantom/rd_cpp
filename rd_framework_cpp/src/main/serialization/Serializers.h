@@ -35,7 +35,8 @@ public:
         }
         auto const &reader = readers.at(id);
         std::unique_ptr<ISerializable> ptr = reader(ctx, stream);
-        return std::move(*dynamic_cast<T *>(ptr.get()));
+        T res = std::move(*dynamic_cast<T*>(ptr.get()));
+        return res;
     }
 
     template<typename T>

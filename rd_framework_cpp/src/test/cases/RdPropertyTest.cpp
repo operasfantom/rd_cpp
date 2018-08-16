@@ -61,6 +61,9 @@ TEST_F(RdFrameworkTestBase, property_dynamic) {
     RdProperty<DynamicEntity> &client_property = statics(client_property_storage, (property_id));
     RdProperty<DynamicEntity> &server_property = statics(server_property_storage, (property_id)).slave();
 
+    client_property.get().rd_id = server_property.get().rd_id = RdId(3);
+    client_property.get().foo.rd_id = server_property.get().foo.rd_id = RdId(4);
+
     DynamicEntity::registry(clientProtocol.get());
     DynamicEntity::registry(serverProtocol.get());
     //bound
@@ -118,8 +121,8 @@ public:
 };
 
 TEST_F(RdFrameworkTestBase, property_companion) {
-    RdProperty<RdProperty<int32_t>, RdProperty<int32_t>::Companion > p1(RdProperty(0));
-    RdProperty<RdProperty<int32_t>, RdProperty<int32_t>::Companion > p2(RdProperty(0));
+    RdProperty<RdProperty<int32_t>, RdProperty<int32_t>::Companion> p1(RdProperty(0));
+    RdProperty<RdProperty<int32_t>, RdProperty<int32_t>::Companion> p2(RdProperty(0));
 
     int32_t nxt = 10;
     std::vector<int> log;

@@ -6,7 +6,9 @@
 
 void DynamicEntity::registry(IProtocol *protocol) {
     protocol->serializers.registry<DynamicEntity>([](SerializationCtx const &ctx, Buffer const &buffer) {
-        return std::make_unique<DynamicEntity>(std::move(RdProperty<int32_t, S>::read(ctx, buffer)));
+        RdProperty<int32_t, S> tmp = RdProperty<int32_t, S>::read(ctx, buffer);
+        std::unique_ptr<DynamicEntity> p = std::make_unique<DynamicEntity>(std::move(tmp));
+        return p;
         //todo avoid heap alloc
     });
 }

@@ -26,6 +26,8 @@ public:
 
     //region ctor/dtor
 
+    RdPropertyBase(RdPropertyBase const &) = delete;
+
     RdPropertyBase(RdPropertyBase &&other) noexcept = default;
 
     RdPropertyBase &operator=(RdPropertyBase &&other) noexcept = default;
