@@ -37,7 +37,7 @@ public:
             });
         });
 
-        get_wire()->advise(lifetime, *this);
+        get_wire()->advise(lifetime, this);
     }
 
     virtual void on_wire_received(Buffer const &buffer) const {

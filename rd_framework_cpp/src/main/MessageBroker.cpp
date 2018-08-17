@@ -77,8 +77,8 @@ void MessageBroker::dispatch(RdId id, std::shared_ptr<Buffer> message) const {
 //        }
 }
 
-void MessageBroker::advise_on(Lifetime lifetime, IRdReactive const &entity) const {
-    MY_ASSERT_MSG(!entity.rd_id.isNull(), "id is null for entity: $entity");
+void MessageBroker::advise_on(Lifetime lifetime, IRdReactive const *entity) const {
+    MY_ASSERT_MSG(!entity->rd_id.isNull(), ("id is null for entity: " + std::string(typeid(entity).name())));
 
     //advise MUST happen under default scheduler, not custom
 //        defaultScheduler.assertThread(entity)
@@ -87,8 +87,8 @@ void MessageBroker::advise_on(Lifetime lifetime, IRdReactive const &entity) cons
 
 //        subscriptions.blockingPutUnique(lifetime, lock, entity.rdid, entity)
     if (!lifetime->is_terminated()) {
-        auto key = entity.rd_id;
-        IRdReactive const *value = &entity;
+        auto key = entity->rd_id;
+        IRdReactive const *value = entity;
         subscriptions[key] = value;
         lifetime->add_action([this, key]() {
             subscriptions.erase(key);

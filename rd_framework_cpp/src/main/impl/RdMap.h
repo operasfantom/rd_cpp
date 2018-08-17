@@ -93,7 +93,7 @@ public:
             });
         });
 
-        get_wire()->advise(lifetime, *this);
+        get_wire()->advise(lifetime, this);
 
         if (!optimizeNested)
             this->view(lifetime, [this](Lifetime lf, std::pair<K const *, V const *> const &entry) {

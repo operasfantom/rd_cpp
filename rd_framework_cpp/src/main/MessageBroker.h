@@ -27,7 +27,7 @@ public:
 
     void dispatch(RdId id, std::shared_ptr<Buffer> message) const;
 
-    void advise_on(Lifetime lifetime, IRdReactive const &entity) const;
+    void advise_on(Lifetime lifetime, IRdReactive const *entity) const;
 };
 
 #endif //RD_CPP_MESSAGEBROKER_H

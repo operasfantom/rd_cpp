@@ -87,7 +87,7 @@ public:
         return res;
     }
 
-    void local_change(std::function<void()> action) const {
+    void local_change(const std::function<void()> &action) const {
         if (is_bound() && !async) {
 //            assertThreading();
         }

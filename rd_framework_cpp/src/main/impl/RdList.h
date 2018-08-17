@@ -85,7 +85,7 @@ public:
             });
         });
 
-        get_wire()->advise(lifetime, *this);
+        get_wire()->advise(lifetime, this);
 
         if (!optimizeNested)
             this->view(lifetime, [this](Lifetime lf, size_t index, V const &value) {

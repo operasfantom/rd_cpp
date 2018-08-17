@@ -65,7 +65,7 @@ public:
             });
         });
 
-        get_wire()->advise(lifetime, *this);
+        get_wire()->advise(lifetime, this);
 
         if (!optimize_nested) {
             this->view(lifetime, [this](Lifetime lf, T const &v) {
@@ -100,7 +100,7 @@ public:
     }
 
     virtual void set(T new_value) const {
-        this->local_change([this, &new_value]() {
+        this->local_change([this, &new_value]() mutable {
             this->default_value_changed = true;
             Property<T>::set(std::move(new_value));
         });

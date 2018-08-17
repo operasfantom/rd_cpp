@@ -18,7 +18,7 @@ protected:
 public:
     explicit WireBase(IScheduler const *const scheduler) : scheduler(scheduler), message_broker(scheduler) {}
 
-    virtual void advise(Lifetime lifetime, IRdReactive const &entity) const {
+    virtual void advise(Lifetime lifetime, IRdReactive const *entity) const {
         message_broker.advise_on(lifetime, entity);
     }
 

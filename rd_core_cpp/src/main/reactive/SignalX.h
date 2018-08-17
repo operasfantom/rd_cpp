@@ -12,6 +12,10 @@
 #include <iostream>
 #include <atomic>
 
+namespace {
+    static int32_t cookie = 0;
+}
+
 template<typename T>
 class Signal : public ISignal<T> {
 private:
@@ -20,8 +24,21 @@ private:
 //    std::atomic<counter_t> advise_id = 0;
     mutable counter_t advise_id = 0;
 
-    mutable std::map<counter_t, std::function<void(T const &)> > listeners;
+    using listeners_t = std::map<counter_t, std::function<void(T const &)> >;
+    mutable listeners_t listeners, priority_listeners;
+
+    virtual void advise0(Lifetime lifetime, std::function<void(T const &)> handler, listeners_t &queue) const {
+        auto id = advise_id;
+        lifetime->bracket(
+                [&queue, lifetime, id, handler]() { queue[id] = handler; },
+                [&queue, lifetime, id, handler]() {
+                    queue.erase(id/*.load()*/);
+                }
+        );
+        ++advise_id;
+    }
 public:
+
     //region ctor/dtor
 
     Signal() = default;
@@ -29,30 +46,36 @@ public:
     Signal(Signal const &other) = delete;
 
     Signal &operator=(Signal const &other) = delete;
-
     virtual ~Signal() = default;
+
     //endregion
 
     virtual void fire(T const &value) const {
+        for (auto const &p : priority_listeners) {
+            p.second(value);
+        }
         for (auto const &p : listeners) {
             p.second(value);
         }
     }
 
     virtual void advise(Lifetime lifetime, std::function<void(T const &)> handler) const {
-        lifetime->bracket(
-                [this, lifetime, handler]() { listeners[advise_id] = handler; },
-                [this, lifetime, advise_id = advise_id, handler]() {
-                    listeners.erase(advise_id/*.load()*/);
-                }
-        );
-        ++advise_id;
+        advise0(lifetime, handler, isPriorityAdvise() ? priority_listeners : listeners);
     }
 
-    /*void advise_eternal(std::function<void(T)> handler) {
-        advise(LifetimeImpl::eternal, handler);
-    }*/
+    void advise_eternal(std::function<void(T const &)> handler) const {
+        advise(Lifetime::Eternal(), handler);
+    }
+
+    static bool isPriorityAdvise() {
+        return cookie > 0;
+    }
 };
 
+inline void priorityAdviseSection(const std::function<void()> &block) {
+    ++cookie;
+    block();
+    --cookie;
+}
 
 #endif //RD_CPP_CORE_SIGNAL_H

@@ -25,7 +25,7 @@ public:
     virtual void init(Lifetime lifetime) const{
         RdReactiveBase::init(lifetime);
 //        wire_scheduler = get_default_scheduler();
-        get_wire()->advise(lifetime, *this);
+        get_wire()->advise(lifetime, this);
     }
 
     virtual void on_wire_received(Buffer const &buffer) const {

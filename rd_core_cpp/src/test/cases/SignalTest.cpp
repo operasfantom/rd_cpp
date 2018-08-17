@@ -67,3 +67,21 @@ TEST(signal, bamboo) {
     s->fire(0);
     EXPECT_EQ(1, acc);
 }
+
+TEST(signal, priority_advise) {
+    Signal<void*> signal;
+    std::vector<int> log;
+    signal.advise_eternal( [&log](void*) { log.push_back(1); });
+    signal.advise_eternal( [&log](void*) { log.push_back(2); });
+
+    priorityAdviseSection( [&signal, &log](){
+        signal.advise_eternal( [&log](void*){ log.push_back(3); });
+        signal.advise_eternal( [&log](void*){ log.push_back(4); });
+    });
+
+    signal.advise_eternal( [&log](void*){ log.push_back(5); } );
+
+
+    signal.fire(nullptr);
+    EXPECT_EQ((std::vector<int>{3, 4, 1, 2, 5}), log);
+}

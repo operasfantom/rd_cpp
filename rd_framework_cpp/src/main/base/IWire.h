@@ -13,7 +13,7 @@ class IWire {
     std::unique_ptr<IProperty<bool> > connected;
 
 public:
-    virtual void advise(Lifetime lifetime, IRdReactive const &entity) const = 0;
+    virtual void advise(Lifetime lifetime, IRdReactive const *entity) const = 0;
 
     virtual void send(RdId id, std::function<void(Buffer const &buffer)> writer) const = 0;
 };

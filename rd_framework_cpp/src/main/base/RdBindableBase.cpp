@@ -3,6 +3,7 @@
 //
 
 
+#include <SignalX.h>
 #include "RdBindableBase.h"
 
 bool RdBindableBase::is_bound() const {
@@ -26,9 +27,9 @@ void RdBindableBase::bind(Lifetime lf, IRdDynamic const *parent, const std::stri
 
 //    protocol->scheduler.assertThread(this);
 
-//    Signal.priorityAdviseSection{
-    init(lf);
-//    }
+    priorityAdviseSection(
+            [this, lf]() { this->init(lf); }
+    );
 }
 
 void RdBindableBase::identify(const IIdentities *identities, const RdId &id) const {
