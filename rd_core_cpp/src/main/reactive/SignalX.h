@@ -12,9 +12,9 @@
 #include <iostream>
 #include <atomic>
 
-namespace {
-    static int32_t cookie = 0;
-}
+//namespace {
+extern int32_t cookie;
+//}
 
 template<typename T>
 class Signal : public ISignal<T> {
@@ -32,11 +32,15 @@ private:
         lifetime->bracket(
                 [&queue, lifetime, id, handler]() { queue[id] = handler; },
                 [&queue, lifetime, id, handler]() {
+                    if (queue.count(id) == 0) {
+                        throw std::invalid_argument("erasing from queue in lifetime's termination");
+                    }
                     queue.erase(id/*.load()*/);
                 }
         );
         ++advise_id;
     }
+
 public:
 
     //region ctor/dtor
@@ -46,6 +50,11 @@ public:
     Signal(Signal const &other) = delete;
 
     Signal &operator=(Signal const &other) = delete;
+
+    Signal(Signal &&) noexcept = default;
+
+    Signal &operator=(Signal &&) noexcept = default;
+
     virtual ~Signal() = default;
 
     //endregion

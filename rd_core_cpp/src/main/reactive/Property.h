@@ -5,6 +5,7 @@
 #ifndef RD_CPP_CORE_PROPERTY_H
 #define RD_CPP_CORE_PROPERTY_H
 
+#include <base/IProperty.h>
 #include "SignalX.h"
 #include "interfaces.h"
 
@@ -12,8 +13,9 @@ template<typename T>
 class Property : public IProperty<T> {
 
 private:
-    Signal<T> *const get_change() const {
-        return dynamic_cast<Signal<T> *>(this->change.get());
+    Signal<T> const *const get_change() const {
+//        return dynamic_cast<Signal<T> *>(this->change.get());
+        return &this->change;
     }
 
 public:
@@ -26,11 +28,11 @@ public:
     virtual ~Property() = default;
 
     explicit Property(T const &value) : IProperty<T>(value) {
-        this->change = std::unique_ptr<Signal<T>>(new Signal<T>());
+//        this->change = std::unique_ptr<Signal<T>>(new Signal<T>());
     }
 
     explicit Property(T &&value) : IProperty<T>(std::move(value)) {
-        this->change = std::unique_ptr<Signal<T>>(new Signal<T>());
+//        this->change = std::unique_ptr<Signal<T>>(new Signal<T>());
     }
     //endregion
 

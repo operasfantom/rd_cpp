@@ -136,7 +136,7 @@ public:
 
     Foo &operator=(Foo const &) = default;
 
-    Foo &operator=(Foo &&) = default;
+    Foo &operator=(Foo &&) noexcept = default;
 
     virtual ~Foo() = default;
     //endregion

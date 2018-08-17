@@ -16,11 +16,11 @@ class RdProperty : public RdPropertyBase<T, S>, public ISerializable {
 public:
     //region ctor/dtor
 
-    RdProperty(RdProperty const&) = delete;
+    RdProperty(RdProperty const &) = delete;
 
-    RdProperty(RdProperty &&) = default;
+    RdProperty(RdProperty &&) noexcept = default;
 
-    RdProperty &operator=(RdProperty &&) = default;
+    RdProperty &operator=(RdProperty &&) noexcept = default;
 
     explicit RdProperty(T const &value) : RdPropertyBase<T, S>(value) {}
 

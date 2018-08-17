@@ -34,9 +34,9 @@ public:
         location = RName("<<not bound>>");
     };
 
-    RdBindableBase(RdBindableBase &&) = default;
+    RdBindableBase(RdBindableBase &&) noexcept = default;
 
-    RdBindableBase &operator=(RdBindableBase &&) = default;
+    RdBindableBase &operator=(RdBindableBase &&) noexcept = default;
 
     virtual ~RdBindableBase() = default;
     //endregion
@@ -63,7 +63,7 @@ public:
 
 //T : RdBindableBase
 template<typename T>
-T &withId(T &that, RdId id) {
+T &withId(T &that, RdId const &id) {
     MY_ASSERT_MSG(that.rd_id == RdId::Null(), "this.id != RdId.NULL_ID, but ${this.rdid}");
     MY_ASSERT_MSG((id != RdId::Null()), "id != RdId.NULL_ID");
 
@@ -74,7 +74,7 @@ T &withId(T &that, RdId id) {
 template<typename T>
 T &statics(T &that, int32_t id) {
     MY_ASSERT_MSG((id > 0 && id < RdId::MAX_STATIC_ID),
-                     ("Expected id > 0 && id < RdId.MaxStaticId, got " + std::to_string(id)));
+                  ("Expected id > 0 && id < RdId.MaxStaticId, got " + std::to_string(id)));
     return withId(that, RdId(static_cast<int64_t >(id)));
 }
 

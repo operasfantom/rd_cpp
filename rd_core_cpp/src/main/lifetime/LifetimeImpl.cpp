@@ -19,10 +19,10 @@ void LifetimeImpl::terminate() {
 
     auto actions_copy = actions;
 
+    actions.clear();
     for (auto it = actions_copy.rbegin(); it != actions_copy.rend(); ++it) {
         it->second();
     }
-    actions.clear();
 }
 
 void LifetimeImpl::operator+=(std::function<void()> action) {

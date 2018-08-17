@@ -35,9 +35,9 @@ public:
 
     RdId(const RdId &other) = default;
 
-    RdId(RdId &&other) noexcept = default;
-
     RdId &operator=(const RdId &other) = default;
+
+    RdId(RdId &&other) noexcept = default;
 
     RdId &operator=(RdId &&other) noexcept = default;
 

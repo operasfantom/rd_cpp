@@ -19,7 +19,7 @@ public:
     RdReactiveBase() = default;
 
     RdReactiveBase(RdReactiveBase &&other) noexcept : RdBindableBase(std::move(other))/*, async(other.async)*/ {
-
+        async = other.async;
     };
 
     RdReactiveBase &operator=(RdReactiveBase &&other) noexcept {

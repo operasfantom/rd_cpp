@@ -29,14 +29,9 @@ public:
 
     Lifetime &operator=(Lifetime const &other) = default;
 
-    Lifetime(Lifetime &&other) noexcept : ptr(std::move(other.ptr)) {}
+    Lifetime(Lifetime &&other) noexcept = default;
 
-    Lifetime &operator=(Lifetime &&other) noexcept {
-        if (this != &other) {
-            ptr = std::move(other.ptr);
-        }
-        return *this;
-    }
+    Lifetime &operator=(Lifetime &&other) noexcept = default;
 
     friend bool operator==(Lifetime const &lw1, Lifetime const &lw2) {
         return lw1.ptr == lw2.ptr;

@@ -27,16 +27,9 @@ public:
 
     LifetimeDefinition &operator=(LifetimeDefinition const &other) = delete;
 
-    LifetimeDefinition(LifetimeDefinition &&other) noexcept : eternaled(other.eternaled),
-                                                              lifetime(std::move(other.lifetime)) {}
+    LifetimeDefinition(LifetimeDefinition &&other) noexcept = default;
 
-    LifetimeDefinition &operator=(LifetimeDefinition &&other) noexcept {
-        if (this != &other) {
-            eternaled = other.eternaled;
-            lifetime = std::move(other.lifetime);
-        }
-        return *this;
-    }
+    LifetimeDefinition &operator=(LifetimeDefinition &&other) noexcept = default;
 
 //    static std::shared_ptr<LifetimeDefinition> eternal;
     static std::shared_ptr<LifetimeDefinition> get_shared_eternal();

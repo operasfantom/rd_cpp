@@ -25,9 +25,9 @@ public:
 
     DynamicEntity(DynamicEntity const &other) = delete;
 
-    DynamicEntity(DynamicEntity &&other) = default;
+    DynamicEntity(DynamicEntity &&other) noexcept = default;
 
-    DynamicEntity &operator=(DynamicEntity &&other) = default;
+    DynamicEntity &operator=(DynamicEntity &&other) noexcept = default;
 
     virtual ~DynamicEntity() = default;
     //endregion

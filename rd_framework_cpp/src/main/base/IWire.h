@@ -8,6 +8,7 @@
 
 #include <interfaces.h>
 #include "IRdReactive.h"
+#include "../../../../rd_core_cpp/src/main/reactive/base/IProperty.h"
 
 class IWire {
     std::unique_ptr<IProperty<bool> > connected;

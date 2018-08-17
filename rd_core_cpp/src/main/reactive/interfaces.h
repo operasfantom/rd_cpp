@@ -13,6 +13,7 @@
 #include "Lifetime.h"
 //#include "SignalX.h"
 //#include "SignalX.h"
+//#include "SignalX.h"
 
 template<typename T>
 class ISource {
@@ -47,41 +48,6 @@ public:
             }
         });
     }
-};
-
-template<typename T>
-class IProperty : public IPropertyBase<T> {
-protected:
-    mutable T value;
-
-public:
-    std::unique_ptr<ISource<T>> change;
-
-    //region ctor/dtor
-
-    IProperty(IProperty &&other) noexcept = default;
-
-    IProperty &operator=(IProperty &&other) noexcept = default;
-
-    explicit IProperty(T const &value) : value(value) {}
-
-    explicit IProperty(T &&value) : value(std::move(value)) {}
-
-    virtual ~IProperty() = default;
-    //endregion
-
-    virtual T const &get() const = 0;
-
-    virtual void advise(Lifetime lifetime, std::function<void(T const &)> handler) const {
-        if (lifetime->is_terminated()) {
-            return;
-        }
-
-        change->advise(lifetime, handler);
-        handler(value);
-    }
-
-    virtual void set(T) const = 0;
 };
 
 template<typename T>

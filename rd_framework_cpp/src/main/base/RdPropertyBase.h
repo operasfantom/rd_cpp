@@ -44,7 +44,7 @@ public:
 
 
         if (!optimize_nested) {
-            this->change->advise(lifetime, [this](T const &v) {
+            this->change.advise(lifetime, [this](T const &v) {
                 if (is_local_change) {
                     identifyPolymorphic(v, get_protocol()->identity, get_protocol()->identity->next(rd_id));
                 }
