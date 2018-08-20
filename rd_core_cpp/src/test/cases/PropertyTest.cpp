@@ -19,8 +19,8 @@ TEST(property, advise) {
         });
         property->view(lifetime, [&log](Lifetime inner, int const &x) {
             inner->bracket(
-                    [&log, x]() { log.push_back(x); },
-                    [&log, x]() { log.push_back(10 + x); }
+                    [&log, &x]() { log.push_back(x); },
+                    [&log, &x]() { log.push_back(10 + x); }
             );
         });
 
@@ -46,13 +46,13 @@ TEST(property, when_true) {
     std::unique_ptr<IProperty<bool>> property(new Property(false));
     property->set(true);
     Lifetime::use<int>([&](Lifetime lifetime) {
-        property->view(lifetime, [&acc1](Lifetime lt, bool flag) {
+        property->view(lifetime, [&acc1](Lifetime lt, bool const& flag) {
             if (flag) {
                 acc1++;
             }
         });
 
-        property->view(lifetime, [&](Lifetime lt, bool flag) {
+        property->view(lifetime, [&](Lifetime lt, bool const& flag) {
             if (flag) {
                 lt->bracket(
                         [&acc2]() { acc2 += 2; },
@@ -87,7 +87,7 @@ TEST(property, view) {
     int save = 0;
 
     Lifetime::use<int>([&](Lifetime lifetime) {
-        property->view(lifetime, [&](Lifetime lt, int value) {
+        property->view(lifetime, [&](Lifetime lt, int const& value) {
             save = value;
         });
         property->set(2);

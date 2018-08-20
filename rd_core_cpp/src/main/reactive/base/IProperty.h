@@ -10,6 +10,7 @@
 #include <SignalX.h>
 #include <Lifetime.h>
 #include <functional>
+#include "IPropertyBase.h"
 
 template<typename T>
 class IProperty : public IPropertyBase<T> {
@@ -17,9 +18,6 @@ protected:
     mutable T value;
 
 public:
-//    std::unique_ptr<ISource<T>> change = std::unique_ptr<Signal<T> >(new Signal<T>());
-
-    Signal<T> change;
 
     //region ctor/dtor
 
@@ -44,7 +42,7 @@ public:
             return;
         }
 
-        change.advise(lifetime, handler);
+        this->change.advise(lifetime, handler);
         handler(value);
     }
 

@@ -25,10 +25,6 @@ void LifetimeImpl::terminate() {
     }
 }
 
-void LifetimeImpl::operator+=(std::function<void()> action) {
-    add_action(action);
-}
-
 bool LifetimeImpl::is_terminated() const {
     return terminated;
 }

@@ -11,13 +11,6 @@
 
 template<typename T>
 class Property : public IProperty<T> {
-
-private:
-    Signal<T> const *const get_change() const {
-//        return dynamic_cast<Signal<T> *>(this->change.get());
-        return &this->change;
-    }
-
 public:
     //region ctor/dtor
 
@@ -44,7 +37,7 @@ public:
     void set(T new_value) const {
         if (this->value != new_value) {
             this->value = std::move(new_value);
-            this->get_change()->fire(this->value);
+            this->change.fire(this->value);
         }
     }
 

@@ -32,25 +32,6 @@ public:
 };
 
 template<typename T>
-class IPropertyBase : public ISource<T>, public IViewable<T> {
-public:
-    virtual ~IPropertyBase() = default;
-
-    virtual void view(Lifetime lifetime, std::function<void(Lifetime, T const &)> handler) const {
-        if (lifetime->is_terminated()) return;
-
-        Lifetime lf = lifetime.create_nested();
-        std::shared_ptr<SequentialLifetimes> seq(new SequentialLifetimes(lf));
-
-        this->advise(lf, [lf, seq, handler](T const &v) {
-            if (!lf->is_terminated()) {
-                handler(seq->next(), v);
-            }
-        });
-    }
-};
-
-template<typename T>
 class ISignal : public ISource<T> {
 public:
     virtual ~ISignal() = default;

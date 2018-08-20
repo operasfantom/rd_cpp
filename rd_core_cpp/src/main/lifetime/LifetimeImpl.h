@@ -23,7 +23,7 @@ private:
     counter_t id = 0;
 
     counter_t action_id_in_map = 0;
-    std::map<counter_t, std::function<void()>> actions;
+    std::map<counter_t, std::function<void()>> before_actions, actions;
 
     void terminate();
 
@@ -47,8 +47,6 @@ public:
     static std::shared_ptr<LifetimeImpl> eternal;
 
     void bracket(std::function<void()> opening, std::function<void()> closing);
-
-    void operator+=(std::function<void()> action);
 
     bool is_terminated() const;
 
