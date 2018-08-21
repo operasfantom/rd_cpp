@@ -76,7 +76,7 @@ public:
 
     void on_wire_received(Buffer const &buffer) const override {
         int32_t version = buffer.read_pod<int32_t>();
-        T v = std::move(S::read(this->get_serialization_context(), buffer));
+        T v = S::read(this->get_serialization_context(), buffer);
 
         bool rejected = is_master && version < master_version;
         if (rejected) {

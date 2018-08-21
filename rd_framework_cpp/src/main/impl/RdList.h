@@ -113,12 +113,12 @@ public:
 
         switch (op) {
             case Op::Add: {
-                V value = std::move(S::read(this->get_serialization_context(), buffer));
+                V value = S::read(this->get_serialization_context(), buffer);
                 (index < 0) ? list.add(std::move(value)) : list.add(static_cast<size_t>(index), std::move(value));
                 break;
             }
             case Op::Update: {
-                V value = std::move(S::read(this->get_serialization_context(), buffer));
+                V value = S::read(this->get_serialization_context(), buffer);
                 list.set(static_cast<size_t>(index), std::move(value));
                 break;
             }

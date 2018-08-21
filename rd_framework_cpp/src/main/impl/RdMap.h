@@ -106,7 +106,7 @@ public:
 
         int64_t version = msgVersioned ? buffer.read_pod<int64_t>() : 0;
 
-        K key = std::move(KS::read(this->get_serialization_context(), buffer));
+        K key = KS::read(this->get_serialization_context(), buffer);
 
         if (op == Op::Ack) {
             /*val errmsg =

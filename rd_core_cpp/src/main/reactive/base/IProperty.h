@@ -31,22 +31,20 @@ public:
 
     virtual T const &get() const = 0;
 
-    void advise_before(Lifetime lifetime, std::function<void(T const &)> handler) const override {
+    void advise0(Lifetime lifetime, std::function<void(T const &)> handler, Signal<T> const &signal) const {
         if (lifetime->is_terminated()) {
             return;
         }
-
-        this->before_change.advise(lifetime, handler);
+        signal.advise(lifetime, handler);
         handler(this->value);
     }
 
-    void advise(Lifetime lifetime, std::function<void(T const &)> handler) const override {
-        if (lifetime->is_terminated()) {
-            return;
-        }
+    void advise_before(Lifetime lifetime, std::function<void(T const &)> handler) const override {
+        advise0(lifetime, handler, this->before_change);
+    }
 
-        this->change.advise(lifetime, handler);
-        handler(this->value);
+    void advise(Lifetime lifetime, std::function<void(T const &)> handler) const override {
+        advise0(lifetime, handler, this->change);
     }
 
     virtual void set(T) const = 0;

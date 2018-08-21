@@ -13,7 +13,6 @@ class Polymorphic/* : public ISerializer<T>*/ {
 public:
     static T read(SerializationCtx const &ctx, Buffer const &buffer) {
         return ctx.serializers->readPolymorphic<T>(ctx, buffer);
-//        return (buffer.read_pod<T>());
     }
 
     static void write(SerializationCtx const &ctx, Buffer const &buffer, T const &value) {
@@ -42,14 +41,11 @@ template<typename T>
 class Polymorphic<std::vector<T>> {
 public:
     static std::vector<T> read(SerializationCtx const &ctx, Buffer const &buffer) {
-//        ctx.serializers->readPolymorphicNullable(ctx, buffer);
-        auto v = buffer.read_array<T>();
-        return std::vector<T>(v.begin(), v.end());
+        return buffer.read_array<T>();
     }
 
     static void write(SerializationCtx const &ctx, Buffer const &buffer, std::vector<T> const &value) {
-        std::vector<T> v(value.begin(), value.end());
-        buffer.write_array<T>(v);
+        buffer.write_array<T>(value);
     }
 };
 
@@ -57,7 +53,6 @@ template<>
 class Polymorphic<std::string> {
 public:
     static std::string read(SerializationCtx const &ctx, Buffer const &buffer) {
-//        ctx.serializers->readPolymorphicNullable(ctx, buffer);
         auto v = buffer.read_array<char>();
         return std::string(v.begin(), v.end());
     }

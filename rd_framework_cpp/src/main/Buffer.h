@@ -9,7 +9,6 @@
 #include <optional>
 #include <vector>
 #include <type_traits>
-#include "Buffer.h"
 
 class Buffer {
 protected:

@@ -26,7 +26,7 @@ TEST_F(RdFrameworkTestBase, property_statics) {
 
     //not bound
     EXPECT_EQ((vi{1}), client_log);
-    EXPECT_EQ((vi{1}), client_log);
+    EXPECT_EQ((vi{1}), server_log);
 
     //bound
     bindStatic(serverProtocol.get(), server_property, "top");
@@ -107,19 +107,6 @@ TEST_F(RdFrameworkTestBase, property_dynamic) {
     EXPECT_EQ((listOf{0, 2, 5, 5}), serverLog);
 }
 
-template<typename T, typename S = Polymorphic<T> >
-class Companion/* : public ISerializer<T>*/ {
-public:
-    static RdProperty<T, S> read(SerializationCtx const &ctx, Buffer const &buffer) {
-        return RdProperty<T, S>::read(ctx, buffer);
-    }
-
-    static void write(SerializationCtx const &ctx, Buffer const &buffer, RdProperty<T, S> const &value) {
-        value.write(ctx, buffer);
-    }
-
-};
-
 TEST_F(RdFrameworkTestBase, property_companion) {
     RdProperty<int32_t> p1_in(0);
     RdProperty<int32_t> p2_in(0);
@@ -144,4 +131,121 @@ TEST_F(RdFrameworkTestBase, property_companion) {
     p2.set(RdProperty(0));
 
     EXPECT_EQ((std::vector<int32_t>{0, 0, 12}), log);
+}
+
+TEST_F(RdFrameworkTestBase, property_vector) {
+    using list = std::vector<int>;
+
+    int property_id = 1;
+
+    RdProperty<list> client_property_storage{list()};
+    RdProperty<list> server_property_storage{list()};
+
+    RdProperty<list> &client_property = statics(client_property_storage, (property_id));
+    RdProperty<list> &server_property = statics(server_property_storage, (property_id)).slave();
+
+    std::vector<int> client_log(10, 10);
+    std::vector<int> server_log(10, 10);
+
+    client_property.advise(Lifetime::Eternal(), [&client_log](list const &v) { client_log = v; });
+    server_property.advise(Lifetime::Eternal(), [&server_log](list const &v) { server_log = v; });
+
+    //not bound
+    EXPECT_EQ(0, client_log.size());
+    EXPECT_EQ(0, server_log.size());
+
+    //bound
+    bindStatic(serverProtocol.get(), server_property, "top");
+    bindStatic(clientProtocol.get(), client_property, "top");
+
+    EXPECT_EQ(0, client_log.size());
+    EXPECT_EQ(0, server_log.size());
+
+    //set from client
+    client_property.set(vi{1});
+    EXPECT_EQ((vi{1}), client_log);
+    EXPECT_EQ((vi{1}), server_log);
+
+    //set from client
+    server_property.set(vi{1, 2, 3});
+    EXPECT_EQ((vi{1, 2, 3}), client_log);
+    EXPECT_EQ((vi{1, 2, 3}), server_log);
+
+
+    clientLifetimeDef.terminate();
+    serverLifetimeDef.terminate();
+}
+
+
+class ListSerializer {
+    using list = std::vector<DynamicEntity>;
+public:
+    static std::vector<DynamicEntity> read(SerializationCtx const &ctx, Buffer const &buffer) {
+        int32_t len = buffer.read_pod<int32_t>();
+        std::vector<DynamicEntity> v;
+        for (int i = 0; i < len; ++i) {
+            v.push_back(ctx.serializers->readPolymorphic<DynamicEntity>(ctx, buffer));
+        }
+        return v;
+    }
+
+    static void write(SerializationCtx const &ctx, Buffer const &buffer, const list &value) {
+        buffer.write_pod(value.size());
+        for (const auto &item : value) {
+            ctx.serializers->writePolymorphic<DynamicEntity>(ctx, buffer, item);
+        }
+    }
+};
+
+TEST_F(RdFrameworkTestBase, property_vector_polymorphic) {
+    using list = std::vector<DynamicEntity>;
+
+    int property_id = 1;
+
+    RdProperty<list, ListSerializer> client_property_storage{list()};
+    RdProperty<list, ListSerializer> server_property_storage{list()};
+
+    auto &client_property = statics(client_property_storage, (property_id));
+    auto &server_property = statics(server_property_storage, (property_id)).slave();
+
+    std::vector<int> client_log;
+    std::vector<int> server_log;
+
+    client_property.advise(Lifetime::Eternal(), [&client_log](list const &v) {
+        for (auto &x : v) {
+            x.foo.advise(Lifetime::Eternal(), [&client_log](int const &value) { client_log.push_back(value); });
+        }
+    });
+
+    //not bound
+    EXPECT_EQ(0, client_log.size());
+    EXPECT_EQ(0, server_log.size());
+
+    DynamicEntity::registry(clientProtocol.get());
+    DynamicEntity::registry(serverProtocol.get());
+
+    //bound
+    bindStatic(serverProtocol.get(), server_property, "top");
+    bindStatic(clientProtocol.get(), client_property, "top");
+
+    EXPECT_EQ(0, client_log.size());
+    EXPECT_EQ(0, server_log.size());
+
+    //set from client
+    list t;
+    t.push_back(DynamicEntity(2));
+    client_property.set(std::move(t));
+    EXPECT_EQ((vi{0}), client_log);
+    EXPECT_EQ((vi{0}), server_log);
+
+//set from client
+/*server_property.set(list{RdProperty(0), RdProperty(1), RdProperty(8)});
+    EXPECT_EQ((vi{2, 0, 1, 8}), client_log);
+    EXPECT_EQ((vi{2, 0, 1, 8}), server_log);*//*
+
+
+
+    clientLifetimeDef.terminate();
+    serverLifetimeDef.terminate();
+}*/
 }

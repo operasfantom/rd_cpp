@@ -43,7 +43,7 @@ public:
     static RdProperty<T, S> read(SerializationCtx const &ctx, Buffer const &buffer) {
         RdId id = RdId::read(buffer);
 //        val value = if (buffer.readBool()) valueSerializer.read(ctx, buffer) else null;
-        T value = std::move(S::read(ctx, buffer));
+        T value = S::read(ctx, buffer);
         RdProperty<T, S> property(value);
         withId(property, id);
         return property;
@@ -58,7 +58,7 @@ public:
         RdPropertyBase<T, S>::advise(lifetime, handler);
     }
 
-    RdProperty<T> &slave() {
+    RdProperty<T, S> &slave() {
         this->is_master = false;
         return *this;
     }
