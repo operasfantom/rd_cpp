@@ -28,9 +28,9 @@ public:
 
     RdPropertyBase(RdPropertyBase const &) = delete;
 
-    RdPropertyBase(RdPropertyBase &&other) noexcept = default;
+    RdPropertyBase(RdPropertyBase &&other) = default;
 
-    RdPropertyBase &operator=(RdPropertyBase &&other) noexcept = default;
+    RdPropertyBase &operator=(RdPropertyBase &&other) = default;
 
     explicit RdPropertyBase(const T &value) : Property<T>(value) {}
 
@@ -115,5 +115,6 @@ public:
     }
 };
 
+static_assert(std::is_move_constructible_v<RdPropertyBase<int>>);
 
 #endif //RD_CPP_RDPROPERTYBASE_H

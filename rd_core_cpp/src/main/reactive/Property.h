@@ -14,19 +14,15 @@ class Property : public IProperty<T> {
 public:
     //region ctor/dtor
 
-    Property(Property &&other) noexcept = default;
+    Property(Property &&other) = default;
 
-    Property &operator=(Property &&other) noexcept = default;
+    Property &operator=(Property &&other) = default;
 
     virtual ~Property() = default;
 
-    explicit Property(T const &value) : IProperty<T>(value) {
-//        this->change = std::unique_ptr<Signal<T>>(new Signal<T>());
-    }
+    explicit Property(T const &value) : IProperty<T>(value) {}
 
-    explicit Property(T &&value) : IProperty<T>(std::move(value)) {
-//        this->change = std::unique_ptr<Signal<T>>(new Signal<T>());
-    }
+    explicit Property(T &&value) : IProperty<T>(std::move(value)) {}
     //endregion
 
 
@@ -36,6 +32,7 @@ public:
 
     void set(T new_value) const {
         if (this->value != new_value) {
+            this->before_change.fire(this->value);
             this->value = std::move(new_value);
             this->change.fire(this->value);
         }
@@ -50,5 +47,6 @@ public:
     }
 };
 
+static_assert(std::is_move_constructible_v<Property<int>>);
 
 #endif //RD_CPP_CORE_PROPERTY_H

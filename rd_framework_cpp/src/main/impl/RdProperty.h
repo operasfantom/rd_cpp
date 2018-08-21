@@ -18,9 +18,9 @@ public:
 
     RdProperty(RdProperty const &) = delete;
 
-    RdProperty(RdProperty &&) noexcept = default;
+    RdProperty(RdProperty &&) = default;
 
-    RdProperty &operator=(RdProperty &&) noexcept = default;
+    RdProperty &operator=(RdProperty &&) = default;
 
     explicit RdProperty(T const &value) : RdPropertyBase<T, S>(value) {}
 

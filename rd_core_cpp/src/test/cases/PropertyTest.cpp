@@ -33,9 +33,11 @@ TEST(property, advise) {
         return 0;
     });
 
+    EXPECT_EQ(log.size(), 10);
+
     property->set(++acc);
 
-    std::vector<int> expected{-1, 1, -2, 11, 2, -3, 12, 3, 0, 13};
+    std::vector<int> expected{-1, 1, 11, -2, 2, 12, -3, 3, 0, 13};
     EXPECT_EQ(expected, log);
 }
 

@@ -18,9 +18,9 @@ public:
 
     IRdBindable() = default;
 
-    IRdBindable(IRdBindable &&other) noexcept = default;
+    IRdBindable(IRdBindable &&other) = default;
 
-    IRdBindable &operator=(IRdBindable &&other) noexcept = default;
+    IRdBindable &operator=(IRdBindable &&other) = default;
 
     virtual ~IRdBindable() = default;
     //endregion

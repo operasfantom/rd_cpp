@@ -34,9 +34,9 @@ public:
         location = RName("<<not bound>>");
     };
 
-    RdBindableBase(RdBindableBase &&) noexcept = default;
+    RdBindableBase(RdBindableBase &&) = default;
 
-    RdBindableBase &operator=(RdBindableBase &&) noexcept = default;
+    RdBindableBase &operator=(RdBindableBase &&) = default;
 
     virtual ~RdBindableBase() = default;
     //endregion
@@ -47,7 +47,7 @@ public:
     virtual void bind(Lifetime lf, IRdDynamic const *parent, const std::string &name) const;
 
 
-    /*concurrent*/std::map<std::string, std::any> extensions;
+//    /*concurrent*/std::map<std::string, std::any> extensions;
 
 //    getOrCreateExtension
 

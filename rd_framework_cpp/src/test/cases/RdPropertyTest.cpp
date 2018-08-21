@@ -121,8 +121,14 @@ public:
 };
 
 TEST_F(RdFrameworkTestBase, property_companion) {
-    RdProperty<RdProperty<int32_t>, RdProperty<int32_t>::Companion> p1(RdProperty(0));
-    RdProperty<RdProperty<int32_t>, RdProperty<int32_t>::Companion> p2(RdProperty(0));
+    RdProperty<int32_t> p1_in(0);
+    RdProperty<int32_t> p2_in(0);
+
+    statics(p1_in, 2);
+    statics(p2_in, 2);
+
+    RdProperty<RdProperty<int32_t>, RdProperty<int32_t>::Companion> p1{std::move(p1_in)};
+    RdProperty<RdProperty<int32_t>, RdProperty<int32_t>::Companion> p2{std::move(p2_in)};
 
     int32_t nxt = 10;
     std::vector<int> log;
@@ -135,5 +141,7 @@ TEST_F(RdFrameworkTestBase, property_companion) {
     bindStatic(serverProtocol.get(), p2, 1);
 //    p1.set(RdProperty(0));
 
-    EXPECT_EQ((std::vector<int32_t>{0}), log);
+    p2.set(RdProperty(0));
+
+    EXPECT_EQ((std::vector<int32_t>{0, 0, 12}), log);
 }

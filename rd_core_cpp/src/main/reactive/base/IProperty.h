@@ -14,28 +14,31 @@
 
 template<typename T>
 class IProperty : public IPropertyBase<T> {
-protected:
-    mutable T value;
-
 public:
 
     //region ctor/dtor
 
-    IProperty(IProperty &&other) noexcept/* : value(std::move(other.value)) {}*/= default;
+    IProperty(IProperty &&other) = default;
 
-    IProperty &operator=(IProperty &&other) noexcept = default;/*{
-        value = std::move(other.value);
-        return *this;
-    }*/
+    IProperty &operator=(IProperty &&other) = default;
 
-    explicit IProperty(T const &value) : value(value) {}
+    explicit IProperty(T const &value) : IPropertyBase<T>(value) {}
 
-    explicit IProperty(T &&value) : value(std::move(value)) {}
+    explicit IProperty(T &&value) : IPropertyBase<T>(std::move(value)) {}
 
     virtual ~IProperty() = default;
     //endregion
 
     virtual T const &get() const = 0;
+
+    virtual void advise_before(Lifetime lifetime, std::function<void(T const &)> handler) const {
+        if (lifetime->is_terminated()) {
+            return;
+        }
+
+        this->before_change.advise(lifetime, handler);
+        handler(this->value);
+    }
 
     virtual void advise(Lifetime lifetime, std::function<void(T const &)> handler) const {
         if (lifetime->is_terminated()) {
@@ -43,9 +46,8 @@ public:
         }
 
         this->change.advise(lifetime, handler);
-        handler(value);
+        handler(this->value);
     }
-
     virtual void set(T) const = 0;
 };
 

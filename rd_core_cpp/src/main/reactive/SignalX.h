@@ -51,9 +51,9 @@ public:
 
     Signal &operator=(Signal const &other) = delete;
 
-    Signal(Signal &&) noexcept = default;
+    Signal(Signal &&) = default;
 
-    Signal &operator=(Signal &&) noexcept = default;
+    Signal &operator=(Signal &&) = default;
 
     virtual ~Signal() = default;
 
@@ -86,5 +86,7 @@ inline void priorityAdviseSection(const std::function<void()> &block) {
     block();
     --cookie;
 }
+
+static_assert(std::is_move_constructible_v<Signal<int>>);
 
 #endif //RD_CPP_CORE_SIGNAL_H

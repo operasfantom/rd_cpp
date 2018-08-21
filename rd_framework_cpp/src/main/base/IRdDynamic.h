@@ -23,11 +23,11 @@ public:
 
     IRdDynamic(const IRdDynamic &other) = default;
 
-    IRdDynamic(IRdDynamic &&other) noexcept = default;
+    IRdDynamic(IRdDynamic &&other) = default;
 
     IRdDynamic &operator=(const IRdDynamic &other) = default;
 
-    IRdDynamic &operator=(IRdDynamic &&other) noexcept = default;
+    IRdDynamic &operator=(IRdDynamic &&other) = default;
 
     virtual ~IRdDynamic() = default;
     //endregion
