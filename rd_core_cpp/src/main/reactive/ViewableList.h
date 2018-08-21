@@ -20,11 +20,11 @@ private:
 public:
 
     //region ctor/dtor
-    virtual ~ViewableList() {}
+    virtual ~ViewableList() = default;
 
     //endregion
 
-    virtual void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const {
+    void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const override {
         if (lifetime->is_terminated()) return;
         change.advise(lifetime, handler);
         for (size_t i = 0; i < size(); ++i) {
@@ -32,19 +32,19 @@ public:
         }
     }
 
-    virtual bool add(T element) const {
+    bool add(T element) const override {
         list.push_back(factory_shared_ptr(std::move(element)));
         change.fire(typename Event::Add(size() - 1, list.back().get()));
         return true;
     }
 
-    virtual bool add(size_t index, T element) const {
+    bool add(size_t index, T element) const override {
         list.insert(list.begin() + index, factory_shared_ptr(std::move(element)));
         change.fire(typename Event::Add(index, list[index].get()));
         return true;
     }
 
-    virtual T removeAt(size_t index) const {
+    T removeAt(size_t index) const override {
         auto res = std::move(list[index]);
         list.erase(list.begin() + index);
 
@@ -52,7 +52,7 @@ public:
         return std::move(*res);
     }
 
-    virtual bool remove(T const &element) const {
+    bool remove(T const &element) const override {
         auto it = std::find_if(list.begin(), list.end(), [&element](auto const &p) { return *p == element; });
         if (it == list.end()) {
             return false;
@@ -61,11 +61,11 @@ public:
         return true;
     }
 
-    virtual T const &get(size_t index) const {
+    T const &get(size_t index) const override {
         return *list[index];
     }
 
-    virtual T set(size_t index, T element) const {
+    T set(size_t index, T element) const override {
         auto old_value = std::move(list[index]);
         list[index] = factory_shared_ptr(std::move(element));
         change.fire(typename Event::Update(index, old_value.get(), list[index].get()));//???
@@ -74,7 +74,7 @@ public:
 
     //addAll(collection)?
 
-    virtual void clear() const {
+    void clear() const override {
         std::vector<Event> changes;
         for (size_t i = size(); i > 0; --i) {
             changes.push_back(typename Event::Remove(i - 1, list[i - 1].get()));
@@ -85,15 +85,15 @@ public:
         list.clear();
     }
 
-    virtual size_t size() const {
+    size_t size() const override {
         return list.size();
     }
 
-    virtual bool empty() const {
+    bool empty() const override {
         return list.empty();
     }
 
-    virtual std::vector<T> toList() const {
+    std::vector<T> toList() const override {
 //        return list;
         return {};
     };

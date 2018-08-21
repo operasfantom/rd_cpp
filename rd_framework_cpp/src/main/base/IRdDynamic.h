@@ -21,11 +21,7 @@ public:
 
     IRdDynamic() = default;
 
-    IRdDynamic(const IRdDynamic &other) = default;
-
     IRdDynamic(IRdDynamic &&other) = default;
-
-    IRdDynamic &operator=(const IRdDynamic &other) = default;
 
     IRdDynamic &operator=(IRdDynamic &&other) = default;
 

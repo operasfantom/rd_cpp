@@ -22,13 +22,13 @@ public:
     virtual ~RdSignal() = default;
     //endregion
 
-    virtual void init(Lifetime lifetime) const{
+    void init(Lifetime lifetime) const override {
         RdReactiveBase::init(lifetime);
 //        wire_scheduler = get_default_scheduler();
         get_wire()->advise(lifetime, this);
     }
 
-    virtual void on_wire_received(Buffer const &buffer) const {
+    void on_wire_received(Buffer const &buffer) const override {
         T const& value = S::read(this->get_serialization_context(), buffer);
 //        logReceived.trace { "signal `$location` ($rdid):: value = ${value.printToString()}" }
         signal.fire(value);

@@ -1,5 +1,3 @@
-#include <utility>
-
 //
 // Created by jetbrains on 25.07.2018.
 //
@@ -7,7 +5,7 @@
 #ifndef RD_CPP_SERIALIZERS_H
 #define RD_CPP_SERIALIZERS_H
 
-
+#include <utility>
 #include <any>
 #include "iostream"
 #include "interfaces.h"

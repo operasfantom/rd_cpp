@@ -64,7 +64,7 @@ public:
             }, v);
         }
 
-        V const * get_new_value() const {
+        V const *get_new_value() const {
             return std::visit(overloaded{
                     [](typename Event::Add const &e) {
                         return e.new_value;
@@ -82,7 +82,7 @@ public:
 protected:
     mutable std::unordered_map<Lifetime, std::vector<LifetimeDefinition>, Lifetime::Hash> lifetimes;
 public:
-    virtual ~IViewableList() {}
+    virtual ~IViewableList() = default;
 
     void advise_add_remove(Lifetime lifetime, std::function<void(AddRemove, size_t, V const &)> handler) const {
         advise(lifetime, [handler](Event const &e) {

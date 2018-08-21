@@ -55,7 +55,7 @@ public:
 
     bool optimizeNested = false;
 
-    virtual void init(Lifetime lifetime) const {
+    void init(Lifetime lifetime) const override {
         RdBindableBase::init(lifetime);
 
         local_change([this, lifetime]() {
@@ -65,7 +65,8 @@ public:
                 if (!optimizeNested) {
                     V const *new_value = e.get_new_value();
                     if (new_value) {
-                        identifyPolymorphic(*new_value, get_protocol()->identity, get_protocol()->identity->next(rd_id));
+                        identifyPolymorphic(*new_value, get_protocol()->identity,
+                                            get_protocol()->identity->next(rd_id));
                     }
                 }
 
@@ -93,7 +94,7 @@ public:
             });
     }
 
-    virtual void on_wire_received(Buffer const &buffer) const {
+    void on_wire_received(Buffer const &buffer) const override {
         int64_t header = (buffer.read_pod<int64_t>());
         int64_t version = header >> versionedFlagShift;
         Op op = static_cast<Op>((header & ((1 << versionedFlagShift) - 1L)));
@@ -103,61 +104,60 @@ public:
 
 
         MY_ASSERT_MSG(version == nextVersion, ("Version conflict for " + location.toString() + "}. Expected version " +
-                                              std::to_string(nextVersion) +
-                                              ", received " +
-                                              std::to_string(version) +
-                                              ". Are you modifying a list from two sides?"));
+                                               std::to_string(nextVersion) +
+                                               ", received " +
+                                               std::to_string(version) +
+                                               ". Are you modifying a list from two sides?"));
 
         nextVersion++;
 
         switch (op) {
             case Op::Add: {
                 V value = std::move(S::read(this->get_serialization_context(), buffer));
-                (index < 0) ? list.add(std::move(value)) : list.add(index, std::move(value));
+                (index < 0) ? list.add(std::move(value)) : list.add(static_cast<size_t>(index), std::move(value));
                 break;
             }
             case Op::Update: {
                 V value = std::move(S::read(this->get_serialization_context(), buffer));
-                list.set(index, std::move(value));
+                list.set(static_cast<size_t>(index), std::move(value));
                 break;
             }
             case Op::Remove: {
-                list.removeAt(index);
+                list.removeAt(static_cast<size_t>(index));
                 break;
             }
         }
     }
 
-    virtual void
-    advise(Lifetime lifetime, std::function<void(typename IViewableList<V>::Event const &)> handler) const {
+    void advise(Lifetime lifetime, std::function<void(typename IViewableList<V>::Event const &)> handler) const override {
         if (is_bound()) assert_threading();
         list.advise(lifetime, handler);
     }
 
-    virtual bool add(V element) const { return local_change<bool>([&]() { return list.add(std::move(element)); }); }
+    bool add(V element) const override { return local_change<bool>([&]() { return list.add(std::move(element)); }); }
 
-    virtual bool add(size_t index, V element) const {
+    bool add(size_t index, V element) const override {
         return local_change<bool>([&]() { return list.add(index, std::move(element)); });
     }
 
-    virtual bool remove(V const &element) const { return local_change<bool>([&]() { return list.remove(element); }); }
+    bool remove(V const &element) const override { return local_change<bool>([&]() { return list.remove(element); }); }
 
 //    virtual bool removeAll(elements: Collection<V>): Boolean = local_change { list.removeAll(elements) }
-    virtual V removeAt(size_t index) const { return local_change<V>([&]() { return list.removeAt(index); }); }
+    V removeAt(size_t index) const override { return local_change<V>([&]() { return list.removeAt(index); }); }
 
 //    virtual bool retainAll(elements: Collection<V>): Boolean = local_change { list.retainAll(elements) }
 
-    virtual V const &get(size_t index) const { return list.get(index); };
+    V const &get(size_t index) const override { return list.get(index); };
 
-    virtual V set(size_t index, V element) const {
+    V set(size_t index, V element) const override {
         return local_change<V>([&]() { return list.set(index, std::move(element)); });
     }
 
-    virtual void clear() const { return local_change([&]() { list.clear(); }); }
+    void clear() const override { return local_change([&]() { list.clear(); }); }
 
-    virtual size_t size() const { return list.size(); }
+    size_t size() const override { return list.size(); }
 
-    virtual bool empty() const { return list.empty(); }
+    bool empty() const override { return list.empty(); }
 
     std::vector<V> toList() const { return list.toList(); }
 };

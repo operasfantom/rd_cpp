@@ -49,7 +49,7 @@ public:
         return property;
     }
 
-    virtual void write(SerializationCtx const &ctx, Buffer const &buffer) const {
+    void write(SerializationCtx const &ctx, Buffer const &buffer) const override {
         this->rd_id.write(buffer);
         S::write(ctx, buffer, this->value);
     }

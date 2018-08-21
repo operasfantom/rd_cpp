@@ -151,7 +151,7 @@ public:
         });
     }
 
-    virtual void write(SerializationCtx const &ctx, Buffer const &buffer) const {
+    void write(SerializationCtx const &ctx, Buffer const &buffer) const override {
         buffer.write_pod(x);
         buffer.write_pod(y);
     }

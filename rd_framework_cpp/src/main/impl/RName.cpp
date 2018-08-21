@@ -7,7 +7,7 @@
 RName::RName(RName * const parent, const std::string &localName, const std::string &separator) : parent(
         parent), local_name(localName), separator(separator) {}
 
-RName RName::sub(std::string localName, std::string separator) {
+RName RName::sub(const std::string& localName, const std::string& separator) {
     return RName(this, localName, separator);
 }
 
@@ -24,7 +24,7 @@ std::string RName::toString() {
     }
 }
 
-RName::RName(std::string local_name) : RName(&EMPTY, local_name, "") {}
+RName::RName(const std::string& local_name) : RName(&EMPTY, local_name, "") {}
 
 RName RName::Empty() {
     return EMPTY;

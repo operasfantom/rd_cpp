@@ -27,7 +27,7 @@ private:
     using listeners_t = std::map<counter_t, std::function<void(T const &)> >;
     mutable listeners_t listeners, priority_listeners;
 
-    virtual void advise0(Lifetime lifetime, std::function<void(T const &)> handler, listeners_t &queue) const {
+    void advise0(Lifetime lifetime, std::function<void(T const &)> handler, listeners_t &queue) const {
         auto id = advise_id;
         lifetime->bracket(
                 [&queue, lifetime, id, handler]() { queue[id] = handler; },
@@ -59,7 +59,7 @@ public:
 
     //endregion
 
-    virtual void fire(T const &value) const {
+    void fire(T const &value) const override {
         for (auto const &p : priority_listeners) {
             p.second(value);
         }
@@ -68,7 +68,7 @@ public:
         }
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(T const &)> handler) const {
+    void advise(Lifetime lifetime, std::function<void(T const &)> handler) const override {
         advise0(lifetime, handler, isPriorityAdvise() ? priority_listeners : listeners);
     }
 

@@ -25,17 +25,17 @@ private:
 public:
     //region ctor/dtor
 
-    virtual ~ViewableMap() {}
+    virtual ~ViewableMap() = default;
     //endregion
 
-    virtual void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const {
+    void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const override {
         change.advise(lifetime, handler);
         for (auto const &p : map) {
             handler(Event(typename Event::Add(p.first.get(), p.second.get())));;
         }
     }
 
-    virtual V const &get(K const &key) const {
+    V const &get(K const &key) const override {
         return *get_by(key);
     }
 
@@ -48,12 +48,12 @@ public:
             change.fire(typename Event::Add(it.first->first.get(), it.first->second.get()));
             return nullptr;
         } else {
-			auto it = map.find(deleted_shared_ptr(key));
+            auto it = map.find(deleted_shared_ptr(key));
             if (*it->second != value) {
                 std::shared_ptr<V> old_value = get_by(key);
 
                 std::shared_ptr<V> object = std::make_shared<V>(std::move(value));
-				map[deleted_shared_ptr(key)] = object;
+                map[deleted_shared_ptr(key)] = object;
                 change.fire(typename Event::Update(it->first.get(), old_value.get(), it->second.get()));
             }
             return get_by(key).get();
@@ -70,7 +70,7 @@ public:
         return std::nullopt;
     }
 
-    virtual void clear() const {
+    void clear() const override {
         std::vector<Event> changes;
         for (auto const &p : map) {
             changes.push_back(typename Event::Remove(p.first.get(), p.second.get()));
@@ -81,11 +81,11 @@ public:
         map.clear();
     }
 
-    virtual size_t size() const {
+    size_t size() const override {
         return map.size();
     }
 
-    virtual bool empty() const {
+    bool empty() const override {
         return map.empty();
     }
 };

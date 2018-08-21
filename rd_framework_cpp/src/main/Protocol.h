@@ -15,7 +15,7 @@ public:
     Protocol(const IIdentities *const identity, const IScheduler *const scheduler, const IWire *const wire) :
             IProtocol(identity, scheduler, wire) {}
 
-    virtual IProtocol const * const get_protocol() const;
+    IProtocol const * const get_protocol() const override;
 //    static std::string log_category = "protocol";
 //    fun sublogger(subcategory: String) = getLogger("$logCategory.$subcategory")
 };

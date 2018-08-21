@@ -28,7 +28,7 @@ public:
     virtual ~IProtocol() = default;
     //endregion
 
-    virtual const SerializationCtx &get_serialization_context() const;
+    const SerializationCtx &get_serialization_context() const override;
 };
 
 

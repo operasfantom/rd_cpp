@@ -19,30 +19,20 @@ public:
     RdReactiveBase() = default;
 
     RdReactiveBase(RdReactiveBase &&other) : RdBindableBase(std::move(other))/*, async(other.async)*/ {
-		//static_cast<RdBindableBase &>(*this) = std::move(other);
-    	async = other.async;
+		async = other.async;
     };
 
     RdReactiveBase &operator=(RdReactiveBase &&other) {
-        static_cast<RdBindableBase &>(*this) = std::move(other);
         async = other.async;
+        static_cast<RdBindableBase &>(*this) = std::move(other);
         return *this;
-        /*RdReactiveBase tmp(std::move(other));
-        std::swap(*this, tmp);*/
     };
 
     virtual ~RdReactiveBase() = default;
     //endregion
 
-    /*static logReceived = Protocol.sublogger("RECV")
-    static logSend = Protocol.sublogger("SEND")
-    static logAssert = getLogger<RdReactiveBase>()*/
-
-    //local change
-
     const IWire *const get_wire() const;
 
-    //local change
     mutable bool is_local_change = false;
 
     //delegated

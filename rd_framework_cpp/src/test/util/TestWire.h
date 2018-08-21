@@ -28,9 +28,14 @@ public:
     mutable std::queue<RdMessage> msgQ;
     mutable int64_t bytesWritten = 0;
 
-    explicit TestWire(IScheduler const *const scheduler);
+    //region ctor/dtor
+	
+    explicit TestWire(IScheduler const *scheduler);
 
-    virtual void send(RdId id, std::function<void(Buffer const &buffer)> writer) const;
+    virtual ~TestWire() = default;
+    //endregion
+
+    void send(RdId id, std::function<void(Buffer const &buffer)> writer) const override;
 
     void process_all_messages() const;
 

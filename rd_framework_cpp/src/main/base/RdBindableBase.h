@@ -21,11 +21,11 @@ protected:
 
     bool is_bound() const;
 
-    const IProtocol *const get_protocol() const;
+    const IProtocol *const get_protocol() const override;
 
     std::vector<std::pair<std::string, std::any> > bindable_children;
 
-    SerializationCtx const &get_serialization_context() const;
+    SerializationCtx const &get_serialization_context() const override;
 
 public:
     //region ctor/dtor
@@ -44,14 +44,14 @@ public:
     //need to implement in subclasses
     virtual void init(Lifetime lifetime) const;
 
-    virtual void bind(Lifetime lf, IRdDynamic const *parent, const std::string &name) const;
+    void bind(Lifetime lf, IRdDynamic const *parent, const std::string &name) const override;
 
 
 //    /*concurrent*/std::map<std::string, std::any> extensions;
 
 //    getOrCreateExtension
 
-    virtual void identify(const IIdentities *identities, const RdId &id) const;
+    void identify(const IIdentities *identities, const RdId &id) const override;
 
     /*void print(PrettyPrinter printer) {
         printer.print(toString())

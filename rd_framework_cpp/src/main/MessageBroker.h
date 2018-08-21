@@ -23,7 +23,7 @@ private:
 
 public:
 
-    explicit MessageBroker(IScheduler const * const defaultScheduler);
+    explicit MessageBroker(IScheduler const * defaultScheduler);
 
     void dispatch(RdId id, std::shared_ptr<Buffer> message) const;
 

@@ -39,11 +39,11 @@ public:
 
     static void registry(IProtocol *protocol);
 
-    virtual void write(SerializationCtx const &ctx, Buffer const &buffer) const;
+    void write(SerializationCtx const &ctx, Buffer const &buffer) const override;
 
-    void init(Lifetime lifetime) const;
+    void init(Lifetime lifetime) const override;
 
-    virtual void identify(IIdentities const *identities, RdId const &id) const;
+    void identify(IIdentities const *identities, RdId const &id) const override;
 
     friend bool operator==(const DynamicEntity &lhs, const DynamicEntity &rhs);
 

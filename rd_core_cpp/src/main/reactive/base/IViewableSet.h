@@ -22,16 +22,16 @@ public:
         T const *value;
     };
 
-    virtual ~IViewableSet() {}
+    virtual ~IViewableSet() = default;
 
-    virtual void advise(Lifetime lifetime, std::function<void(AddRemove, T const &)> handler) const {
+	virtual void advise(Lifetime lifetime, std::function<void(AddRemove, T const &)> handler) const {
         this->advise(lifetime, [handler](Event const &e) {
             handler(e.kind, *e.value);
         });
     }
 
 
-    virtual void view(Lifetime lifetime, std::function<void(Lifetime, T const &)> handler) const {
+    void view(Lifetime lifetime, std::function<void(Lifetime, T const &)> handler) const override {
         advise(lifetime, [this, lifetime, handler](AddRemove kind, T const &key) {
             switch (kind) {
                 case AddRemove::ADD: {

@@ -26,11 +26,11 @@ public:
     //endregion
 
 
-    virtual T const &get() const {
+    T const &get() const override {
         return this->value;
     }
 
-    void set(T new_value) const {
+    void set(T new_value) const override {
         if (this->value != new_value) {
             this->before_change.fire(this->value);
             this->value = std::move(new_value);

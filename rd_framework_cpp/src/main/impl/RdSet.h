@@ -21,7 +21,7 @@ public:
 
     bool optimizeNested = false;
 
-    void init(Lifetime lifetime) const {
+    void init(Lifetime lifetime) const override {
         RdBindableBase::init(lifetime);
 
         local_change([this, lifetime]() {
@@ -40,7 +40,7 @@ public:
         get_wire()->advise(lifetime, this);
     }
 
-    virtual void on_wire_received(Buffer const &buffer) const {
+    void on_wire_received(Buffer const &buffer) const override {
         AddRemove kind = static_cast<AddRemove>(buffer.read_pod<int32_t>());
         T const &value = S::read(this->get_serialization_context(), buffer);
 
@@ -63,31 +63,31 @@ public:
         }
     }
 
-    virtual bool add(T value) const {
+    bool add(T value) const override {
         return local_change<bool>([&]() { return set.add(std::move(value)); });
     }
 
-    virtual void clear() const {
+    void clear() const override {
         return local_change([&]() { return set.clear(); });
     }
 
-    virtual bool remove(T const &value) const {
+    bool remove(T const &value) const override {
         return local_change<bool>([&]() { return set.remove(value); });
     }
 
-    virtual size_t size() const {
+    size_t size() const override {
         return local_change<size_t>([&]() { return set.size(); });
     }
 
-    virtual bool contains(T const &value) const {
+    bool contains(T const &value) const override {
         return local_change<bool>([&]() { return set.contains(value); });
     }
 
-    virtual bool empty() const {
+    bool empty() const override {
         return local_change<bool>([&]() { return set.empty(); });
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(Event const&)> handler) const {
+    void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const override {
         if (is_bound()) assert_threading();
         set.advise(lifetime, handler);
     }

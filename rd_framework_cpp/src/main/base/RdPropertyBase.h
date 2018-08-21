@@ -39,7 +39,7 @@ public:
     virtual ~RdPropertyBase() = default;
     //endregion
 
-    virtual void init(Lifetime lifetime) const {
+    void init(Lifetime lifetime) const override {
         RdReactiveBase::init(lifetime);
 
 
@@ -74,7 +74,7 @@ public:
         }
     }
 
-    virtual void on_wire_received(Buffer const &buffer) const {
+    void on_wire_received(Buffer const &buffer) const override {
         int32_t version = buffer.read_pod<int32_t>();
         T v = std::move(S::read(this->get_serialization_context(), buffer));
 
@@ -87,7 +87,7 @@ public:
         Property<T>::set(std::move(v));
     };
 
-    virtual void advise(Lifetime lifetime, std::function<void(const T &)> handler) const {
+    void advise(Lifetime lifetime, std::function<void(const T &)> handler) const override {
         if (is_bound()) {
 //            assertThreading();
         }
@@ -95,11 +95,11 @@ public:
     }
 
 
-    virtual T const &get() const {
+    T const &get() const override {
         return this->value;
     }
 
-    virtual void set(T new_value) const {
+    void set(T new_value) const override {
         this->local_change([this, &new_value]() mutable {
             this->default_value_changed = true;
             Property<T>::set(std::move(new_value));

@@ -30,7 +30,7 @@ public:
     virtual ~ViewableSet() = default;
     //endregion
 
-    virtual bool add(T element) const {
+    bool add(T element) const override {
         const std::shared_ptr<T> &value = factory(std::move(element));
         auto const &p = set.insert(value);
         if (!p.second) {
@@ -42,7 +42,7 @@ public:
 
     //addAll(collection)?
 
-    virtual void clear() const {
+    void clear() const override {
         std::vector<Event> changes;
         for (auto const &element : set) {
             changes.push_back(Event(AddRemove::REMOVE, element.get()));
@@ -53,7 +53,7 @@ public:
         set.clear();
     }
 
-    virtual bool remove(T const &element) const {
+    bool remove(T const &element) const override {
         if (!contains(element)) {
             return false;
         }
@@ -64,23 +64,23 @@ public:
         return true;
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const {
+    void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const override {
         for (auto const &x : set) {
             handler(Event(AddRemove::ADD, x.get()));
         }
         change.advise(lifetime, handler);
     }
 
-    virtual size_t size() const {
+    size_t size() const override {
         return set.size();
     }
 
-    virtual bool contains(T const &element) const {
+    bool contains(T const &element) const override {
         std::shared_ptr<T> pos = deleted_shared_ptr(element);
         return set.count(pos) > 0;
     }
 
-    virtual bool empty() const {
+    bool empty() const override {
         return set.empty();
     }
 };

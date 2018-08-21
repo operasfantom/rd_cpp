@@ -1,5 +1,3 @@
-#include <memory>
-
 //
 // Created by jetbrains on 24.07.2018.
 //
@@ -11,19 +9,22 @@
 #include <gtest/gtest.h>
 
 #include <IScheduler.h>
+#include <memory>
 #include "TestWire.h"
-#include "../../main/serialization/Serializers.h"
 #include "../../main/Identities.h"
 #include "../../main/Protocol.h"
 
 class TestScheduler : public IScheduler {
-    virtual void flush() {}
+public:
+    virtual ~TestScheduler() = default;
 
-    virtual void queue(std::function<void()> action) const {
+    void flush() override {}
+
+    void queue(std::function<void()> action) const override {
         action();
     }
 
-    bool is_active() const {
+    bool is_active() const override {
         return true;
     }
 };
@@ -47,13 +48,13 @@ public:
     std::unique_ptr<TestWire> clientTestWire = std::make_unique<TestWire>(&clientScheduler);
     std::unique_ptr<TestWire> serverTestWire = std::make_unique<TestWire>(&serverScheduler);
 
-//    /*std::unique_ptr<IWire>*/TestWire clientTestWire{&clientScheduler};
-//    /*std::unique_ptr<IWire>*/TestWire serverTestWire{&serverScheduler};
+    //    /*std::unique_ptr<IWire>*/TestWire clientTestWire{&clientScheduler};
+    //    /*std::unique_ptr<IWire>*/TestWire serverTestWire{&serverScheduler};
 
     Identities clientIdentities;
     Identities serverIdentities{IdKind::Server};
 
-//    private var disposeLoggerFactory: Closeable? = null
+    //    private var disposeLoggerFactory: Closeable? = null
 
     //    @BeforeTest
     RdFrameworkTestBase() : clientLifetimeDef(Lifetime::Eternal()),
@@ -62,9 +63,9 @@ public:
                             serverLifetime(serverLifetimeDef.lifetime) {
 
         clientProtocol = std::unique_ptr<IProtocol>(
-                new Protocol(/*serializers, */&clientIdentities, &clientScheduler, clientTestWire.get()));
+                std::make_unique<Protocol>(/*serializers, */&clientIdentities, &clientScheduler, clientTestWire.get()));
         serverProtocol = std::unique_ptr<IProtocol>(
-                new Protocol(/*serializers,*/ &serverIdentities, &serverScheduler, serverTestWire.get()));
+                std::make_unique<Protocol>(/*serializers,*/ &serverIdentities, &serverScheduler, serverTestWire.get()));
 
 
         std::pair<TestWire const *, TestWire const *> p = std::make_pair(
@@ -76,10 +77,10 @@ public:
         w2->counterpart = w1;
     }
 
-//    @AfterTest
+    //    @AfterTest
     virtual ~RdFrameworkTestBase() {
-//        clientLifetimeDef.terminate();
-//        serverLifetimeDef.terminate();
+        //        clientLifetimeDef.terminate();
+        //        serverLifetimeDef.terminate();
     }
 
     template<typename T>

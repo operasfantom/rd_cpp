@@ -51,7 +51,7 @@ public:
 
         Event(Remove const &x) : v(x) {}
 
-        K const * get_key() const {
+        K const *get_key() const {
             return std::visit(overloaded{
                     [](typename Event::Add const &e) {
                         return e.key;
@@ -65,7 +65,7 @@ public:
             }, v);
         }
 
-        V const * get_new_value() const {
+        V const *get_new_value() const {
             return std::visit(overloaded{
                     [](typename Event::Add const &e) {
                         return e.new_value;
@@ -82,8 +82,8 @@ public:
 
     virtual ~IViewableMap() {}
 
-    virtual void
-    view(Lifetime lifetime, std::function<void(Lifetime lifetime, std::pair<K const *, V const *> const &)> handler) const {
+    void view(Lifetime lifetime,
+              std::function<void(Lifetime lifetime, std::pair<K const *, V const *> const &)> handler) const override {
         advise_add_remove(lifetime, [this, lifetime, handler](AddRemove kind, K const &key, V const &value) {
             const std::pair<K const *, V const *> entry = std::make_pair(&key, &value);
             switch (kind) {
@@ -132,9 +132,9 @@ public:
 
     virtual void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const = 0;
 
-    virtual V const& get(K const &) const = 0;
+    virtual V const &get(K const &) const = 0;
 
-    virtual const V * set(K, V) const = 0;
+    virtual const V *set(K, V) const = 0;
 
     virtual std::optional<V> remove(K const &) const = 0;
 

@@ -12,7 +12,7 @@
 
 class IRdReactive : public virtual IRdBindable {
 protected:
-    bool async = false;//todo not moved in RdReactiveBase
+    bool async = false;
 public:
     //region ctor/dtor
 

@@ -34,8 +34,6 @@ public:
 
     RdMap() = default;
 
-    explicit RdMap(const ViewableMap<K, V> &list, int64_t nextVersion) : map(map), nextVersion(nextVersion) {}
-
     virtual ~RdMap() = default;
 
     enum class Op {
@@ -56,7 +54,7 @@ public:
 
     static const int32_t versionedFlagShift = 8; // update when changing Op
 
-    virtual void init(Lifetime lifetime) const {
+    void init(Lifetime lifetime) const override {
         RdBindableBase::init(lifetime);
 
         local_change([this, lifetime]() {
@@ -101,7 +99,7 @@ public:
             });
     }
 
-    virtual void on_wire_received(Buffer const &buffer) const {
+    void on_wire_received(Buffer const &buffer) const override {
         int32_t header = buffer.read_pod<int32_t>();
         bool msgVersioned = (header >> versionedFlagShift) != 0;
         Op op = static_cast<Op>(header & ((1 << versionedFlagShift) - 1));
@@ -132,13 +130,13 @@ public:
             bool isPut = (op == Op::Add || op == Op::Update);
             std::optional<V> value;
             if (isPut)
-                value = std::move(VS::read(this->get_serialization_context(), buffer));
+                value = VS::read(this->get_serialization_context(), buffer);
 
             if (msgVersioned || !is_master() || pendingForAck.count(key) == 0) {
 //                    logReceived.trace { logmsg(op, version, key, value) }
 
                 if (value.has_value()) {
-                    map.set(std::move(key), std::move(*value));
+                    map.set(key, std::move(*value));
                 } else {
                     map.remove(key);
                 }
@@ -162,17 +160,17 @@ public:
         }
     }
 
-    virtual void
-    advise(Lifetime lifetime, std::function<void(typename IViewableMap<K, V>::Event const &)> handler) const {
+    void
+    advise(Lifetime lifetime, std::function<void(typename IViewableMap<K, V>::Event const &)> handler) const override {
         if (is_bound()) assert_threading();
         map.advise(lifetime, handler);
     }
 
-    virtual V const &get(K const &key) const {
+    V const &get(K const &key) const override {
         return local_change_ref<V>([&]() -> V const & { return map.get(key); });
     }
 
-    virtual V const *set(K key, V value) const {
+    V const *set(K key, V value) const override {
         /*return local_change_const<V *>([this, key = std::move(key), value = std::move(value)]() mutable -> V const * {
             return map.set(std::move(key), std::move(value));
         });*/
@@ -182,19 +180,19 @@ public:
         return res;
     }
 
-    virtual std::optional<V> remove(K const &key) const {
+    std::optional<V> remove(K const &key) const override {
         return local_change<std::optional<V>>([&]() { return map.remove(key); });
     }
 
-    virtual void clear() const {
+    void clear() const override {
         return local_change([&]() { return map.clear(); });
     }
 
-    virtual size_t size() const {
+    size_t size() const override {
         return map.size();
     }
 
-    virtual bool empty() const {
+    bool empty() const override {
         return map.empty();
     }
 };

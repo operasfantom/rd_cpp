@@ -31,7 +31,7 @@ public:
 
     virtual T const &get() const = 0;
 
-    virtual void advise_before(Lifetime lifetime, std::function<void(T const &)> handler) const {
+    void advise_before(Lifetime lifetime, std::function<void(T const &)> handler) const override {
         if (lifetime->is_terminated()) {
             return;
         }
@@ -40,7 +40,7 @@ public:
         handler(this->value);
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(T const &)> handler) const {
+    void advise(Lifetime lifetime, std::function<void(T const &)> handler) const override {
         if (lifetime->is_terminated()) {
             return;
         }
@@ -48,6 +48,7 @@ public:
         this->change.advise(lifetime, handler);
         handler(this->value);
     }
+
     virtual void set(T) const = 0;
 };
 
