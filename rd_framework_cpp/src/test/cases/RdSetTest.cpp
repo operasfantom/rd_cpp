@@ -48,4 +48,6 @@ TEST_F(RdFrameworkTestBase, set_statics) {
 
     clientSet.clear();
     EXPECT_EQ((vi{2, 0, 1, 8, -1, -2, -0, -8}), log);
+
+    AfterTest();
 }

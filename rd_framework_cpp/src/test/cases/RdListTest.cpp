@@ -67,6 +67,8 @@ TEST_F(RdFrameworkTestBase, rd_list_static) {
                                         "Add 4:Client value 5",
                                         "Update 4:Server value 5"})
     );
+
+    AfterTest();
 }
 
 TEST_F(RdFrameworkTestBase, rd_list_dynamic) {
@@ -119,6 +121,8 @@ TEST_F(RdFrameworkTestBase, rd_list_dynamic) {
                                              "finish 1",
                                              "start 1", "3",
                                              "finish 1", "finish 0"}));
+
+    AfterTest();
 }
 
 TEST_F(RdFrameworkTestBase, rd_list_of_rd_property) {
@@ -169,4 +173,6 @@ TEST_F(RdFrameworkTestBase, rd_list_of_rd_property) {
                                              "finish 1",
                                              "finish 0",
     }));
+
+    AfterTest();
 }

@@ -78,9 +78,9 @@ public:
     }
 
     //    @AfterTest
-    virtual ~RdFrameworkTestBase() {
-        //        clientLifetimeDef.terminate();
-        //        serverLifetimeDef.terminate();
+    virtual void AfterTest() {
+        clientLifetimeDef.terminate();
+        serverLifetimeDef.terminate();
     }
 
     template<typename T>

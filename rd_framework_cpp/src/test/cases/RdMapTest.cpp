@@ -64,6 +64,8 @@ TEST_F(RdFrameworkTestBase, rd_map_statics) {
                                         "Update 5:Server value 5"}),
               logUpdate
     );
+
+    AfterTest();
 }
 
 TEST_F(RdFrameworkTestBase, rd_map_dynamic) {
@@ -120,4 +122,6 @@ TEST_F(RdFrameworkTestBase, rd_map_dynamic) {
                                         "finish 0",
                                         "start 5", "4",
                                         "finish 2", "finish 5"}), log);
+
+    AfterTest();
 }

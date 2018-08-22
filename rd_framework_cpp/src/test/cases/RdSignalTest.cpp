@@ -41,8 +41,7 @@ TEST_F(RdFrameworkTestBase, signal_statics) {
     EXPECT_EQ((vi{2, 3}), client_log);
     EXPECT_EQ((vi{2, 3}), server_log);
 
-    clientLifetimeDef.terminate();
-    serverLifetimeDef.terminate();
+    AfterTest();
 }
 
 TEST_F(RdFrameworkTestBase, signal_void_statics) {
@@ -71,8 +70,7 @@ TEST_F(RdFrameworkTestBase, signal_void_statics) {
     client_signal.fire(nullptr); //no transmitting
     EXPECT_EQ(2, acc);
 
-    clientLifetimeDef.terminate();
-    serverLifetimeDef.terminate();
+    AfterTest();
 }
 
 class CustomSerializer {
@@ -118,8 +116,7 @@ TEST_F(RdFrameworkTestBase, signal_custom_serializer) {
     EXPECT_EQ(-3, client_log);
     EXPECT_EQ(-3, server_log);
 
-    clientLifetimeDef.terminate();
-    serverLifetimeDef.terminate();
+    AfterTest();
 }
 
 template<typename K>
@@ -197,8 +194,7 @@ TEST_F(RdFrameworkTestBase, signal_custom_iserializable) {
     EXPECT_EQ((Foo<char>(1, 8)), client_log);
     EXPECT_EQ((Foo<char>(1, 8)), server_log);
 
-    clientLifetimeDef.terminate();
-    serverLifetimeDef.terminate();
+    AfterTest();
 }
 
 TEST_F(RdFrameworkTestBase, signal_vector) {
@@ -233,6 +229,5 @@ TEST_F(RdFrameworkTestBase, signal_vector) {
     EXPECT_EQ(a, client_log);
     EXPECT_EQ(a, server_log);
 
-    clientLifetimeDef.terminate();
-    serverLifetimeDef.terminate();
+    AfterTest();
 }

@@ -46,8 +46,7 @@ TEST_F(RdFrameworkTestBase, property_statics) {
     EXPECT_EQ((vi{1, 2, 3}), server_log);
 
 
-    clientLifetimeDef.terminate();
-    serverLifetimeDef.terminate();
+    AfterTest();
 }
 
 TEST_F(RdFrameworkTestBase, property_dynamic) {
@@ -105,6 +104,8 @@ TEST_F(RdFrameworkTestBase, property_dynamic) {
 
     EXPECT_EQ((listOf{0, 2, 5, 5}), clientLog);
     EXPECT_EQ((listOf{0, 2, 5, 5}), serverLog);
+
+    AfterTest();
 }
 
 TEST_F(RdFrameworkTestBase, property_companion) {
@@ -131,6 +132,8 @@ TEST_F(RdFrameworkTestBase, property_companion) {
     p2.set(RdProperty(0));
 
     EXPECT_EQ((std::vector<int32_t>{0, 0, 12}), log);
+
+    AfterTest();
 }
 
 TEST_F(RdFrameworkTestBase, property_vector) {
@@ -172,8 +175,7 @@ TEST_F(RdFrameworkTestBase, property_vector) {
     EXPECT_EQ((vi{1, 2, 3}), server_log);
 
 
-    clientLifetimeDef.terminate();
-    serverLifetimeDef.terminate();
+    AfterTest();
 }
 
 
@@ -248,6 +250,5 @@ TEST_F(RdFrameworkTestBase, property_vector_polymorphic) {
 
     EXPECT_EQ((vi{2, 0, 1, 8}), client_log);
 
-    clientLifetimeDef.terminate();
-    serverLifetimeDef.terminate();
+    AfterTest();
 }
