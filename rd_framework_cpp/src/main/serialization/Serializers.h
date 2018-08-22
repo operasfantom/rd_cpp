@@ -40,7 +40,7 @@ public:
 
     template<typename T>
     void registry(std::function<std::unique_ptr<ISerializable>(SerializationCtx const &, Buffer const &)> reader) {
-        std::string type_name = get_real_class_name<T>();
+        std::string type_name = demangle<T>();
         hash_t h = getPlatformIndependentHash(type_name);
         std::cerr << "registry: " << std::string(type_name) << " with hash: " << h << std::endl;
 //        std::cout << std::endl << typeid(T).name() << std::endl;
@@ -52,7 +52,7 @@ public:
 
     template<typename T>
     void writePolymorphic(SerializationCtx const &ctx, Buffer const &stream, const T &value) const {
-        std::string type_name = get_real_class_name<T>();
+        std::string type_name = demangle<T>();
         hash_t h = getPlatformIndependentHash(type_name);
         std::cerr << "write: " << type_name << " with hash: " << h << std::endl;
         RdId(h).write(stream);
