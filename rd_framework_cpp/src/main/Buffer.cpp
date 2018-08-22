@@ -4,6 +4,7 @@
 
 #include "Buffer.h"
 #include <algorithm>
+#include <cstring>
 
 Buffer::Buffer(size_t initialSize) {
     byteBufferMemoryBase.resize(initialSize);

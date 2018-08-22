@@ -12,7 +12,7 @@ template<typename T>
 std::string get_real_class_name() {
     int status = 0;
     const char *name = typeid(T).name();
-    std::unique_ptr<char> realname(abi::__cxa_demangle(name, nullptr, nullptr, &status));
+    std::unique_ptr<char, decltype(std::free) *> realname{abi::__cxa_demangle(name, nullptr, nullptr, &status), std::free};
     MY_ASSERT_MSG((status == 0),
                   "getting real class name of:" + std::string(name) + "failed with status:" + std::to_string(status));
     return std::string(realname.get());
