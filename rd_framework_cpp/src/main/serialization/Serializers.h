@@ -13,6 +13,7 @@
 #include "IMarshaller.h"
 #include "ISerializable.h"
 #include "../Identities.h"
+#include "../util.h"
 
 class SerializationCtx;
 
@@ -33,14 +34,15 @@ public:
         }
         auto const &reader = readers.at(id);
         std::unique_ptr<ISerializable> ptr = reader(ctx, stream);
-        T res = std::move(*dynamic_cast<T*>(ptr.get()));
+        T res = std::move(*dynamic_cast<T *>(ptr.get()));
         return res;
     }
 
     template<typename T>
     void registry(std::function<std::unique_ptr<ISerializable>(SerializationCtx const &, Buffer const &)> reader) {
-        hash_t h = getPlatformIndependentHash(std::string(typeid(T).name()));
-        std::cerr << "registry: " << std::string(typeid(T).name()) << " with hash: " << h << std::endl;
+        std::string type_name = get_real_class_name<T>();
+        hash_t h = getPlatformIndependentHash(type_name);
+        std::cerr << "registry: " << std::string(type_name) << " with hash: " << h << std::endl;
 //        std::cout << std::endl << typeid(T).name() << std::endl;
         RdId id(h);
 //        Protocol.initializationLogger.trace { "Registering type ${t.simpleName}, id = $id" }
@@ -50,8 +52,9 @@ public:
 
     template<typename T>
     void writePolymorphic(SerializationCtx const &ctx, Buffer const &stream, const T &value) const {
-        hash_t h = getPlatformIndependentHash(std::string(typeid(T).name()));
-        std::cerr << "write: " << std::string(typeid(T).name()) << " with hash: " << h << std::endl;
+        std::string type_name = get_real_class_name<T>();
+        hash_t h = getPlatformIndependentHash(type_name);
+        std::cerr << "write: " << type_name << " with hash: " << h << std::endl;
         RdId(h).write(stream);
 
 

@@ -8,6 +8,7 @@
 #include <type_traits>
 #include <memory>
 #include <cassert>
+#include <iostream>
 
 #define MY_ASSERT_MSG(expr, msg) if(!(expr)){std::cerr<<(msg);assert(expr);}
 
@@ -43,7 +44,7 @@ std::shared_ptr<T> factory_shared_ptr(T element) {
 }
 
 template<typename U>
-typename std::enable_if_t<! std::is_copy_constructible_v<U>, std::shared_ptr<U> >
+typename std::enable_if_t<!std::is_copy_constructible_v<U>, std::shared_ptr<U> >
 deleted_shared_ptr(U const &element) {
     return std::shared_ptr<U>(&element, [](U *) {});
 }
