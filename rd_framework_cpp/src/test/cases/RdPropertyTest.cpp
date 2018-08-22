@@ -190,7 +190,7 @@ public:
     }
 
     static void write(SerializationCtx const &ctx, Buffer const &buffer, const list &value) {
-        buffer.write_pod(value.size());
+        buffer.write_pod<int32_t>(value.size());
         for (const auto &item : value) {
             ctx.serializers->writePolymorphic<DynamicEntity>(ctx, buffer, item);
         }
@@ -213,7 +213,9 @@ TEST_F(RdFrameworkTestBase, property_vector_polymorphic) {
 
     client_property.advise(Lifetime::Eternal(), [&client_log](list const &v) {
         for (auto &x : v) {
-            x.foo.advise(Lifetime::Eternal(), [&client_log](int const &value) { client_log.push_back(value); });
+            x.foo.advise(Lifetime::Eternal(), [&client_log](int const &value) {
+                client_log.push_back(value);
+            });
         }
     });
 
@@ -235,17 +237,17 @@ TEST_F(RdFrameworkTestBase, property_vector_polymorphic) {
     list t;
     t.push_back(DynamicEntity(2));
     client_property.set(std::move(t));
-    EXPECT_EQ((vi{0}), client_log);
-    EXPECT_EQ((vi{0}), server_log);
+    EXPECT_EQ((vi{2}), client_log);
 
-//set from client
-/*server_property.set(list{RdProperty(0), RdProperty(1), RdProperty(8)});
+    //set from client
+    list q;
+    q.push_back(DynamicEntity(0));
+    q.push_back(DynamicEntity(1));
+    q.push_back(DynamicEntity(8));
+    server_property.set(std::move(q));
+
     EXPECT_EQ((vi{2, 0, 1, 8}), client_log);
-    EXPECT_EQ((vi{2, 0, 1, 8}), server_log);*//*
-
-
 
     clientLifetimeDef.terminate();
     serverLifetimeDef.terminate();
-}*/
 }

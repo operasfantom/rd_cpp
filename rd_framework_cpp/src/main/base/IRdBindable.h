@@ -31,8 +31,8 @@ public:
 };
 
 template<typename T>
-inline typename std::enable_if_t<!std::is_base_of_v<IRdBindable, T>>
-identifyPolymorphic(T const &that, const IIdentities *identities, RdId const &id) {}
+typename std::enable_if_t<!std::is_base_of_v<IRdBindable, T>>
+inline identifyPolymorphic(T const &that, const IIdentities *identities, RdId const &id) {}
 
 //template <>
 inline void identifyPolymorphic(const IRdBindable &that, const IIdentities *identities, RdId const &id) {
@@ -40,15 +40,16 @@ inline void identifyPolymorphic(const IRdBindable &that, const IIdentities *iden
 }
 
 template<typename T>
-inline void identifyPolymorphic(std::vector<T> const &that, IIdentities *identities, RdId const &id) {
+std::enable_if_t<std::is_base_of_v<IRdBindable, T>>
+inline identifyPolymorphic(std::vector<T> const &that, const IIdentities *identities, RdId const &id) {
     for (size_t i = 0; i < that.size(); ++i) {
         that[i].identify(identities, id.mix(static_cast<int32_t >(i)));
     }
 }
 
 template<typename T>
-inline typename std::enable_if_t<!std::is_base_of_v<IRdBindable, T>>
-bindPolymorphic(T const &that, Lifetime lf, const IRdDynamic *parent, std::string const &name) {}
+typename std::enable_if_t<!std::is_base_of_v<IRdBindable, T>>
+inline bindPolymorphic(T const &that, Lifetime lf, const IRdDynamic *parent, std::string const &name) {}
 
 /*template <typename T, typename std::enable_if<std::is_base_of<IRdBindable, T>::value>::type>*/
 inline void bindPolymorphic(IRdBindable const &that, Lifetime lf, const IRdDynamic *parent, std::string const &name) {
@@ -56,8 +57,8 @@ inline void bindPolymorphic(IRdBindable const &that, Lifetime lf, const IRdDynam
 }
 
 template<typename T>
-inline typename std::enable_if_t<std::is_base_of_v<IRdBindable, T>>
-bindPolymorphic(std::vector<T> const &that, Lifetime lf, IRdDynamic const *parent, std::string const &name) {
+typename std::enable_if_t<std::is_base_of_v<IRdBindable, T>>
+inline bindPolymorphic(std::vector<T> const &that, Lifetime lf, IRdDynamic const *parent, std::string const &name) {
     for (size_t i = 0; i < that.size(); ++i) {
         that[i].bind(lf, parent, name);
     }
