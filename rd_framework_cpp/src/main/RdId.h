@@ -51,7 +51,7 @@ public:
 
     static RdId read(Buffer const &buffer);
 
-    void write(const Buffer &buffer);
+    void write(const Buffer &buffer) const;
 
     hash_t get_hash() const;
 

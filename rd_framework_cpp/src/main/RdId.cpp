@@ -51,6 +51,6 @@ RdId RdId::read(Buffer const &buffer) {
     return RdId(number);
 }
 
-void RdId::write(const Buffer &buffer) {
+void RdId::write(const Buffer &buffer) const {
     buffer.write_pod(hash);
 }

@@ -46,11 +46,6 @@ public:
 
         //todo maybe identify is forgotten
 
-        /*when (kind) {
-            AddRemove.Add -> set.add(v)
-            AddRemove.Remove -> set.remove(v)
-            else -> throw IllegalStateException(kind.toString())
-        }*/
         switch (kind) {
             case AddRemove::ADD : {
                 set.add(value);

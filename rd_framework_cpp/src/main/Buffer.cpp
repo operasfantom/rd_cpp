@@ -44,3 +44,7 @@ void Buffer::require_available(size_t moreSize) const {
         size = newSize;
     }
 }
+
+void Buffer::rewind() const {
+    set_position(0);
+}

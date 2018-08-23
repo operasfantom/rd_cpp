@@ -11,8 +11,6 @@
 //#include "SerializationCtx.h"
 class SerializationCtx;
 
-class IProtocol;
-
 //template <int id>
 class ISerializable {
 //    const RdId id = RdId(typeid(*this).hash_code());

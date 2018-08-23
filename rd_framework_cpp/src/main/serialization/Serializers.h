@@ -13,7 +13,7 @@
 #include "IMarshaller.h"
 #include "ISerializable.h"
 #include "../Identities.h"
-#include "../util.h"
+#include "../util/util.h"
 
 class SerializationCtx;
 
@@ -23,7 +23,7 @@ public:
                                                                           Buffer const &)>, RdId::Hasher> readers;
 
     template<typename T>
-    T readPolymorphic(SerializationCtx const &ctx, Buffer const &stream) const {//todo rvalue
+    T readPolymorphic(SerializationCtx const &ctx, Buffer const &stream) const {
         RdId id = RdId::read(stream);
         int32_t size = stream.read_pod<int32_t>();
         stream.check_available(size);

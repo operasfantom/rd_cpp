@@ -5,16 +5,28 @@
 #ifndef RD_CPP_MESSAGEBROKER_H
 #define RD_CPP_MESSAGEBROKER_H
 
+#include <mutex>
 #include "IRdReactive.h"
 
 class Mq {
 public:
+    //region ctor/dtor
+
+    Mq() = default;
+
+    Mq(Mq const &) = delete;
+
+    Mq(Mq &&) = default;
+    //endregion
+
     int32_t defaultSchedulerMessages = 0;
-    std::vector<std::shared_ptr<Buffer>> customSchedulerMessages;
+    std::vector<Buffer> customSchedulerMessages;
 };
 
 class MessageBroker {
 private:
+    mutable std::mutex lock;
+
     IScheduler const *defaultScheduler = nullptr;
     mutable std::unordered_map<RdId, IRdReactive const *, RdId::Hasher> subscriptions;
     mutable std::unordered_map<RdId, Mq, RdId::Hasher> broker;
@@ -23,9 +35,9 @@ private:
 
 public:
 
-    explicit MessageBroker(IScheduler const * defaultScheduler);
+    explicit MessageBroker(IScheduler const *defaultScheduler);
 
-    void dispatch(RdId id, std::shared_ptr<Buffer> message) const;
+    void dispatch(RdId id, Buffer message) const;
 
     void advise_on(Lifetime lifetime, IRdReactive const *entity) const;
 };

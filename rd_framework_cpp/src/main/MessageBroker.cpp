@@ -23,53 +23,56 @@ void MessageBroker::invoke(const IRdReactive *that, const Buffer &msg, bool sync
 
 MessageBroker::MessageBroker(IScheduler const *defaultScheduler) : defaultScheduler(defaultScheduler) {}
 
-void MessageBroker::dispatch(RdId id, std::shared_ptr<Buffer> message) const {
+void MessageBroker::dispatch(RdId id, Buffer message) const {
     MY_ASSERT_MSG(!id.isNull(), "id mustn't be null");
 
 //        synchronized(lock) {
 
-    IRdReactive const *s = subscriptions[id];
-    if (s == nullptr) {
-        if (broker.count(id) == 0) {
-            broker[id] = Mq();
-        }
-        broker[id].defaultSchedulerMessages++;
-
-        defaultScheduler->queue([this, id, &message]() {
-            IRdReactive const *subscription = subscriptions[id]; //no lock because can be changed only under default scheduler
-
-            if (subscription != nullptr) {
-                if (subscription->get_wire_scheduler() == defaultScheduler)
-                    invoke(subscription, *message, true);
-                else
-                    invoke(subscription, *message);
-            } else {
-//                        log.trace { "No handler for id: $id" }
+    {//synchronized
+        std::lock_guard<std::mutex> _{lock};
+        IRdReactive const *s = subscriptions[id];
+        if (s == nullptr) {
+            if (broker.count(id) == 0) {
+                broker[id];
             }
+            broker[id].defaultSchedulerMessages++;
+
+            defaultScheduler->queue([this, id, &message]() {
+                IRdReactive const *subscription = subscriptions[id]; //no lock because can be changed only under default scheduler
+
+                if (subscription != nullptr) {
+                    if (subscription->get_wire_scheduler() == defaultScheduler)
+                        invoke(subscription, message, true);
+                    else
+                        invoke(subscription, message);
+                } else {
+//                        log.trace { "No handler for id: $id" }
+                }
 
 //                    synchronized(lock) {
-            if (--broker[id].defaultSchedulerMessages == 0) {
-                auto t = broker[id];
-                broker.erase(id);
-                for (auto &it : t.customSchedulerMessages) {
-                    assert(subscription->get_wire_scheduler() != defaultScheduler);
-                    invoke(subscription, *it);
+                if (--broker[id].defaultSchedulerMessages == 0) {
+                    auto t = std::move(broker[id]);
+                    broker.erase(id);
+                    for (auto &it : t.customSchedulerMessages) {
+                        assert(subscription->get_wire_scheduler() != defaultScheduler);
+                        invoke(subscription, it);
+                    }
                 }
-            }
 //                    }
-        });
+            });
 
-    } else {
-
-        if (s->get_wire_scheduler() == defaultScheduler || s->get_wire_scheduler()->out_of_order_execution) {
-            invoke(s, *message);
         } else {
-            if (broker.count(id) == 0) {
-                invoke(s, *message);
+
+            if (s->get_wire_scheduler() == defaultScheduler || s->get_wire_scheduler()->out_of_order_execution) {
+                invoke(s, message);
             } else {
-                Mq mq = broker[id];
-                assert(mq.defaultSchedulerMessages > 0);
-                mq.customSchedulerMessages.push_back(message);
+                if (broker.count(id) == 0) {
+                    invoke(s, message);
+                } else {
+                    Mq &mq = broker[id];
+                    assert(mq.defaultSchedulerMessages > 0);
+                    mq.customSchedulerMessages.push_back(std::move(message));
+                }
             }
         }
     }
@@ -95,3 +98,4 @@ void MessageBroker::advise_on(Lifetime lifetime, IRdReactive const *entity) cons
         });
     }
 }
+

@@ -142,9 +142,7 @@ public:
         protocol->serializers.registry<Foo>([](SerializationCtx const &ctx, Buffer const &buffer) {
             K x = buffer.read_pod<K>();
             K y = buffer.read_pod<K>();//
-//            K x = ctx.serializers->readPolymorphic<K>(ctx, buffer);
-//            K y = ctx.serializers->readPolymorphic<K>(ctx, buffer);
-            return std::make_unique<Foo>(x, y);//todo avoid heap alloc
+            return std::make_unique<Foo>(x, y);
         });
     }
 

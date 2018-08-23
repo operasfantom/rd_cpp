@@ -57,7 +57,6 @@ public:
         if (!contains(element)) {
             return false;
         }
-        //todo
         auto it = set.find(deleted_shared_ptr<T>(element));
         change.fire(Event(AddRemove::REMOVE, it->get()));
         set.erase(it);

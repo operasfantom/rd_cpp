@@ -7,11 +7,12 @@
 
 
 #include <IScheduler.h>
-#include "IRdDynamic.h"
+//#include "IRdDynamic.h"
 #include "IIdentities.h"
 #include "IWire.h"
 #include "../serialization/Serializers.h"
 
+class IRdDynamic;
 
 class IProtocol : public IRdDynamic {
 public:

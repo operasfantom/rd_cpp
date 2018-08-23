@@ -15,9 +15,9 @@
 class RdMessage {
 public:
     RdId id;
-    std::shared_ptr<Buffer> istream;
+    Buffer istream;
 
-    RdMessage(const RdId &id, std::shared_ptr<Buffer> istream) : id(id), istream(std::move(istream)) {};
+    RdMessage(const RdId &id, Buffer istream) : id(id), istream(std::move(istream)) {};
 };
 
 class TestWire : public WireBase {
@@ -29,13 +29,13 @@ public:
     mutable int64_t bytesWritten = 0;
 
     //region ctor/dtor
-	
+
     explicit TestWire(IScheduler const *scheduler);
 
     virtual ~TestWire() = default;
     //endregion
 
-    void send(RdId id, std::function<void(Buffer const &buffer)> writer) const override;
+    void send(RdId const &id, std::function<void(Buffer const &buffer)> writer) const override;
 
     void process_all_messages() const;
 

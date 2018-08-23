@@ -5,7 +5,7 @@
 #ifndef RD_CPP_FRAMEWORK_UTIL_H
 #define RD_CPP_FRAMEWORK_UTIL_H
 
-#include "../../../rd_core_cpp/src/main/util/util.h"
+#include "../../../../rd_core_cpp/src/main/util/util.h"
 
 #ifdef __GNUG__
 
@@ -39,5 +39,15 @@ std::string demangle()
     template<typename T>
     std::string demangle() { return typeid(T).name(); }
 #endif // __GNUG__
+
+
+/*#include <mutex>
+#include <functional>
+
+template<typename R>
+R synchronized(std::mutex &m, std::function<R()> block) {
+    std::lock_guard<std::mutex> l(m);
+    return block();
+}*/
 
 #endif //RD_CPP_FRAMEWORK_UTIL_H

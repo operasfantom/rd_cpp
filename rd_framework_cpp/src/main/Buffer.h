@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by jetbrains on 30.07.2018.
 //
@@ -11,8 +13,9 @@
 #include <type_traits>
 
 class Buffer {
-protected:
+public:
     using ByteArray = std::vector<unsigned char>;
+protected:
 
     mutable ByteArray byteBufferMemoryBase;
     mutable size_t offset = 0;
@@ -27,13 +30,24 @@ protected:
     void write(const void *src, size_t size) const;
 
 public:
+    //region ctor/dtor
+
+    explicit Buffer(size_t initialSize);
+
+    explicit Buffer(ByteArray array) : byteBufferMemoryBase(std::move(array)) {}
+
+    Buffer(Buffer const &) = delete;
+
+    Buffer(Buffer &&) = default;
+    //endregion
+
     size_t get_position() const;
 
     void set_position(size_t value) const;
 
-    explicit Buffer(size_t initialSize);
-
     void check_available(size_t moreSize) const;
+
+    void rewind() const;
 
     template<typename T, typename = std::enable_if_t<std::is_integral_v<T> > >
     T read_pod() const {
@@ -61,6 +75,9 @@ public:
         write(array.data(), sizeof(T) * array.size());
     }
 
+    auto getArray() {
+        return byteBufferMemoryBase;
+    }
 };
 
 

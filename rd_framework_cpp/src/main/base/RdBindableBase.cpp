@@ -5,6 +5,7 @@
 
 #include <SignalX.h>
 #include "RdBindableBase.h"
+#include "IProtocol.h"
 
 bool RdBindableBase::is_bound() const {
     return parent != nullptr;
@@ -25,7 +26,7 @@ void RdBindableBase::bind(Lifetime lf, IRdDynamic const *parent, const std::stri
                 }
     );
 
-//    protocol->scheduler.assertThread(this);
+    get_protocol()->scheduler->assert_thread();
 
     priorityAdviseSection(
             [this, lf]() { this->init(lf); }

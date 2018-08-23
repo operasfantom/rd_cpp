@@ -14,7 +14,7 @@ const IScheduler *const RdReactiveBase::get_wire_scheduler() const {
 
 void RdReactiveBase::assert_threading() const {
     if (!async && !get_default_scheduler()->is_active()) {
-
+//        logAssert.error("Must be executed on UI thread", IllegalStateException("|E| Wrong thread"))
     }
 }
 
