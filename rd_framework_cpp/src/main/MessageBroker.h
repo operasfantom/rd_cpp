@@ -6,6 +6,7 @@
 #define RD_CPP_MESSAGEBROKER_H
 
 #include <mutex>
+#include <thread>
 #include "IRdReactive.h"
 
 class Mq {
@@ -25,7 +26,7 @@ public:
 
 class MessageBroker {
 private:
-    mutable std::mutex lock;
+//    mutable std::unique_lock<std::mutex> lock/* = std::unique_lock<std::mutex>(std::mutex(), std::defer_lock)*/;todo
 
     IScheduler const *defaultScheduler = nullptr;
     mutable std::unordered_map<RdId, IRdReactive const *, RdId::Hasher> subscriptions;
@@ -35,7 +36,12 @@ private:
 
 public:
 
+    //region Description
+
+    MessageBroker(MessageBroker &&) = default;
+
     explicit MessageBroker(IScheduler const *defaultScheduler);
+    //endregion
 
     void dispatch(RdId id, Buffer message) const;
 

@@ -15,9 +15,18 @@ class IWire {
     std::unique_ptr<IProperty<bool> > connected = std::make_unique<Property<bool> >(false);
 
 public:
+    //region ctor/dtor
+
+    IWire() = default;
+
+    IWire(IWire &&) = default;
+
+    virtual ~IWire() = default;
+    //endregion
+
     virtual void advise(Lifetime lifetime, IRdReactive const *entity) const = 0;
 
-    virtual void send(RdId const& id, std::function<void(Buffer const &buffer)> writer) const = 0;
+    virtual void send(RdId const &id, std::function<void(Buffer const &buffer)> writer) const = 0;
 };
 
 

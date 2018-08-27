@@ -12,15 +12,20 @@
 
 class WireBase : public IWire {
 protected:
-    IScheduler const *const scheduler;
+    IScheduler const *const scheduler = nullptr;
 
     MessageBroker message_broker;
 public:
+    //region ctor/dtor
+
+    WireBase(WireBase &&) = default;
+
     explicit WireBase(IScheduler const *const scheduler) : scheduler(scheduler), message_broker(scheduler) {}
 
-    void advise(Lifetime lifetime, IRdReactive const *entity) const override {
-        message_broker.advise_on(lifetime, entity);
-    }
+    virtual ~WireBase() = default;
+    //endregion
+
+    void advise(Lifetime lifetime, IRdReactive const *entity) const override;
 
     void dumpToString() {
 //        messageBroker.printToString()''

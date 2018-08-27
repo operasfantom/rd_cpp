@@ -2,7 +2,7 @@ project(rd_cpp)
 
 #lib
 
-link_libraries(rd_core_cpp)
+#link_libraries(rd_core_cpp)
 
 add_library(rd_framework_cpp STATIC
         serialization/SerializationCtx.cpp serialization/SerializationCtx.h
@@ -36,8 +36,9 @@ add_library(rd_framework_cpp STATIC
         )
 
 target_include_directories(rd_framework_cpp PUBLIC src/)
-target_include_directories(rd_framework_cpp PUBLIC src/main)
 target_include_directories(rd_framework_cpp PUBLIC base)
 target_include_directories(rd_framework_cpp PUBLIC impl)
-#target_include_directories(rd_framework_cpp PUBLIC wire)
 add_subdirectory(wire)
+
+target_link_libraries(rd_framework_cpp PUBLIC rd_core_cpp)
+target_link_libraries(rd_framework_cpp PUBLIC clsocket)

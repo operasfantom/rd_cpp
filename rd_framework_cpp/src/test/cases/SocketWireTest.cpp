@@ -10,144 +10,157 @@
 #include "../../main/wire/SocketWire.h"
 #include "../util/RdFrameworkTestBase.h"
 
-template <typename T>
-void waitAndAssert(RdProperty<T> const&that, T const& expected, T const& prev) {
-        /*val start = System.currentTimeMillis()
-        val timeout = 5000
-        while ((System.currentTimeMillis() - start) < timeout && valueOrNull != expected) Thread.sleep(100)
+template<typename T>
+void waitAndAssert(RdProperty<T> const &that, T const &expected, T const &prev) {
+    /*val start = System.currentTimeMillis()
+    val timeout = 5000
+    while ((System.currentTimeMillis() - start) < timeout && valueOrNull != expected) Thread.sleep(100)
 
-        if (valueOrNull == prev) throw TimeoutException("Timeout $timeout ms while waiting value '$expected'")
-        assertEquals(expected, valueOrThrow)*/
+    if (valueOrNull == prev) throw TimeoutException("Timeout $timeout ms while waiting value '$expected'")
+    assertEquals(expected, valueOrThrow)*/
 }
 
 Protocol server(Lifetime lifetime, int32_t port = 0) {
-        return Protocol(Identities(IdKind::Server), &testScheduler, SocketWire::Server(lifetime, &testScheduler, port, "TestServer"));
+    SocketWire::Server server = SocketWire::Server(lifetime, &testScheduler, port, "TestServer");
+    std::shared_ptr<IWire> wire = std::dynamic_pointer_cast<IWire>(std::make_shared<SocketWire::Server>(std::move(server)));
+    return Protocol(Identities(IdKind::Server), &testScheduler, std::move(wire));
 }
 
 
-Protocol client(Lifetime lifetime, Protocol const& serverProtocol) {
-        return Protocol(Identities(), &testScheduler, SocketWire::Client(lifetime, &testScheduler, (serverProtocol.wire as SocketWire.Server).port, "TestClient"));
+Protocol client(Lifetime lifetime, Protocol const &serverProtocol) {
+    auto const *server = dynamic_cast<SocketWire::Server const *>(serverProtocol.wire.get());
+    SocketWire::Client client = SocketWire::Client(lifetime, &testScheduler, server->port, "TestClient");
+    std::shared_ptr<IWire> wire = std::dynamic_pointer_cast<IWire>(std::make_shared<SocketWire::Client>(std::move(client)));
+    return Protocol(Identities(), &testScheduler, std::move(wire));
 }
 
 Protocol client(Lifetime lifetime, int32_t port) {
-        return Protocol(Identities(), &testScheduler, SocketWire::Client(lifetime, &testScheduler, port, "TestClient"));
+    SocketWire::Client client = SocketWire::Client(lifetime, &testScheduler, port, "TestClient");
+    std::shared_ptr<IWire> wire = std::dynamic_pointer_cast<IWire>(std::make_shared<SocketWire::Client>(std::move(client)));
+    return Protocol(Identities(), &testScheduler, std::move(wire));
 }
 
 
+TEST_F(SocketWireTestBase, TestBasicRun) {
+    int property_id = 1;
 
-    TEST_F(SocketWireTestBase, TestBasicRun){
-        Protocol serverProtocol = server(socketLifetime);
-        Protocol clientProtocol = client(socketLifetime, serverProtocol);
+    Protocol serverProtocol = server(socketLifetime);
+    Protocol clientProtocol = client(socketLifetime, serverProtocol);
 
-        val sp = RdOptionalProperty<int>().static(1).apply { bind(lifetime, serverProtocol, "top") }
-        val cp = RdOptionalProperty<int>().static(1).apply { bind(lifetime, clientProtocol, "top") }
+    RdProperty<int> sp(0);
+    statics(sp, property_id);
+    sp.bind(lifetime, &serverProtocol, "top");
 
-        cp.set(1);
-        sp.waitAndAssert(1);
+    RdProperty<int> cp(0);
+    statics(cp, property_id);
+    cp.bind(lifetime, &clientProtocol, "top");
 
-        sp.set(2)
-        cp.waitAndAssert(2, 1);
+    cp.set(1);
+    waitAndAssert(sp, 1, 1);//todo
+
+    sp.set(2);
+    waitAndAssert(cp, 2, 1);
 }
 
-    /*@Test
-            void TestOrdering() {
-        val serverProtocol = server(socketLifetime)
-        val clientProtocol = client(socketLifetime, serverProtocol)
+/*@Test
+        void TestOrdering() {
+    val serverProtocol = server(socketLifetime)
+    val clientProtocol = client(socketLifetime, serverProtocol)
 
-        val sp = RdOptionalProperty<int>().static(1).apply { bind(lifetime, serverProtocol, "top") }
-        val cp = RdOptionalProperty<int>().static(1).apply { bind(lifetime, clientProtocol, "top") }
+    val sp = RdOptionalProperty<int>().static(1).apply { bind(lifetime, serverProtocol, "top") }
+    val cp = RdOptionalProperty<int>().static(1).apply { bind(lifetime, clientProtocol, "top") }
 
-        val log = ConcurrentLinkedQueue<int>()
-        sp.advise(lifetime) { log.add(it) }
-        cp.set(1)
-        cp.set(2)
-        cp.set(3)
-        cp.set(4)
-        cp.set(5)
+    val log = ConcurrentLinkedQueue<int>()
+    sp.advise(lifetime) { log.add(it) }
+    cp.set(1)
+    cp.set(2)
+    cp.set(3)
+    cp.set(4)
+    cp.set(5)
 
-        while (log.size < 5) Thread.sleep(100)
-        assertEquals(listOf(1, 2, 3, 4, 5), log.toList())
-    }
-
-
-    @Test
-            void TestBigBuffer() {
-        val serverProtocol = server(socketLifetime)
-        val clientProtocol = client(socketLifetime, serverProtocol)
-
-        val sp = RdOptionalProperty<String>().static(1).apply { bind(lifetime, serverProtocol, "top") }
-        val cp = RdOptionalProperty<String>().static(1).apply { bind(lifetime, clientProtocol, "top") }
-
-        cp.set("1")
-        sp.waitAndAssert("1")
-
-        sp.set("".padStart(100000, '3'))
-        cp.waitAndAssert("".padStart(100000, '3'), "1")
-    }
+    while (log.size < 5) Thread.sleep(100)
+    assertEquals(listOf(1, 2, 3, 4, 5), log.toList())
+}
 
 
-    @Test
-            void TestRunWithSlowpokeServer() {
+@Test
+        void TestBigBuffer() {
+    val serverProtocol = server(socketLifetime)
+    val clientProtocol = client(socketLifetime, serverProtocol)
 
-        val port = NetUtils.findFreePort(0)
-        val clientProtocol = client(socketLifetime, port)
+    val sp = RdOptionalProperty<String>().static(1).apply { bind(lifetime, serverProtocol, "top") }
+    val cp = RdOptionalProperty<String>().static(1).apply { bind(lifetime, clientProtocol, "top") }
+
+    cp.set("1")
+    sp.waitAndAssert("1")
+
+    sp.set("".padStart(100000, '3'))
+    cp.waitAndAssert("".padStart(100000, '3'), "1")
+}
 
 
-        val cp = RdOptionalProperty<int>().static(1).apply { bind(lifetime, clientProtocol, "top") }
+@Test
+        void TestRunWithSlowpokeServer() {
 
-        cp.set(1)
+    val port = NetUtils.findFreePort(0)
+    val clientProtocol = client(socketLifetime, port)
 
-        Thread.sleep(2000)
 
-        val serverProtocol = server(socketLifetime, port)
-        val sp = RdOptionalProperty<int>().static(1).apply { bind(lifetime, serverProtocol, "top") }
+    val cp = RdOptionalProperty<int>().static(1).apply { bind(lifetime, clientProtocol, "top") }
 
-        val prev = sp.valueOrNull
-        cp.set(4)
-        sp.waitAndAssert(4, prev)
-    }
+    cp.set(1)
 
-    @Test
-            void TestServerWithoutClient() {
-        server(socketLifetime)
-    }
+    Thread.sleep(2000)
 
-    @Test
-            void TestServerWithoutClientWithDelay() {
-        server(socketLifetime)
-        Thread.sleep(100)
-    }
+    val serverProtocol = server(socketLifetime, port)
+    val sp = RdOptionalProperty<int>().static(1).apply { bind(lifetime, serverProtocol, "top") }
 
-    @Test
-            void TestServerWithoutClientWithDelayAndMessages() {
-        val protocol = server(socketLifetime)
-        Thread.sleep(100)
-        val sp = RdOptionalProperty<int>().static(1).apply { bind(lifetime, protocol, "top") }
+    val prev = sp.valueOrNull
+    cp.set(4)
+    sp.waitAndAssert(4, prev)
+}
 
-        sp.set(1)
-        sp.set(2)
-        Thread.sleep(50)
-    }
+@Test
+        void TestServerWithoutClient() {
+    server(socketLifetime)
+}
 
-    @Test
-            void TestClientWithoutServer() {
-        client(socketLifetime, NetUtils.findFreePort(0))
-    }
+@Test
+        void TestServerWithoutClientWithDelay() {
+    server(socketLifetime)
+    Thread.sleep(100)
+}
 
-    @Test
-            void TestClientWithoutServerWithDelay() {
-        client(socketLifetime, NetUtils.findFreePort(0))
-        Thread.sleep(100)
-    }
+@Test
+        void TestServerWithoutClientWithDelayAndMessages() {
+    val protocol = server(socketLifetime)
+    Thread.sleep(100)
+    val sp = RdOptionalProperty<int>().static(1).apply { bind(lifetime, protocol, "top") }
 
-    @Test
-            void TestClientWithoutServerWithDelayAndMessages() {
-        val clientProtocol = client(socketLifetime, NetUtils.findFreePort(0))
+    sp.set(1)
+    sp.set(2)
+    Thread.sleep(50)
+}
 
-        val cp = RdOptionalProperty<int>().static(1).apply { bind(lifetime, clientProtocol, "top") }
+@Test
+        void TestClientWithoutServer() {
+    client(socketLifetime, NetUtils.findFreePort(0))
+}
 
-        cp.set(1)
-        cp.set(2)
-        Thread.sleep(50)
-    }
+@Test
+        void TestClientWithoutServerWithDelay() {
+    client(socketLifetime, NetUtils.findFreePort(0))
+    Thread.sleep(100)
+}
+
+@Test
+        void TestClientWithoutServerWithDelayAndMessages() {
+    val clientProtocol = client(socketLifetime, NetUtils.findFreePort(0))
+
+    val cp = RdOptionalProperty<int>().static(1).apply { bind(lifetime, clientProtocol, "top") }
+
+    cp.set(1)
+    cp.set(2)
+    Thread.sleep(50)
+}
 */

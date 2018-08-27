@@ -13,8 +13,8 @@
 class Protocol : /*IRdDynamic, */public IProtocol {
 public:
     //region ctor/dtor
-    Protocol(Identities identity, const IScheduler *const scheduler, const IWire *const wire) :
-            IProtocol(std::move(identity), scheduler, wire) {}
+    Protocol(Identities identity, const IScheduler *const scheduler, std::shared_ptr<IWire> wire) :
+            IProtocol(std::move(identity), scheduler, std::move(wire)) {}
 
     Protocol(Protocol const &) = delete;
     //endregion

@@ -5,31 +5,38 @@
 #ifndef RD_CPP_SOCKETWIRE_H
 #define RD_CPP_SOCKETWIRE_H
 
-#include <windows.h>
-
 #include <string>
 #include <IScheduler.h>
 #include <WireBase.h>
+
 #include "clsocket/src/ActiveSocket.h"
 #include "clsocket/src/PassiveSocket.h"
+#include "clsocket/src/SimpleSocket.h"
 
 
 class SocketWire {
     static std::chrono::milliseconds timeout;
 public:
-    class Base : WireBase {
+    class Base : public WireBase {
     protected:
-        std::timed_mutex lock;
+        std::unique_lock<std::timed_mutex> lock;
 
         std::string id;
         Lifetime lifetime;
-        IScheduler const *const scheduler;
-        CSimpleSocket socketProvider;
+        IScheduler const *const scheduler = nullptr;
+        CSimpleSocket socketProvider{};
 
         Buffer sendBuffer;/* = ByteBufferAsyncProcessor(id+"-AsyncSendProcessor") { send0(it) }*/
         mutable Buffer::ByteArray threadLocalSendByteArray;
     public:
+        //region ctor/dtor
+
+        Base(Base &&) = default;
+
         Base(const std::string &id, Lifetime lifetime, const IScheduler *scheduler);
+
+        virtual ~Base() = default;
+        //endregion
 
         void receiverProc(const CSimpleSocket &socket);
 
@@ -40,15 +47,30 @@ public:
         void set_socket(CSimpleSocket &socket);
     };
 
-    class Client : Base {
-        int32_t port;
+    class Client : public Base {
     public:
+        int32_t port;
+
+        //region ctor/dtor
+
+        Client(Client &&) = default;
+
+        virtual ~Client() = default;
+        //endregion
+
         Client(Lifetime lifetime, const IScheduler *scheduler, int32_t port, const std::string &id);
     };
 
-    class Server : Base {
-        int32_t port;
+    class Server : public Base {
     public:
+        int32_t port;
+
+        //region ctor/dtor
+        Server(Server &&) = default;
+
+        virtual ~Server() = default;
+        //endregion
+
         Server(Lifetime lifetime, const IScheduler *scheduler, int32_t port, const std::string &id);
     };
 

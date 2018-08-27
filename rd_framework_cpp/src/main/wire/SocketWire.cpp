@@ -2,9 +2,14 @@
 // Created by jetbrains on 23.08.2018.
 //
 
-#include <thread>
+
 #include "SocketWire.h"
-#include "clsocket/src/SimpleSocket.h"
+
+
+#include <thread>
+
+
+std::chrono::milliseconds SocketWire::timeout{500};
 
 SocketWire::Base::Base(const std::string &id, Lifetime lifetime, const IScheduler *scheduler)
         : WireBase(scheduler), id(id), lifetime(lifetime), scheduler(scheduler), sendBuffer(123),
@@ -40,15 +45,15 @@ void SocketWire::Base::receiverProc(const CSimpleSocket &socket) {
 
 //            Buffer::ByteArray bytes = socket.readByteArray();
 
-            auto buf = socket.GetData();
-            auto sz = socket.GetBytesReceived();
-            Buffer::ByteArray bytes(sz);
-            bytes.assign(buf, buf + sz);
+//            auto buf = socket.GetData();
+//            auto sz = socket.GetBytesReceived();
+//            Buffer::ByteArray bytes(sz);
+//            bytes.assign(buf, buf + sz);
 
 //            assert(bytes.size >= 4);
-            Buffer buffer(bytes);
-            RdId id = RdId::read(buffer);
-            message_broker.dispatch(id, std::move(buffer));
+//            Buffer buffer(bytes);
+//            RdId id = RdId::read(buffer);
+//            message_broker.dispatch(id, std::move(buffer));
 
         } catch (std::exception const &ex) {
             /*when (ex) {
@@ -90,6 +95,11 @@ void SocketWire::Base::send(RdId const &id, std::function<void(Buffer const &buf
 //    sendBuffer.put(bytes, 0, len);
 }
 
+void SocketWire::Base::set_socket(CSimpleSocket &socket) {
+
+}
+
+
 SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, int32_t port = 0,
                            const std::string &id = "ClientSocket") : Base(id, lifetime, scheduler), port(port) {
 
@@ -110,7 +120,7 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, int32
 
 //                    synchronized(lock)
                     {
-                        std::lock_guard<std::timed_mutex> _(lock);
+                        std::lock_guard<std::timed_mutex> _(*lock.mutex());
                         if (lifetime->is_terminated()) {
 //                            catch_ { s.close() }
                         } else {
@@ -120,7 +130,7 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, int32
 
                     set_socket(s);
                 } catch (std::exception const &e) {
-                    std::lock_guard<std::timed_mutex> _(lock);
+                    std::lock_guard<std::timed_mutex> _(*lock.mutex());
                     bool shouldReconnect = (!lifetime->is_terminated()) ? lock.try_lock_for(
                             timeout), !lifetime->is_terminated() : false;
                     if (shouldReconnect) {
@@ -170,7 +180,7 @@ SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, int32
 
 //                synchronized(lock)
                 {
-                    std::lock_guard<std::timed_mutex> _(lock);
+                    std::lock_guard<std::timed_mutex> _(*lock.mutex());
                     if (lifetime->is_terminated()) {
 //                        catch_ { s.close() }
                     } else {
@@ -212,3 +222,4 @@ SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, int32
 
     });
 }
+

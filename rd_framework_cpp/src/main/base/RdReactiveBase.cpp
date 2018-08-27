@@ -5,7 +5,7 @@
 #include "RdReactiveBase.h"
 
 const IWire *const RdReactiveBase::get_wire() const {
-    return get_protocol()->wire;
+    return get_protocol()->wire.get();
 }
 
 const IScheduler *const RdReactiveBase::get_wire_scheduler() const {

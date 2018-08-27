@@ -65,14 +65,14 @@ public:
                             serverLifetime(serverLifetimeDef.lifetime) {
 
         clientProtocol = std::unique_ptr<IProtocol>(
-                std::make_unique<Protocol>(/*serializers, */clientIdentities, &clientScheduler, clientTestWire.get()));
+                std::make_unique<Protocol>(/*serializers, */clientIdentities, &clientScheduler, std::move(clientTestWire)));
         serverProtocol = std::unique_ptr<IProtocol>(
-                std::make_unique<Protocol>(/*serializers,*/ serverIdentities, &serverScheduler, serverTestWire.get()));
+                std::make_unique<Protocol>(/*serializers,*/ serverIdentities, &serverScheduler, std::move(serverTestWire)));
 
 
         std::pair<TestWire const *, TestWire const *> p = std::make_pair(
-                dynamic_cast<TestWire const *>(clientProtocol->wire),
-                dynamic_cast<TestWire const *>(serverProtocol->wire));
+                dynamic_cast<TestWire const *>(clientProtocol->wire.get()),
+                dynamic_cast<TestWire const *>(serverProtocol->wire.get()));
         TestWire const *w1 = p.first;
         TestWire const *w2 = p.second;
         w1->counterpart = w2;

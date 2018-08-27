@@ -29,7 +29,7 @@ void MessageBroker::dispatch(RdId id, Buffer message) const {
 //        synchronized(lock) {
 
     {//synchronized
-        std::lock_guard<std::mutex> _{lock};
+//        std::lock_guard<std::mutex> _{*lock.mutex()};
         IRdReactive const *s = subscriptions[id];
         if (s == nullptr) {
             if (broker.count(id) == 0) {

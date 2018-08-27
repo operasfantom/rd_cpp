@@ -19,12 +19,12 @@ public:
     Serializers serializers;
     Identities identity;
     IScheduler const *scheduler;
-    IWire const *wire;
+    std::shared_ptr<IWire> wire;
     SerializationCtx context;
 
     //region ctor/dtor
 
-    IProtocol(Identities identity, const IScheduler *scheduler, const IWire *wire);
+    IProtocol(Identities identity, const IScheduler *scheduler, std::shared_ptr<IWire> wire);
 
     virtual ~IProtocol() = default;
     //endregion
