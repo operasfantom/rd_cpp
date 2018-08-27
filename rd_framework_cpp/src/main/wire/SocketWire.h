@@ -10,30 +10,48 @@
 #include <string>
 #include <IScheduler.h>
 #include <WireBase.h>
-#include "Socket.h"
+#include "clsocket/src/ActiveSocket.h"
+#include "clsocket/src/PassiveSocket.h"
 
-using namespace cppsocket; //todo remove
 
 class SocketWire {
+    static std::chrono::milliseconds timeout;
+public:
     class Base : WireBase {
-        std::mutex lock;
+    protected:
+        std::timed_mutex lock;
 
         std::string id;
         Lifetime lifetime;
         IScheduler const *const scheduler;
-        Property<std::optional<Socket> > socketProvider = Property<std::optional<Socket> >(std::nullopt);//todo
+        CSimpleSocket socketProvider;
 
         Buffer sendBuffer;/* = ByteBufferAsyncProcessor(id+"-AsyncSendProcessor") { send0(it) }*/
-        Buffer::ByteArray threadLocalSendByteArray;
+        mutable Buffer::ByteArray threadLocalSendByteArray;
     public:
         Base(const std::string &id, Lifetime lifetime, const IScheduler *scheduler);
 
-        void receiverProc(Socket const &socket);
+        void receiverProc(const CSimpleSocket &socket);
 
         void send0(const Buffer &msg);
 
         void send(RdId const &id, std::function<void(Buffer const &buffer)> writer) const override;
+
+        void set_socket(CSimpleSocket &socket);
     };
+
+    class Client : Base {
+        int32_t port;
+    public:
+        Client(Lifetime lifetime, const IScheduler *scheduler, int32_t port, const std::string &id);
+    };
+
+    class Server : Base {
+        int32_t port;
+    public:
+        Server(Lifetime lifetime, const IScheduler *scheduler, int32_t port, const std::string &id);
+    };
+
 };
 
 

@@ -33,7 +33,7 @@ void RdBindableBase::bind(Lifetime lf, IRdDynamic const *parent, const std::stri
     );
 }
 
-void RdBindableBase::identify(const IIdentities *identities, const RdId &id) const {
+void RdBindableBase::identify(const IIdentities &identities, const RdId &id) const {
     MY_ASSERT_MSG(rd_id.isNull(), "Already has RdId: " + rd_id.toString() + ", entity: $this");
     MY_ASSERT_MSG(!id.isNull(), "Assigned RdId mustn't be null, entity: $this");
 

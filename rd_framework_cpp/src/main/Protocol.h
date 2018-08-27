@@ -12,10 +12,14 @@
 
 class Protocol : /*IRdDynamic, */public IProtocol {
 public:
-    Protocol(const IIdentities *const identity, const IScheduler *const scheduler, const IWire *const wire) :
-            IProtocol(identity, scheduler, wire) {}
+    //region ctor/dtor
+    Protocol(Identities identity, const IScheduler *const scheduler, const IWire *const wire) :
+            IProtocol(std::move(identity), scheduler, wire) {}
 
-    IProtocol const * const get_protocol() const override;
+    Protocol(Protocol const &) = delete;
+    //endregion
+
+    IProtocol const *const get_protocol() const override;
 //    static std::string log_category = "protocol";
 //    fun sublogger(subcategory: String) = getLogger("$logCategory.$subcategory")
 };

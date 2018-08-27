@@ -9,9 +9,10 @@
 #include <interfaces.h>
 #include "IRdReactive.h"
 #include "../../../../rd_core_cpp/src/main/reactive/base/IProperty.h"
+#include "../../../../rd_core_cpp/src/main/reactive/Property.h"
 
 class IWire {
-    std::unique_ptr<IProperty<bool> > connected;
+    std::unique_ptr<IProperty<bool> > connected = std::make_unique<Property<bool> >(false);
 
 public:
     virtual void advise(Lifetime lifetime, IRdReactive const *entity) const = 0;

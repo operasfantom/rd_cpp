@@ -27,21 +27,21 @@ public:
 
     virtual void bind(Lifetime lf, IRdDynamic const *parent, std::string const &name) const = 0;
 
-    virtual void identify(const IIdentities *identities, const RdId &id) const = 0;
+    virtual void identify(IIdentities const &identities, const RdId &id) const = 0;
 };
 
 template<typename T>
 typename std::enable_if_t<!std::is_base_of_v<IRdBindable, T>>
-inline identifyPolymorphic(T const &that, const IIdentities *identities, RdId const &id) {}
+inline identifyPolymorphic(T const &that, IIdentities const &identities, RdId const &id) {}
 
 //template <>
-inline void identifyPolymorphic(const IRdBindable &that, const IIdentities *identities, RdId const &id) {
+inline void identifyPolymorphic(const IRdBindable &that, IIdentities const &identities, RdId const &id) {
     that.identify(identities, id);
 }
 
 template<typename T>
 std::enable_if_t<std::is_base_of_v<IRdBindable, T>>
-inline identifyPolymorphic(std::vector<T> const &that, const IIdentities *identities, RdId const &id) {
+inline identifyPolymorphic(std::vector<T> const &that, IIdentities const &identities, RdId const &id) {
     for (size_t i = 0; i < that.size(); ++i) {
         that[i].identify(identities, id.mix(static_cast<int32_t >(i)));
     }

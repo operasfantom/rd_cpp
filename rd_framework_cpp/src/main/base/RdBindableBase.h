@@ -51,7 +51,7 @@ public:
 
 //    getOrCreateExtension
 
-    void identify(const IIdentities *identities, const RdId &id) const override;
+    void identify(const IIdentities &identities, const RdId &id) const override;
 
     /*void print(PrettyPrinter printer) {
         printer.print(toString())

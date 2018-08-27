@@ -29,6 +29,8 @@ public:
     }
 };
 
+extern TestScheduler testScheduler;
+
 class RdFrameworkTestBase : public ::testing::Test {
 public:
     Serializers serializers;
@@ -63,9 +65,9 @@ public:
                             serverLifetime(serverLifetimeDef.lifetime) {
 
         clientProtocol = std::unique_ptr<IProtocol>(
-                std::make_unique<Protocol>(/*serializers, */&clientIdentities, &clientScheduler, clientTestWire.get()));
+                std::make_unique<Protocol>(/*serializers, */clientIdentities, &clientScheduler, clientTestWire.get()));
         serverProtocol = std::unique_ptr<IProtocol>(
-                std::make_unique<Protocol>(/*serializers,*/ &serverIdentities, &serverScheduler, serverTestWire.get()));
+                std::make_unique<Protocol>(/*serializers,*/ serverIdentities, &serverScheduler, serverTestWire.get()));
 
 
         std::pair<TestWire const *, TestWire const *> p = std::make_pair(

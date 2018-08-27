@@ -64,10 +64,10 @@ public:
     }
 
 
-    virtual void identify(IIdentities const *identities, RdId id) const {
+    virtual void identify(IIdentities const &identities, RdId id) const {
         RdBindableBase::identify(identities, id);
         if (!this->optimize_nested)
-            identifyPolymorphic(this->get(), identities, identities->next(id));
+            identifyPolymorphic(this->get(), identities, identities.next(id));
     }
 
     friend bool operator==(const RdProperty &lhs, const RdProperty &rhs) {

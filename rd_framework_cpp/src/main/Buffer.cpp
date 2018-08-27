@@ -8,7 +8,7 @@
 
 Buffer::Buffer(size_t initialSize) {
     byteBufferMemoryBase.resize(initialSize);
-    size = initialSize;
+    size_ = initialSize;
 }
 
 size_t Buffer::get_position() const {
@@ -20,8 +20,9 @@ void Buffer::set_position(size_t value) const {
 }
 
 void Buffer::check_available(size_t moreSize) const {
-    if (offset + moreSize > size) {
-        throw std::out_of_range("Expected $moreSize bytes in buffer, only ${size - offset} available");
+    if (offset + moreSize > size_) {
+        throw std::out_of_range(
+                "Expected $moreSize bytes in buffer, only" + std::to_string(size_ - offset) + "available");
     }
 }
 
@@ -38,10 +39,10 @@ void Buffer::write(const void *src, size_t size) const {
 }
 
 void Buffer::require_available(size_t moreSize) const {
-    if (offset + moreSize > size) {
-        size_t newSize = std::max(size * 2, offset + moreSize);
+    if (offset + moreSize > size_) {
+        size_t newSize = std::max(size_ * 2, offset + moreSize);
         byteBufferMemoryBase.resize(newSize);
-        size = newSize;
+        size_ = newSize;
     }
 }
 

@@ -17,14 +17,14 @@ class IRdDynamic;
 class IProtocol : public IRdDynamic {
 public:
     Serializers serializers;
-    IIdentities const *identity;
+    Identities identity;
     IScheduler const *scheduler;
     IWire const *wire;
     SerializationCtx context;
 
     //region ctor/dtor
 
-    IProtocol(const IIdentities *identity, const IScheduler *scheduler, const IWire *wire);
+    IProtocol(Identities identity, const IScheduler *scheduler, const IWire *wire);
 
     virtual ~IProtocol() = default;
     //endregion

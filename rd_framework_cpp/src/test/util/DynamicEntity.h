@@ -43,7 +43,7 @@ public:
 
     void init(Lifetime lifetime) const override;
 
-    void identify(IIdentities const *identities, RdId const &id) const override;
+    void identify(IIdentities const &identities, RdId const &id) const override;
 
     friend bool operator==(const DynamicEntity &lhs, const DynamicEntity &rhs);
 

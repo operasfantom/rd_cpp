@@ -7,7 +7,7 @@
 
 #include <base/IViewableSet.h>
 #include "SignalX.h"
-#include "ordered_set.h"
+#include <ordered-map/include/tsl/ordered_set.h>
 
 template<typename T>
 class ViewableSet : public IViewableSet<T> {

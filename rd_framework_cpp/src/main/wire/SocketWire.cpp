@@ -2,15 +2,15 @@
 // Created by jetbrains on 23.08.2018.
 //
 
+#include <thread>
 #include "SocketWire.h"
-#include "Socket.h"
-
-using namespace cppsocket;
+#include "clsocket/src/SimpleSocket.h"
 
 SocketWire::Base::Base(const std::string &id, Lifetime lifetime, const IScheduler *scheduler)
-        : WireBase(scheduler), id(id), lifetime(lifetime), scheduler(scheduler), threadLocalSendByteArray(16384) {
+        : WireBase(scheduler), id(id), lifetime(lifetime), scheduler(scheduler), sendBuffer(123),
+          threadLocalSendByteArray(16384) {
 
-    socketProvider.advise(lifetime, [this](std::optional<Socket> const &socket) {
+    /*socketProvider.advise(lifetime, [this](std::optional<CSimpleSocket> const &socket) {
         if (!socket.has_value()) {
             return;
         }
@@ -23,27 +23,32 @@ SocketWire::Base::Base(const std::string &id, Lifetime lifetime, const ISchedule
             //        output = socket.outputStream
             //        input = socket.inputStream.buffered()
 
-            this->sendBuffer.start()
+//            this->sendBuffer.start()
         }
         receiverProc(*socket);
-    });
+    });*/
 }
 
-void SocketWire::Base::receiverProc(Socket const &socket) {
+void SocketWire::Base::receiverProc(const CSimpleSocket &socket) {
     while (!lifetime->is_terminated()) {
         try {
-            if (!socket.isReady()) {
+            /*if (!socket.isConnected()) {
 //                        logger.debug{ "Stop receive messages because socket disconnected" }
-//                        sendBuffer.terminate()
+//                sendBuffer.terminate()
                 break;
-            }
+            }*/
 
-            socket.read();
-            Buffer::ByteArray bytes = socket.readByteArray();
-            assert(bytes.size() >= 4);
+//            Buffer::ByteArray bytes = socket.readByteArray();
+
+            auto buf = socket.GetData();
+            auto sz = socket.GetBytesReceived();
+            Buffer::ByteArray bytes(sz);
+            bytes.assign(buf, buf + sz);
+
+//            assert(bytes.size >= 4);
             Buffer buffer(bytes);
             RdId id = RdId::read(buffer);
-            this->message_broker.dispatch(id, buffer);
+            message_broker.dispatch(id, std::move(buffer));
 
         } catch (std::exception const &ex) {
             /*when (ex) {
@@ -59,8 +64,8 @@ void SocketWire::Base::receiverProc(Socket const &socket) {
 
 void SocketWire::Base::send0(const Buffer &msg) {
     try {
-//        output.write(msg)
-
+//        output.write(msg);
+        socketProvider.Send(msg.data(), msg.size());
     } catch (...) {
 //        sendBuffer.terminate()
     }
@@ -81,6 +86,129 @@ void SocketWire::Base::send(RdId const &id, std::function<void(Buffer const &buf
     buffer.write_pod<int32_t>(len - 4);
 
     auto bytes = buffer.getArray();
-    threadLocalSendByteArray.set(bytes);
-    sendBuffer.put(bytes, 0, len);
+    threadLocalSendByteArray = bytes;
+//    sendBuffer.put(bytes, 0, len);
+}
+
+SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, int32_t port = 0,
+                           const std::string &id = "ClientSocket") : Base(id, lifetime, scheduler), port(port) {
+
+    CSimpleSocket socket;
+    std::thread thread([this, lifetime, &socket]() mutable {
+        try {
+            while (!lifetime->is_terminated()) {
+                try {
+                    CSimpleSocket s;
+//                    s.tcpNoDelay = true;
+
+                    // On windows connect will try to send SYN 3 times with interval of 500ms (total time is 1second)
+                    // Connect timeout doesn't work if it's more than 1 second. But we don't need it because we can close socket any moment.
+
+                    //https://stackoverflow.com/questions/22417228/prevent-tcp-socket-connection-retries
+                    //HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\TcpMaxConnectRetransmissions
+//                    s.connect(InetSocketAddress(InetAddress.getLoopbackAddress(), port))
+
+//                    synchronized(lock)
+                    {
+                        std::lock_guard<std::timed_mutex> _(lock);
+                        if (lifetime->is_terminated()) {
+//                            catch_ { s.close() }
+                        } else {
+//                            socket = std::move(s);
+                        }
+                    }
+
+                    set_socket(s);
+                } catch (std::exception const &e) {
+                    std::lock_guard<std::timed_mutex> _(lock);
+                    bool shouldReconnect = (!lifetime->is_terminated()) ? lock.try_lock_for(
+                            timeout), !lifetime->is_terminated() : false;
+                    if (shouldReconnect) {
+                        continue;
+                    }
+                }
+                break;
+            }
+
+        } catch (std::exception const &e) {
+//            logger.info{ "$id: closed with exception: $ex" }
+        }
+    });
+
+
+    lifetime->add_action([&thread]() {
+//            logger.info { "$id: start terminating lifetime" }
+
+//            val sendBufferStopped = sendBuffer.stop(timeout)
+//            logger.debug{ "$id: send buffer stopped, success: $sendBufferStopped" }
+
+        /*synchronized(lock) {
+            logger.debug
+            { "$id: closing socket" }
+            catch { socket ?.close() }
+            lock.notifyAll()
+        }*/
+
+//            logger.debug{ "$id: waiting for receiver thread" }
+        thread.join();
+//            logger.info{ "$id: termination finished" }
+    });
+}
+
+SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, int32_t port = 0,
+                           const std::string &id = "ServerSocket") : Base(id, lifetime, scheduler), port(port) {
+    CPassiveSocket ss;
+//    ss = ServerSocket(port ?: 0, 0, InetAddress.getByName("127.0.0.1"))
+    this->port = ss.GetClientPort();
+
+    CSimpleSocket socket;
+    std::thread thread([this, lifetime, &socket, &ss]() {
+        {
+            try {
+                std::unique_ptr<CSimpleSocket> s(ss.Accept()); //could be terminated by close
+//                s.tcpNoDelay = true
+
+//                synchronized(lock)
+                {
+                    std::lock_guard<std::timed_mutex> _(lock);
+                    if (lifetime->is_terminated()) {
+//                        catch_ { s.close() }
+                    } else {
+//                        socket = std::move(s);
+                    }
+                }
+
+                set_socket(*s);
+            } catch (std::exception const &e) {
+//                logger.info{ "$id closed with exception: $ex" }
+            }
+        }
+    });
+
+
+    lifetime->add_action([&thread]() {
+//            logger.info { "$id: start terminating lifetime" }
+
+//            val sendBufferStopped = sendBuffer.stop(timeout)
+//            logger.debug { "$id: send buffer stopped, success: $sendBufferStopped" }
+
+        /*catch {
+            logger.debug
+            { "$id: closing server socket" }
+            ss.close()
+        }
+        catch {
+            synchronized(lock)
+            {
+                logger.debug
+                { "$id: closing socket" }
+                socket ?.close()
+            }
+        }*/
+
+//            logger.debug { "$id: waiting for receiver thread" }
+        thread.join();
+//            logger.info{ "$id: termination finished" }
+
+    });
 }

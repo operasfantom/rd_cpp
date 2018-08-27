@@ -65,8 +65,9 @@ public:
                 if (!optimizeNested) {
                     V const *new_value = e.get_new_value();
                     if (new_value) {
-                        identifyPolymorphic(*new_value, get_protocol()->identity,
-                                            get_protocol()->identity->next(rd_id));
+                        const IProtocol *iProtocol = get_protocol();
+                        identifyPolymorphic(*new_value, iProtocol->identity,
+                                            iProtocol->identity.next(rd_id));
                     }
                 }
 
@@ -74,7 +75,7 @@ public:
                     Op op = static_cast<Op >(e.v.index());
 
                     buffer.write_pod<int64_t>(static_cast<int64_t>(op) | (nextVersion++ << versionedFlagShift));
-                    buffer.write_pod<int32_t>(e.get_index());
+                    buffer.write_pod<int32_t>(static_cast<const int32_t>(e.get_index()));
 
                     V const *new_value = e.get_new_value();
                     if (new_value) {
@@ -129,7 +130,8 @@ public:
         }
     }
 
-    void advise(Lifetime lifetime, std::function<void(typename IViewableList<V>::Event const &)> handler) const override {
+    void
+    advise(Lifetime lifetime, std::function<void(typename IViewableList<V>::Event const &)> handler) const override {
         if (is_bound()) assert_threading();
         list.advise(lifetime, handler);
     }

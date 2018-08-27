@@ -14,12 +14,14 @@
 
 class Buffer {
 public:
-    using ByteArray = std::vector<unsigned char>;
+    using word_t = uint8_t;
+
+    using ByteArray = std::vector<word_t>;
 protected:
 
     mutable ByteArray byteBufferMemoryBase;
     mutable size_t offset = 0;
-    mutable size_t size = 0;
+    mutable size_t size_ = 0;
 
     void require_available(size_t size) const;
 
@@ -75,8 +77,16 @@ public:
         write(array.data(), sizeof(T) * array.size());
     }
 
-    auto getArray() {
+    ByteArray getArray() {
         return byteBufferMemoryBase;
+    }
+
+    word_t const *data() const {
+        return byteBufferMemoryBase.data();
+    }
+
+    size_t size() const {
+        return size_;
     }
 };
 
