@@ -29,7 +29,7 @@ public:
 
     void assert_thread() const;
 
-    void invok_or_queue(std::function<void()> action);
+    void invoke_or_queue(std::function<void()> action);
 
     virtual void flush() = 0;
 

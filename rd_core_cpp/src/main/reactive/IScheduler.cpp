@@ -14,7 +14,7 @@ void IScheduler::assert_thread() const {
     }
 }
 
-void IScheduler::invok_or_queue(std::function<void()> action) {
+void IScheduler::invoke_or_queue(std::function<void()> action) {
     if (is_active()) {
         action();
     } else {

@@ -8,10 +8,12 @@
 #include <string>
 #include <IScheduler.h>
 #include <WireBase.h>
+#include <shared_mutex>
 
 #include "clsocket/src/ActiveSocket.h"
 #include "clsocket/src/PassiveSocket.h"
 #include "clsocket/src/SimpleSocket.h"
+#include "../../../../rd_core_cpp/src/main/Logger.h"
 
 
 class SocketWire {
@@ -19,12 +21,14 @@ class SocketWire {
 public:
     class Base : public WireBase {
     protected:
-        std::unique_lock<std::timed_mutex> lock;
+        Logger logger;
+
+        std::shared_lock<std::shared_timed_mutex> lock;
 
         std::string id;
         Lifetime lifetime;
         IScheduler const *const scheduler = nullptr;
-        CSimpleSocket socketProvider{};
+        std::shared_ptr<CSimpleSocket> socketProvider;
 
         Buffer sendBuffer;/* = ByteBufferAsyncProcessor(id+"-AsyncSendProcessor") { send0(it) }*/
         mutable Buffer::ByteArray threadLocalSendByteArray;
@@ -38,22 +42,22 @@ public:
         virtual ~Base() = default;
         //endregion
 
-        void receiverProc(const CSimpleSocket &socket);
+        void receiverProc(CSimpleSocket &socket);
 
         void send0(const Buffer &msg);
 
         void send(RdId const &id, std::function<void(Buffer const &buffer)> writer) const override;
 
-        void set_socket(CSimpleSocket &socket);
+        void set_socket_provider(std::shared_ptr<CSimpleSocket> new_socket);
     };
 
     class Client : public Base {
     public:
-        int32_t port;
+        int32_t port = 0;
 
         //region ctor/dtor
 
-        Client(Client &&) = default;
+        Client(Client &&) = /*default*/delete;
 
         virtual ~Client() = default;
         //endregion
@@ -63,10 +67,10 @@ public:
 
     class Server : public Base {
     public:
-        int32_t port;
+        int32_t port = 0;
 
         //region ctor/dtor
-        Server(Server &&) = default;
+        Server(Server &&) = /*default*/delete;
 
         virtual ~Server() = default;
         //endregion

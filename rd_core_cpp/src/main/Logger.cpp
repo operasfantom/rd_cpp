@@ -4,11 +4,11 @@
 
 #include "Logger.h"
 
-SwitchLogger::SwitchLogger(const std::string &category) {}
+/*SwitchLogger::SwitchLogger(const std::string &category) {}
 
 SwitchLogger get_logger(std::string category) {
     return SwitchLogger(category);
-}
+}*/
 
 /*void SwitchLogger::log(LogLevel level, std::string message, std::exception const &e) {
     realLogger.log(level, message, e);
@@ -24,7 +24,7 @@ void catch_(std::optional<std::string> comment, const std::function<void()> &act
     }
     catch (std::exception const &e) {
         std::string sfx = (comment.has_value() && !comment.value().empty()) ? comment.value() : " ";
-        get_logger("Default-Error-Logger").log(LogLevel::Error, "Catch$sfx", e);
+//        get_logger("Default-Error-Logger").log(LogLevel::Error, "Catch$sfx", e);
     }
 }
 

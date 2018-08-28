@@ -10,6 +10,7 @@
 #include <optional>
 #include <string>
 #include <exception>
+#include <iostream>
 
 enum class LogLevel {
     Trace,
@@ -21,12 +22,31 @@ enum class LogLevel {
 };
 
 class Logger {
-    virtual void log(LogLevel level, std::string message, std::exception const &e) = 0;
+public:
+    /*virtual */void log(LogLevel level, const std::string &message, std::exception const *e = nullptr)/* = 0;*/const {
+        std::cerr << std::to_string(static_cast<int>(level))
+                     //                     + " | " + std::to_string(GetCurrentThreadId())
+                     + " | " + message +
+                     +" | " + e->what()
+                  << std::endl;
+    }
 
-    virtual bool is_enabled(LogLevel level) = 0;
+    void debug(std::string const &msg, std::exception const *e = nullptr) const {
+        log(LogLevel::Debug, msg, e);
+    }
+
+    void info(std::string const &msg, std::exception const *e = nullptr) const {
+        log(LogLevel::Info, msg, e);
+    }
+
+    void error(std::string const &msg, std::exception const *e = nullptr) const {
+        log(LogLevel::Error, msg, e);
+    }
+
+//    virtual bool is_enabled(LogLevel level) = 0;
 };
 
-class SwitchLogger : Logger {
+/*class SwitchLogger : public Logger {
 
 public:
     SwitchLogger(const std::string &category);
@@ -34,9 +54,9 @@ public:
     void log(LogLevel level, std::string message, std::exception const &e) override;
 
     bool is_enabled(LogLevel level) override;
-};
+};*/
 
-SwitchLogger get_logger(std::string category);
+//SwitchLogger get_logger(std::string category);
 
 void catch_(std::optional<std::string> comment, const std::function<void()> &action);
 
