@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by jetbrains on 09.07.2018.
 //
@@ -39,7 +41,7 @@ public:
         if (is_terminated()) throw std::invalid_argument("Already Terminated");
 
         std::lock_guard<mutex_t> _(lock);
-        actions[action_id_in_map] = action;
+        actions[action_id_in_map] = std::move(action);
         return action_id_in_map++;
     }
 

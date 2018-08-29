@@ -59,7 +59,7 @@ TEST_F(SocketWireTestBase, TestBasicRun) {
     statics(cp, property_id);
     cp.bind(lifetime, &clientProtocol, "top");
 
-//    cp.set(1);
+    cp.set(1);
 //    waitAndAssert(sp, 1, 0);//todo
 
     /*sp.set(2);

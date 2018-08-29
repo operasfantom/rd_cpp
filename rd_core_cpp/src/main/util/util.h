@@ -10,7 +10,7 @@
 #include <cassert>
 #include <iostream>
 
-#define MY_ASSERT_MSG(expr, msg) if(!(expr)){std::cerr<<(msg);assert(expr);}
+#define MY_ASSERT_MSG(expr, msg) if(!(expr)){std::cerr<<std::endl<<(msg)<<std::endl;assert(expr);}
 
 template<class... Ts>
 struct overloaded : Ts ... {

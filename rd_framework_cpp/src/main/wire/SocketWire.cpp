@@ -165,11 +165,13 @@ SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, int32
     assert(ss->Initialize());
     assert(ss->Listen("127.0.0.1", port));
     this->port = ss->GetServerPort();
+    MY_ASSERT_MSG(this->port != 0, "Port wasn't chosen");
 
     std::shared_ptr<CSimpleSocket> socket;
     std::shared_ptr<std::thread> thread(new std::thread([this, lifetime, ss, socket]() mutable {
         try {
             std::shared_ptr<CSimpleSocket> s(ss->Accept()); //could be terminated by close
+			MY_ASSERT_MSG(s != nullptr, "accepting failed");
             logger.info(this->id + ": accepted passive socket");
             assert(s->DisableNagleAlgoritm());
 
