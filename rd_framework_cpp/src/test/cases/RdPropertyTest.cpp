@@ -15,8 +15,8 @@ TEST_F(RdFrameworkTestBase, property_statics) {
     RdProperty client_property_storage = RdProperty(1);
     RdProperty server_property_storage = RdProperty(1);
 
-    RdProperty<int> &client_property = statics(client_property_storage, (property_id));
-    RdProperty<int> &server_property = statics(server_property_storage, (property_id)).slave();
+    auto &client_property = statics(client_property_storage, (property_id));
+    auto &server_property = statics(server_property_storage, (property_id)).slave();
 
     std::vector<int> client_log;
     std::vector<int> server_log;

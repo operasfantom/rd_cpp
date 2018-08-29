@@ -8,6 +8,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <mutex>
 
 class LifetimeImpl {
 private:
@@ -18,15 +19,17 @@ private:
     bool eternaled = false;
     bool terminated = false;
 
-//    std::vector<std::function<void()> > actions;
     using counter_t = int32_t;
     counter_t id = 0;
 
     counter_t action_id_in_map = 0;
-    std::map<counter_t, std::function<void()>> before_actions, actions;
+    std::map<counter_t, std::function<void()>> actions;
 
     void terminate();
 
+    using mutex_t = std::recursive_mutex;
+
+    mutex_t lock;
 public:
 
     explicit LifetimeImpl(bool is_eternal = false);
@@ -34,6 +37,8 @@ public:
     counter_t add_action(std::function<void()> action) {
         if (is_eternal()) return -1;
         if (is_terminated()) throw std::invalid_argument("Already Terminated");
+
+        std::lock_guard<mutex_t> _(lock);
         actions[action_id_in_map] = action;
         return action_id_in_map++;
     }

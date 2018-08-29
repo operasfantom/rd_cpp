@@ -8,7 +8,6 @@
 #include <string>
 #include <IScheduler.h>
 #include <WireBase.h>
-#include <shared_mutex>
 
 #include "clsocket/src/ActiveSocket.h"
 #include "clsocket/src/PassiveSocket.h"
@@ -23,7 +22,9 @@ public:
     protected:
         Logger logger;
 
-        std::shared_lock<std::shared_timed_mutex> lock;
+        using mutex_t = std::timed_mutex;
+
+        mutex_t lock;
 
         std::string id;
         Lifetime lifetime;
@@ -35,16 +36,14 @@ public:
     public:
         //region ctor/dtor
 
-        Base(Base &&) = default;
-
         Base(const std::string &id, Lifetime lifetime, const IScheduler *scheduler);
 
         virtual ~Base() = default;
         //endregion
 
-        void receiverProc(CSimpleSocket &socket);
+        void receiverProc();
 
-        void send0(const Buffer &msg);
+        void send0(const Buffer &msg) const;
 
         void send(RdId const &id, std::function<void(Buffer const &buffer)> writer) const override;
 
@@ -57,8 +56,6 @@ public:
 
         //region ctor/dtor
 
-        Client(Client &&) = /*default*/delete;
-
         virtual ~Client() = default;
         //endregion
 
@@ -70,7 +67,6 @@ public:
         int32_t port = 0;
 
         //region ctor/dtor
-        Server(Server &&) = /*default*/delete;
 
         virtual ~Server() = default;
         //endregion

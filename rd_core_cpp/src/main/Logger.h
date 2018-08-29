@@ -27,7 +27,7 @@ public:
         std::cerr << std::to_string(static_cast<int>(level))
                      //                     + " | " + std::to_string(GetCurrentThreadId())
                      + " | " + message +
-                     +" | " + e->what()
+                     +" | " + (e ? e->what() : "")
                   << std::endl;
     }
 

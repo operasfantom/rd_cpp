@@ -50,3 +50,9 @@ void Buffer::require_available(size_t moreSize) const {
 void Buffer::rewind() const {
     set_position(0);
 }
+
+void Buffer::put(const Buffer::ByteArray &new_data) const {//todo
+    byteBufferMemoryBase = new_data;
+    size_ = new_data.size();
+    offset = 0;
+}

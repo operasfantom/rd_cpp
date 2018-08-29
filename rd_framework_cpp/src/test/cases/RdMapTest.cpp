@@ -4,6 +4,7 @@
 
 #include <gtest/gtest.h>
 #include <RdMap.h>
+#include <RdList.h>
 #include "../util/RdFrameworkTestBase.h"
 #include "../util/DynamicEntity.h"
 #include "../../../../rd_core_cpp/src/test/util/util.h"

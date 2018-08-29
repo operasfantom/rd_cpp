@@ -17,9 +17,15 @@ void LifetimeImpl::terminate() {
 
     terminated = true;
 
-    auto actions_copy = actions;
+    //region thread-safety section
+
+    lock.lock();
+    auto actions_copy = std::move(actions);
 
     actions.clear();
+    lock.unlock();
+    //endregion
+
     for (auto it = actions_copy.rbegin(); it != actions_copy.rend(); ++it) {
         it->second();
     }
@@ -40,7 +46,11 @@ void LifetimeImpl::attach_nested(std::shared_ptr<LifetimeImpl> nested) {
     if (nested->is_terminated() || is_eternal()) return;
 
     std::function<void()> action = [nested]() { nested->terminate(); };
-    counter_t action_id = add_action(action);
+    counter_t action_id=0;
+    {
+        std::lock_guard<mutex_t> _(lock);
+        action_id = add_action(action);
+    }
     nested->add_action([this, action_id]() {
         actions.erase(action_id);
     });

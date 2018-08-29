@@ -18,36 +18,32 @@ SocketWire::Base::Base(const std::string &id, Lifetime lifetime, const ISchedule
 
 }
 
-void SocketWire::Base::receiverProc(CSimpleSocket &socket) {
+void SocketWire::Base::receiverProc() {
     while (!lifetime->is_terminated()) {
         try {
-            if (!socket.IsSocketValid()) {
+            if (!socketProvider->IsSocketValid()) {
                 logger.debug("Stop receive messages because socket disconnected");
 //                sendBuffer.terminate()
                 break;
             }
-
-//            Buffer::ByteArray bytes = socket.readByteArray();
-
-//            auto buf = socket.GetData();
-//            auto sz = socket.GetBytesReceived();
-//            Buffer::ByteArray bytes(sz);
-//            bytes.assign(buf, buf + sz);
-
-//            assert(bytes.size >= 4);
-//            Buffer buffer(bytes);
-//            RdId id = RdId::read(buffer);
-//            message_broker.dispatch(id, std::move(buffer));
+            Buffer::ByteArray bytes(1024);
+            int32_t sz = socketProvider->Receive(1024, &bytes[0]);
+            assert(sz != -1);
+            bytes.resize(sz);
+            assert(bytes.size() >= 4);
+            Buffer buffer(bytes);
+            RdId id = RdId::read(buffer);
+            message_broker.dispatch(id, std::move(buffer));
 
         } catch (std::exception const &ex) {
-            logger.error(id + " caught processing", &ex);
+            logger.error(this->id + " caught processing", &ex);
 //            sendBuffer.terminate();
             break;
         }
     }
 }
 
-void SocketWire::Base::send0(const Buffer &msg) {
+void SocketWire::Base::send0(const Buffer &msg) const {
     try {
 //        output.write(msg);
         socketProvider->Send(msg.data(), msg.size());
@@ -72,13 +68,13 @@ void SocketWire::Base::send(RdId const &id, std::function<void(Buffer const &buf
 
     auto bytes = buffer.getArray();
     threadLocalSendByteArray = bytes;
-//    sendBuffer.put(bytes, 0, len);
+    sendBuffer.put(bytes);
 }
 
 void SocketWire::Base::set_socket_provider(std::shared_ptr<CSimpleSocket> new_socket) {
     socketProvider = new_socket;
     {//synchronized
-//        std::lock_guard<std::mutex> _(lock);
+        std::lock_guard<mutex_t> _(lock);
         if (lifetime->is_terminated()) {
             return;
         }
@@ -88,19 +84,19 @@ void SocketWire::Base::set_socket_provider(std::shared_ptr<CSimpleSocket> new_so
 
 //            this->sendBuffer.start()
     }
-    receiverProc(*socketProvider);
+    receiverProc();
 }
 
 
 SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, int32_t port = 0,
-                           const std::string &id = "ClientSocket") : Base(id, lifetime, scheduler) {
+                           const std::string &id = "ClientSocket") : Base(id, lifetime, scheduler), port(port) {
 
     std::shared_ptr<CSimpleSocket> socket;
-    std::thread thread([&]() mutable {
+    std::shared_ptr<std::thread> thread(new std::thread([this, lifetime, socket]() mutable {
         try {
             while (!lifetime->is_terminated()) {
                 try {
-                    std::shared_ptr<CSimpleSocket> s;//CActiveSocket
+                    std::shared_ptr<CActiveSocket> s{new CActiveSocket()};//CActiveSocket
                     assert(s->Initialize());
                     assert(s->DisableNagleAlgoritm());
 
@@ -109,13 +105,13 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, int32
 
                     //https://stackoverflow.com/questions/22417228/prevent-tcp-socket-connection-retries
                     //HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\TcpMaxConnectRetransmissions
-//                    s.connect(InetSocketAddress(InetAddress.getLoopbackAddress(), port))
+                    assert(s->Open("127.0.0.1", this->port));
 
 //                    synchronized(lock)
                     {
-//                        std::lock_guard<std::timed_mutex> _(*lock.mutex());
+                        std::lock_guard<mutex_t> _(lock);
                         if (lifetime->is_terminated()) {
-                            catch_([&s]() { s->Close(); });
+                            catch_([s]() { s->Close(); });
                         } else {
                             socket = s;
                         }
@@ -123,7 +119,7 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, int32
 
                     set_socket_provider(s);
                 } catch (std::exception const &e) {
-//                    std::lock_guard<std::timed_mutex> _(*lock.mutex());
+                    std::lock_guard<mutex_t> _(lock);
                     bool shouldReconnect = (!lifetime->is_terminated()) ? lock.try_lock_for(timeout),
                             !lifetime->is_terminated() : false;
                     if (shouldReconnect) {
@@ -134,87 +130,95 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, int32
             }
 
         } catch (std::exception const &e) {
-            logger.info(id + ": closed with exception: ", &e);
+            logger.info(this->id + ": closed with exception: ", &e);
         }
-    });
-    thread.detach();
+    }));
+//    thread->detach();
 
-    lifetime->add_action([&]() {
-        logger.info(id + ": start terminating lifetime");
+    lifetime->add_action([this, thread, socket]() {
+        logger.info(this->id + ": start terminating lifetime");
 
 //            val sendBufferStopped = sendBuffer.stop(timeout)
-        logger.debug(id + ": send buffer stopped, success: $sendBufferStopped");
+        logger.debug(this->id + ": send buffer stopped, success: $sendBufferStopped");
 
 //        synchronized(lock)
         {
-            logger.debug(id + ": closing socket");
-            catch_([&socket]() {
+            std::lock_guard<mutex_t> _(lock);
+            logger.debug(this->id + ": closing socket");
+            catch_([socket]() {
                 if (socket != nullptr) {
-                    socket->Close();
+                    assert(socket->Close());
                 }
             });
 //            lock.notifyAll()
         }
 
-        logger.debug(id + ": waiting for receiver thread");
-        thread.join();
-        logger.info(id + ": termination finished");
+        logger.debug(this->id + ": waiting for receiver thread");
+        thread->join();
+        logger.info(this->id + ": termination finished");
     });
 }
 
 SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, int32_t port = 0,
                            const std::string &id = "ServerSocket") : Base(id, lifetime, scheduler) {
-    CPassiveSocket ss;
-    assert(ss.Initialize());
-    assert(ss.Listen("127.0.0.1", port));
-    this->port = port; //todo get free port
+    std::shared_ptr<CPassiveSocket> ss{new CPassiveSocket()};
+    assert(ss->Initialize());
+    assert(ss->Listen("127.0.0.1", port));
+    this->port = ss->GetServerPort(); //todo get free port
 
     std::shared_ptr<CSimpleSocket> socket;
-    std::thread thread([&]() mutable {
+    std::shared_ptr<std::thread> thread(new std::thread([this, lifetime, ss, socket]() mutable {
         try {
-            std::shared_ptr<CSimpleSocket> s(ss.Accept()); //could be terminated by close
+            std::shared_ptr<CSimpleSocket> s(ss->Accept()); //could be terminated by close
+            logger.info(this->id + ": accepted passive socket");
             assert(s->DisableNagleAlgoritm());
 
 //                synchronized(lock)
             {
-//                std::lock_guard<std::timed_mutex> _(*lock.mutex());
+                std::lock_guard<mutex_t> _(lock);
                 if (lifetime->is_terminated()) {
-                    catch_([&ss]() { ss.Close(); });
+                    catch_([this, s]() {
+                        logger.debug(this->id + ": closing passive socket");
+                        assert(s->Close());
+                        logger.info(this->id + ": close passive socket");
+                    });
                 } else {
                     socket = s;
                 }
             }
 
+            logger.debug(this->id + ": setting socket provider");
             set_socket_provider(s);
         } catch (std::exception const &e) {
-            logger.info(id + "closed with exception: ", &e);
+            logger.info(this->id + "closed with exception: ", &e);
         }
-    });
-    thread.detach();
+    }));
+//    thread->detach();
 
-    lifetime->add_action([&]() mutable {
-        logger.info(id + ": start terminating lifetime");
+    lifetime->add_action([this, thread, socket, ss]() mutable {
+        logger.info(this->id + ": start terminating lifetime");
 
 //            val sendBufferStopped = sendBuffer.stop(timeout)
-        logger.debug(id + ": send buffer stopped, success: $sendBufferStopped");
+        logger.debug(this->id + ": send buffer stopped, success: $sendBufferStopped");
 
-        catch_([&]() {
-            logger.debug(id + ": closing server socket");
-            assert(ss.Close());
+        catch_([this, ss]() {
+            logger.debug(this->id + ": closing server socket");
+            assert(ss->Close());
         });
-        catch_([&]() {
+        catch_([this, socket]() {
 //            synchronized(lock)
             {
-                logger.debug(id + ": closing socket");
+                std::lock_guard<mutex_t> _(lock);
+                logger.debug(this->id + ": closing socket");
                 if (socket != nullptr) {
-                    socket->Close();
+                    assert(socket->Close());
                 }
             }
         });
 
-        logger.debug(id + ": waiting for receiver thread");
-        thread.join();
-        logger.info(id + ": termination finished");
+        logger.debug(this->id + ": waiting for receiver thread");
+        thread->join();
+        logger.info(this->id + ": termination finished");
     });
 }
 

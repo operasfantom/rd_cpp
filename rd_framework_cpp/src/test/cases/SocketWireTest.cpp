@@ -14,6 +14,7 @@ template<typename T>
 void waitAndAssert(RdProperty<T> const &that, T const &expected, T const &prev) {
     for (int i = 0; i < 50 && that.get() != expected; ++i) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::cout << ' ' << i << '\n';
     }
 
 
@@ -47,7 +48,7 @@ Protocol client(Lifetime lifetime, int32_t port) {
 TEST_F(SocketWireTestBase, TestBasicRun) {
     int property_id = 1;
 
-    Protocol serverProtocol = server(socketLifetime, 5555);
+    Protocol serverProtocol = server(socketLifetime, 19999);
     Protocol clientProtocol = client(socketLifetime, serverProtocol);
 
     RdProperty<int> sp(0);
@@ -58,11 +59,13 @@ TEST_F(SocketWireTestBase, TestBasicRun) {
     statics(cp, property_id);
     cp.bind(lifetime, &clientProtocol, "top");
 
-    /*cp.set(1);
-    waitAndAssert(sp, 1, 1);//todo
+//    cp.set(1);
+//    waitAndAssert(sp, 1, 0);//todo
 
-    sp.set(2);
+    /*sp.set(2);
     waitAndAssert(cp, 2, 1);*/
+
+    AfterTest();
 }
 
 /*@Test

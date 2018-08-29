@@ -88,6 +88,8 @@ public:
     size_t size() const {
         return size_;
     }
+
+    void put(ByteArray const& new_data) const;
 };
 
 
