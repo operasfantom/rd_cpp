@@ -48,7 +48,7 @@ Protocol client(Lifetime lifetime, int32_t port) {
 TEST_F(SocketWireTestBase, TestBasicRun) {
     int property_id = 1;
 
-    Protocol serverProtocol = server(socketLifetime, 19999);
+    Protocol serverProtocol = server(socketLifetime);
     Protocol clientProtocol = client(socketLifetime, serverProtocol);
 
     RdProperty<int> sp(0);

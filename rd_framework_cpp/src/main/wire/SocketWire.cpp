@@ -164,7 +164,7 @@ SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, int32
     std::shared_ptr<CPassiveSocket> ss{new CPassiveSocket()};
     assert(ss->Initialize());
     assert(ss->Listen("127.0.0.1", port));
-    this->port = ss->GetServerPort(); //todo get free port
+    this->port = ss->GetServerPort();
 
     std::shared_ptr<CSimpleSocket> socket;
     std::shared_ptr<std::thread> thread(new std::thread([this, lifetime, ss, socket]() mutable {

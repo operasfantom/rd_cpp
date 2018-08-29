@@ -4,6 +4,8 @@
 
 #include <gtest/gtest.h>
 #include <RdProperty.h>
+#include <RdMap.h>
+#include <RdList.h>
 #include "../util/RdFrameworkTestBase.h"
 #include "../util/DynamicEntity.h"
 
@@ -40,7 +42,7 @@ TEST_F(RdFrameworkTestBase, property_statics) {
     EXPECT_EQ((vi{1, 2}), client_log);
     EXPECT_EQ((vi{1, 2}), server_log);
 
-    //set from client
+    //set from server
     server_property.set(3);
     EXPECT_EQ((vi{1, 2, 3}), client_log);
     EXPECT_EQ((vi{1, 2, 3}), server_log);
@@ -197,6 +199,12 @@ public:
             ctx.serializers->writePolymorphic<DynamicEntity>(ctx, buffer, item);
         }
     }
+};
+
+template<typename T>
+class Foo {
+public:
+    Foo() {}
 };
 
 TEST_F(RdFrameworkTestBase, property_vector_polymorphic) {
