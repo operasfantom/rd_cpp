@@ -43,6 +43,7 @@ TEST(viewable_map, advise) {
         map->set(0, 0);
         map->remove(1);
 
+        EXPECT_EQ(0, map->get(0));
         return 0;
     });
     EXPECT_EQ(arrayListOf(
@@ -58,7 +59,10 @@ TEST(viewable_map, advise) {
             log_add_remove.push_back(to_string(kind) + " " + std::to_string(key) + ":" + std::to_string(value));
         });
         map->set(0, 0);
+
+        EXPECT_FALSE(map->empty());
         map->clear();
+        EXPECT_TRUE(map->empty());
 
         return 0;
     });
@@ -118,7 +122,7 @@ TEST(viewable_map, add_remove_fuzz) {
         }
     });
 
-    for (int i = 0; i < C; ++i){
+    for (int i = 0; i < C; ++i) {
         EXPECT_EQ("View (" + std::to_string(i) + ", 0)", log[i]);
         EXPECT_EQ("UnView (" + std::to_string(C - i - 1) + ", 0)", log[C + i]);
     }

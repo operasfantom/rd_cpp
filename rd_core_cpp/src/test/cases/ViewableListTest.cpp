@@ -87,14 +87,14 @@ TEST(viewable_list, insert_middle) {
     Lifetime::use<int>([&](Lifetime lifetime) {
         list->advise_add_remove(lifetime, [&list, &log](AddRemove kind, size_t index, int const &value) {
             log.push_back(to_string(kind) + " " + std::to_string(index) + " " + std::to_string(value));
-            list->add(0);
-            list->add(2);
-
-            list->add(1, 1);
-            std::vector<std::string> expected{"Add 0 0", "Add 1 2", "Add 1 1"};
-            EXPECT_EQ(expected, log);
-
         });
+        list->add(0);
+        list->add(2);
+
+        list->add(1, 1);
+        std::vector<std::string> expected{"Add 0 0", "Add 1 2", "Add 1 1"};
+        EXPECT_EQ(expected, log);
+
         return 0;
     });
 }
