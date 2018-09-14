@@ -32,8 +32,8 @@ public:
 
     bool add(T element) const override {
         const std::shared_ptr<T> &value = factory(std::move(element));
-        auto const &p = set.insert(value);
-        if (!p.second) {
+        auto const &[it, success] = set.insert(value);
+        if (!success) {
             return false;
         }
         change.fire(Event(AddRemove::ADD, value.get()));

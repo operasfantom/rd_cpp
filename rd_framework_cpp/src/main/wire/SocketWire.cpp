@@ -9,9 +9,6 @@
 
 #include <thread>
 
-
-std::chrono::milliseconds SocketWire::timeout{500};
-
 SocketWire::Base::Base(const std::string &id, Lifetime lifetime, const IScheduler *scheduler)
         : WireBase(scheduler), id(id), lifetime(lifetime), scheduler(scheduler), sendBuffer(123),
           threadLocalSendByteArray(16384) {

@@ -16,7 +16,7 @@
 
 
 class SocketWire {
-    static std::chrono::milliseconds timeout;
+    static inline std::chrono::milliseconds timeout = std::chrono::milliseconds(500);
 public:
     class Base : public WireBase {
     protected:

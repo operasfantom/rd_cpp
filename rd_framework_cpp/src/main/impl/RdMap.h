@@ -32,9 +32,12 @@ public:
 
     using Event = typename IViewableMap<K, V>::Event;
 
+    //region ctor/dtor
+
     RdMap() = default;
 
     virtual ~RdMap() = default;
+    //endregion
 
     enum class Op {
         Add, Update, Remove, Ack

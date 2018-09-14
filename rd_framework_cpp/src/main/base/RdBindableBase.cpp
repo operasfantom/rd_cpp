@@ -38,10 +38,7 @@ void RdBindableBase::identify(const IIdentities &identities, const RdId &id) con
     MY_ASSERT_MSG(!id.isNull(), "Assigned RdId mustn't be null, entity: $this");
 
     this->rd_id = id;
-    for (auto &p : bindable_children) {
-        auto const &name = p.first;
-        auto const &child = p.second;
-
+    for (const auto&[name, child] : bindable_children) {
         identifyPolymorphic(child, identities, id.mix("." + name));
     }
 }
@@ -63,9 +60,7 @@ SerializationCtx const &RdBindableBase::get_serialization_context() const {
 }
 
 void RdBindableBase::init(Lifetime lifetime) const {
-    for (auto &p : bindable_children) {
-        auto &name = p.first;
-        auto &child = p.second;
+    for (const auto&[name, child] : bindable_children) {
         if (child.has_value()) {
             bindPolymorphic(child, lifetime, this, name);
         }

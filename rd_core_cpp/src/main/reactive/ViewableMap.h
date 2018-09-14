@@ -30,8 +30,8 @@ public:
 
     void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const override {
         change.advise(lifetime, handler);
-        for (auto const &p : map) {
-            handler(Event(typename Event::Add(p.first.get(), p.second.get())));;
+        for (auto const &[key, value] : map) {
+            handler(Event(typename Event::Add(key.get(), value.get())));;
         }
     }
 
@@ -41,20 +41,25 @@ public:
 
     const V *set(K key, V value) const {
         if (map.count(deleted_shared_ptr(key)) == 0) {
-            auto it = map.insert(std::make_pair(
+            auto[it, success] = map.insert(std::make_pair(
                     factory_shared_ptr(std::move(key)),
                     factory_shared_ptr(std::move(value))
             ));
-            change.fire(typename Event::Add(it.first->first.get(), it.first->second.get()));
+            auto const& key_ptr = it->first;
+            auto const& value_ptr = it->second;
+            change.fire(typename Event::Add(key_ptr.get(), value_ptr.get()));
             return nullptr;
         } else {
             auto it = map.find(deleted_shared_ptr(key));
-            if (*it->second != value) {
+            auto const &key_ptr = it->first;
+            auto const &value_ptr = it->second;
+
+            if (*value_ptr != value) {
                 std::shared_ptr<V> old_value = get_by(key);
 
                 std::shared_ptr<V> object = std::make_shared<V>(std::move(value));
                 map[deleted_shared_ptr(key)] = object;
-                change.fire(typename Event::Update(it->first.get(), old_value.get(), it->second.get()));
+                change.fire(typename Event::Update(key_ptr.get(), old_value.get(), value_ptr.get()));
             }
             return get_by(key).get();
         }
@@ -72,8 +77,8 @@ public:
 
     void clear() const override {
         std::vector<Event> changes;
-        for (auto const &p : map) {
-            changes.push_back(typename Event::Remove(p.first.get(), p.second.get()));
+        for (auto const &[key, value] : map) {
+            changes.push_back(typename Event::Remove(key.get(), value.get()));
         }
         for (auto const &it : changes) {
             change.fire(it);

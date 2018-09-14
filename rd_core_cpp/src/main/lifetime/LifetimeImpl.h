@@ -25,33 +25,28 @@ private:
     counter_t id = 0;
 
     counter_t action_id_in_map = 0;
-    std::map<counter_t, std::function<void()>> actions;
+    using actions_t = std::map<int, std::function<void()>>;
+    actions_t actions;
 
     void terminate();
 
-    using mutex_t = std::recursive_mutex;
+    using mutex_t = std::/*recursive_*/mutex;
 
     mutex_t lock;
 public:
 
+    //region ctor/dtor
+
     explicit LifetimeImpl(bool is_eternal = false);
 
-    counter_t add_action(std::function<void()> action) {
-        if (is_eternal()) return -1;
-        if (is_terminated()) throw std::invalid_argument("Already Terminated");
-
-        std::lock_guard<mutex_t> _(lock);
-        actions[action_id_in_map] = std::move(action);
-        return action_id_in_map++;
-    }
-
     LifetimeImpl(LifetimeImpl const &other) = delete;
+    //endregion
 
-    LifetimeImpl &operator=(LifetimeImpl const &other) = delete;
+    counter_t add_action(std::function<void()> action);
 
-    static counter_t get_id;
+    static inline counter_t get_id = 0;
 
-    static std::shared_ptr<LifetimeImpl> eternal;
+    static inline std::shared_ptr<LifetimeImpl> eternal = std::make_shared<LifetimeImpl>(true);
 
     void bracket(std::function<void()> opening, std::function<void()> closing);
 

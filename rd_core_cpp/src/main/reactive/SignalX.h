@@ -60,11 +60,11 @@ public:
     //endregion
 
     void fire(T const &value) const override {
-        for (auto const &p : priority_listeners) {
-            p.second(value);
+        for (auto const &[id, action] : priority_listeners) {
+            action(value);
         }
-        for (auto const &p : listeners) {
-            p.second(value);
+        for (auto const &[id, action] : listeners) {
+            action(value);
         }
     }
 
