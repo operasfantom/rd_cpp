@@ -144,9 +144,13 @@ public:
 
     virtual V set(size_t index, V element) const = 0;
 
-    //addAll(collection)?
+    virtual bool addAll(size_t index, std::initializer_list<V> elements) const = 0;
+
+    virtual bool addAll(std::initializer_list<V> elements) const = 0;
 
     virtual void clear() const = 0;
+
+    virtual bool removeAll(std::initializer_list<V> elements) const = 0;
 
     virtual size_t size() const = 0;
 

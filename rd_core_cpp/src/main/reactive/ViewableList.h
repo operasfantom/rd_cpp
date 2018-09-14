@@ -5,6 +5,7 @@
 #ifndef RD_CPP_CORE_VIEWABLELIST_H
 #define RD_CPP_CORE_VIEWABLELIST_H
 
+#include <set>
 
 #include <base/IViewableList.h>
 #include "interfaces.h"
@@ -72,7 +73,20 @@ public:
         return std::move(*old_value);
     }
 
-    //addAll(collection)?
+    bool addAll(size_t index, std::initializer_list<T> elements) const override {
+        for (auto const &element : elements) {
+            add(index, element);
+            ++index;
+        }
+        return true;
+    }
+
+    bool addAll(std::initializer_list<T> elements) const override{
+        for (auto const &element : elements) {
+            add(element);
+        }
+        return true;
+    }
 
     void clear() const override {
         std::vector<Event> changes;
@@ -85,6 +99,19 @@ public:
         list.clear();
     }
 
+    bool removeAll(std::initializer_list<T> elements) const override {
+        std::set<T> set{elements};
+
+        bool res = false;
+        for (size_t i = list.size(); i > 0; --i) {
+            if (set.count(*list[i - 1]) > 0) {
+                removeAt(i - 1);
+                res = true;
+            }
+        }
+        return res;
+    }
+
     size_t size() const override {
         return list.size();
     }
@@ -94,8 +121,10 @@ public:
     }
 
     std::vector<T> toList() const override {
-//        return list;
-        return {};
+        std::vector<T> res(list.size());
+        std::transform(list.begin(), list.end(), res.begin(),
+                       [](std::shared_ptr<T> const &ptr) -> T { return *ptr; });
+        return res;
     };
 };
 

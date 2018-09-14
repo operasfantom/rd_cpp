@@ -12,7 +12,7 @@
 
 template<typename T>
 void waitAndAssert(RdProperty<T> const &that, T const &expected, T const &prev) {
-    for (int i = 0; i < 50 && that.get() != expected; ++i) {
+    for (int i = 0; i < 20 && that.get() != expected; ++i) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         std::cout << ' ' << i << '\n';
     }

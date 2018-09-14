@@ -11,7 +11,7 @@
 
 SocketWire::Base::Base(const std::string &id, Lifetime lifetime, const IScheduler *scheduler)
         : WireBase(scheduler), id(id), lifetime(lifetime), scheduler(scheduler), sendBuffer(123),
-          threadLocalSendByteArray(16384) {
+          threadLocalSendByteArray(16385) {
 
 }
 
@@ -66,6 +66,7 @@ void SocketWire::Base::send(RdId const &id, std::function<void(Buffer const &buf
     auto bytes = buffer.getArray();
     threadLocalSendByteArray = bytes;
     sendBuffer.put(bytes);
+//    send0(sendBuffer);
 }
 
 void SocketWire::Base::set_socket_provider(std::shared_ptr<CSimpleSocket> new_socket) {
@@ -89,11 +90,11 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, int32
                            const std::string &id = "ClientSocket") : Base(id, lifetime, scheduler), port(port) {
 
     std::shared_ptr<CSimpleSocket> socket;
-    std::shared_ptr<std::thread> thread(new std::thread([this, lifetime, socket]() mutable {
+    auto thread = std::make_shared<std::thread>([this, lifetime, socket]() mutable {
         try {
             while (!lifetime->is_terminated()) {
                 try {
-                    std::shared_ptr<CActiveSocket> s{new CActiveSocket()};//CActiveSocket
+                    auto s = std::make_shared<CActiveSocket>();//CActiveSocket
                     assert(s->Initialize());
                     assert(s->DisableNagleAlgoritm());
 
@@ -129,7 +130,7 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, int32
         } catch (std::exception const &e) {
             logger.info(this->id + ": closed with exception: ", &e);
         }
-    }));
+    });
 //    thread->detach();
 
     lifetime->add_action([this, thread, socket]() {
@@ -158,17 +159,17 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, int32
 
 SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, int32_t port = 0,
                            const std::string &id = "ServerSocket") : Base(id, lifetime, scheduler) {
-    std::shared_ptr<CPassiveSocket> ss{new CPassiveSocket()};
+    auto ss = std::make_shared<CPassiveSocket>();
     assert(ss->Initialize());
-    assert(ss->Listen("127.0.0.1", port));
+    assert(ss->Listen("127.0.0.1", port/* ? port : 16384*/));
     this->port = ss->GetServerPort();
     MY_ASSERT_MSG(this->port != 0, "Port wasn't chosen");
 
     std::shared_ptr<CSimpleSocket> socket;
-    std::shared_ptr<std::thread> thread(new std::thread([this, lifetime, ss, socket]() mutable {
+    auto thread = std::make_shared<std::thread>([this, lifetime, ss, socket]() mutable {
         try {
             std::shared_ptr<CSimpleSocket> s(ss->Accept()); //could be terminated by close
-			MY_ASSERT_MSG(s != nullptr, "accepting failed");
+            MY_ASSERT_MSG(s != nullptr, "accepting failed");
             logger.info(this->id + ": accepted passive socket");
             assert(s->DisableNagleAlgoritm());
 
@@ -191,7 +192,7 @@ SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, int32
         } catch (std::exception const &e) {
             logger.info(this->id + "closed with exception: ", &e);
         }
-    }));
+    });
 //    thread->detach();
 
     lifetime->add_action([this, thread, socket, ss]() mutable {

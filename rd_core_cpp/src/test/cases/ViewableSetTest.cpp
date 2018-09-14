@@ -65,7 +65,7 @@ TEST (viewable_set, view) {
     listOf elementsView{2, 0, 1, 8, 3};
     listOf elementsUnView{1, 3, 8, 0, 2};
 
-    size_t C{elementsView.size()};
+    size_t C = elementsView.size();
 
     std::unique_ptr<IViewableSet<int>> set(new ViewableSet<int>());
     std::vector<std::string> log;
@@ -88,6 +88,27 @@ TEST (viewable_set, view) {
         expected[C + i] = "UnView " + std::to_string(elementsUnView[i]);
     }
     EXPECT_EQ(expected, log);
+
+    log.clear();
+    Lifetime::use([&](Lifetime lifetime) {
+        set->view(lifetime, [&](Lifetime lt, int32_t const &value) {
+                      log.push_back("View " + std::to_string(value));
+                      lt->add_action([&log, &value]() { log.push_back("UnView " + std::to_string(value)); });
+                  }
+        );
+        set->clear();
+    });
+    EXPECT_TRUE(set->empty());
+
+    listOf rest_elements{2, 0, 8, 3};
+
+    size_t K = C - 1;
+    std::vector<std::string> expected2(2 * K);
+    for (size_t i = 0; i < K; ++i) {
+        expected2[i] = "View " + std::to_string(rest_elements[i]);
+        expected2[K + i] = "UnView " + std::to_string(rest_elements[i]);
+    }
+    EXPECT_EQ(expected2, log);
 }
 
 TEST(viewable_set, add_remove_fuzz) {
@@ -97,7 +118,7 @@ TEST(viewable_set, add_remove_fuzz) {
     const int C = 10;
 
     Lifetime::use([&](Lifetime lifetime) {
-        set->view(lifetime, [&log](Lifetime lt, int const & value) {
+        set->view(lifetime, [&log](Lifetime lt, int const &value) {
             log.push_back("View " + std::to_string(value));
             lt->add_action([&log, &value]() { log.push_back("UnView " + std::to_string(value)); });
         });
@@ -107,7 +128,7 @@ TEST(viewable_set, add_remove_fuzz) {
         }
     });
 
-    for (int i = 0; i < C; ++i){
+    for (int i = 0; i < C; ++i) {
         EXPECT_EQ("View " + std::to_string(i), log[i]);
         EXPECT_EQ("UnView " + std::to_string(C - i - 1), log[C + i]);
     }
