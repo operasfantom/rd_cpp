@@ -72,7 +72,7 @@ void SocketWire::Base::send(RdId const &id, std::function<void(Buffer const &buf
 void SocketWire::Base::set_socket_provider(std::shared_ptr<CSimpleSocket> new_socket) {
     socketProvider = new_socket;
     {//synchronized
-        std::lock_guard<mutex_t> _(lock);
+        std::lock_guard _(lock);
         if (lifetime->is_terminated()) {
             return;
         }
@@ -107,7 +107,7 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, int32
 
 //                    synchronized(lock)
                     {
-                        std::lock_guard<mutex_t> _(lock);
+                        std::lock_guard _(lock);
                         if (lifetime->is_terminated()) {
                             catch_([s]() { s->Close(); });
                         } else {
@@ -117,7 +117,7 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, int32
 
                     set_socket_provider(s);
                 } catch (std::exception const &e) {
-                    std::lock_guard<mutex_t> _(lock);
+                    std::lock_guard _(lock);
                     bool shouldReconnect = (!lifetime->is_terminated()) ? lock.try_lock_for(timeout),
                             !lifetime->is_terminated() : false;
                     if (shouldReconnect) {
@@ -141,7 +141,7 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, int32
 
 //        synchronized(lock)
         {
-            std::lock_guard<mutex_t> _(lock);
+            std::lock_guard _(lock);
             logger.debug(this->id + ": closing socket");
             catch_([socket]() {
                 if (socket != nullptr) {
@@ -175,7 +175,7 @@ SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, int32
 
 //                synchronized(lock)
             {
-                std::lock_guard<mutex_t> _(lock);
+                std::lock_guard _(lock);
                 if (lifetime->is_terminated()) {
                     catch_([this, s]() {
                         logger.debug(this->id + ": closing passive socket");
@@ -208,7 +208,7 @@ SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, int32
         catch_([this, socket]() {
 //            synchronized(lock)
             {
-                std::lock_guard<mutex_t> _(lock);
+                std::lock_guard _(lock);
                 logger.debug(this->id + ": closing socket");
                 if (socket != nullptr) {
                     assert(socket->Close());

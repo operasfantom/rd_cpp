@@ -44,10 +44,10 @@ std::string demangle()
 /*#include <mutex>
 #include <functional>
 
-template<typename R>
-R synchronized(std::mutex &m, std::function<R()> block) {
-    std::lock_guard<std::mutex> l(m);
-    return block();
+template<typename R, typename F>
+R synchronized(std::mutex &m, F block) {
+    std::lock_guard l(m);
+    return F();
 }*/
 
 #endif //RD_CPP_FRAMEWORK_UTIL_H

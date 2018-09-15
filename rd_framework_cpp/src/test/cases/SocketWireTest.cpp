@@ -132,7 +132,7 @@ TEST_F(SocketWireTestBase, TestBasicRun) {
     cp.bind(lifetime, &clientProtocol, "top");
 
     cp.set(1);
-//    waitAndAssert(sp, 1, 0);//todo
+    waitAndAssert(sp, 1, 0);//todo
 
     /*sp.set(2);
     waitAndAssert(cp, 2, 1);*/

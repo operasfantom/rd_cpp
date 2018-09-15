@@ -9,7 +9,6 @@ void DynamicEntity::registry(IProtocol *protocol) {
         RdProperty<int32_t, S> tmp = RdProperty<int32_t, S>::read(ctx, buffer);
         std::unique_ptr<DynamicEntity> p = std::make_unique<DynamicEntity>(std::move(tmp));
         return p;
-        //todo avoid heap alloc
     });
 }
 

@@ -7,12 +7,14 @@
 #include <util.h>
 #include "MessageBroker.h"
 
+std::recursive_mutex lock;
+
 void MessageBroker::invoke(const IRdReactive *that, const Buffer &msg, bool sync) const {
     if (sync) {
         that->on_wire_received(msg);
     } else {
         that->get_wire_scheduler()->queue([this, that, &msg]() {
-            if (subscriptions.count(that->rd_id) > 0) {
+            if (std::lock_guard _(lock); subscriptions.count(that->rd_id) > 0) {
                 that->on_wire_received(msg);
             } else {
 //                    log.trace{ "Handler for $this dissapeared" }
@@ -26,10 +28,8 @@ MessageBroker::MessageBroker(IScheduler const *defaultScheduler) : defaultSchedu
 void MessageBroker::dispatch(RdId id, Buffer message) const {
     MY_ASSERT_MSG(!id.isNull(), "id mustn't be null");
 
-//        synchronized(lock) {
-
-    {//synchronized
-//        std::lock_guard<std::mutex> _{*lock.mutex()};
+    {//synchronized recursively
+        std::lock_guard _(lock);
         IRdReactive const *s = subscriptions[id];
         if (s == nullptr) {
             if (broker.count(id) == 0) {
@@ -38,7 +38,7 @@ void MessageBroker::dispatch(RdId id, Buffer message) const {
             broker[id].defaultSchedulerMessages++;
 
             defaultScheduler->queue([this, id, &message]() {
-                IRdReactive const *subscription = subscriptions[id]; //no lock because can be changed only under default scheduler
+                IRdReactive const *subscription = subscriptions[id];
 
                 if (subscription != nullptr) {
                     if (subscription->get_wire_scheduler() == defaultScheduler)
@@ -49,7 +49,6 @@ void MessageBroker::dispatch(RdId id, Buffer message) const {
 //                        log.trace { "No handler for id: $id" }
                 }
 
-//                    synchronized(lock) {
                 if (--broker[id].defaultSchedulerMessages == 0) {
                     auto t = std::move(broker[id]);
                     broker.erase(id);
@@ -58,11 +57,8 @@ void MessageBroker::dispatch(RdId id, Buffer message) const {
                         invoke(subscription, it);
                     }
                 }
-//                    }
             });
-
         } else {
-
             if (s->get_wire_scheduler() == defaultScheduler || s->get_wire_scheduler()->out_of_order_execution) {
                 invoke(s, message);
             } else {
@@ -84,12 +80,9 @@ void MessageBroker::advise_on(Lifetime lifetime, IRdReactive const *entity) cons
     MY_ASSERT_MSG(!entity->rd_id.isNull(), ("id is null for entity: " + std::string(typeid(entity).name())));
 
     //advise MUST happen under default scheduler, not custom
-//        defaultScheduler.assertThread(entity)
+    defaultScheduler->assert_thread();
 
-    //if (lifetime.isTerminated) return
-
-//        subscriptions.blockingPutUnique(lifetime, lock, entity.rdid, entity)
-    if (!lifetime->is_terminated()) {
+    if (std::lock_guard _(lock); !lifetime->is_terminated()) {
         auto key = entity->rd_id;
         IRdReactive const *value = entity;
         subscriptions[key] = value;

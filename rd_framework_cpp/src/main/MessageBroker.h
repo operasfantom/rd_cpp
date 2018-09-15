@@ -26,8 +26,6 @@ public:
 
 class MessageBroker {
 private:
-//    mutable std::unique_lock<std::mutex> lock/* = std::unique_lock<std::mutex>(std::mutex(), std::defer_lock)*/;todo
-
     IScheduler const *defaultScheduler = nullptr;
     mutable std::unordered_map<RdId, IRdReactive const *, RdId::Hasher> subscriptions;
     mutable std::unordered_map<RdId, Mq, RdId::Hasher> broker;

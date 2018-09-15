@@ -21,7 +21,7 @@ void LifetimeImpl::terminate() {
 
     actions_t actions_copy;
     {
-        std::lock_guard<mutex_t > _(lock);
+        std::lock_guard _(lock);
         actions_copy = std::move(actions);
 
         actions.clear();
@@ -47,7 +47,7 @@ void LifetimeImpl::attach_nested(std::shared_ptr<LifetimeImpl> nested) {
     std::function<void()> action = [nested]() { nested->terminate(); };
     counter_t action_id=0;
     {
-//        std::lock_guard<mutex_t> _(lock);
+//        std::lock_guard _(lock);
         action_id = add_action(action);
     }
     nested->add_action([this, action_id]() {
@@ -59,7 +59,7 @@ LifetimeImpl::counter_t LifetimeImpl::add_action(std::function<void()> action) {
     if (is_eternal()) return -1;
     if (is_terminated()) throw std::invalid_argument("Already Terminated");
 
-    std::lock_guard<mutex_t> _(lock);
+    std::lock_guard _(lock);
     actions[action_id_in_map] = std::move(action);
     return action_id_in_map++;
 }
