@@ -42,8 +42,8 @@ public:
     const V *set(K key, V value) const {
         if (map.count(deleted_shared_ptr(key)) == 0) {
             auto[it, success] = map.insert(std::make_pair(
-                    factory_shared_ptr(std::move(key)),
-                    factory_shared_ptr(std::move(value))
+                    std::make_shared<K>(std::move(key)),
+                    std::make_shared<V>(std::move(value))
             ));
             auto const& key_ptr = it->first;
             auto const& value_ptr = it->second;

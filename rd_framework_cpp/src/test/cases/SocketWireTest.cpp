@@ -61,19 +61,19 @@ Protocol client(Lifetime lifetime, int32_t port) {
 
 TEST_F(SocketWireTestBase, ClientWithoutServer) {
     int port = find_free_port();
-    client(socketLifetime, port);
+    auto protocol = client(socketLifetime, port);
 
     AfterTest();
 }
 
 TEST_F(SocketWireTestBase, ServerWithoutClient) {
-    server(socketLifetime);
+    auto protocol = server(socketLifetime);
 
     AfterTest();
 }
 
 TEST_F(SocketWireTestBase, TestServerWithoutClientWithDelay) {
-    server(socketLifetime);
+    auto protocol = server(socketLifetime);
     sleep_this_thread(100);
 
     AfterTest();
@@ -81,7 +81,7 @@ TEST_F(SocketWireTestBase, TestServerWithoutClientWithDelay) {
 
 TEST_F(SocketWireTestBase, TestClientWithoutServerWithDelay) {
     int port = find_free_port();
-    client(socketLifetime, port);
+    auto protocol = client(socketLifetime, port);
     sleep_this_thread(100);
 
     AfterTest();

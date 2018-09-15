@@ -45,13 +45,13 @@ public:
     }
 
     bool add(T element) const override {
-        list.push_back(factory_shared_ptr(std::move(element)));
+        list.push_back(std::make_shared<T>(std::move(element)));
         change.fire(typename Event::Add(size() - 1, list.back().get()));
         return true;
     }
 
     bool add(size_t index, T element) const override {
-        list.insert(list.begin() + index, factory_shared_ptr(std::move(element)));
+        list.insert(list.begin() + index, std::make_shared<T>(std::move(element)));
         change.fire(typename Event::Add(index, list[index].get()));
         return true;
     }
@@ -79,7 +79,7 @@ public:
 
     T set(size_t index, T element) const override {
         auto old_value = std::move(list[index]);
-        list[index] = factory_shared_ptr(std::move(element));
+        list[index] = std::make_shared<T>(std::move(element));
         change.fire(typename Event::Update(index, old_value.get(), list[index].get()));//???
         return std::move(*old_value);
     }

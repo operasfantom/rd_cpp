@@ -145,7 +145,7 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, int32
             logger.debug(this->id + ": closing socket");
             catch_([socket]() {
                 if (socket != nullptr) {
-                    assert(socket->Close());
+                    MY_ASSERT_MSG(socket->Close(), "failed to close client socket");
                 }
             });
 //            lock.notifyAll()
@@ -203,7 +203,7 @@ SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, int32
 
         catch_([this, ss]() {
             logger.debug(this->id + ": closing server socket");
-            assert(ss->Close());
+            MY_ASSERT_MSG(ss->Close(), "failed to close server socket");
         });
         catch_([this, socket]() {
 //            synchronized(lock)
@@ -211,7 +211,7 @@ SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, int32
                 std::lock_guard _(lock);
                 logger.debug(this->id + ": closing socket");
                 if (socket != nullptr) {
-                    assert(socket->Close());
+                    MY_ASSERT_MSG(socket->Close(), "failed to close server socket");
                 }
             }
         });
