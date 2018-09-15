@@ -95,15 +95,15 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, int32
             while (!lifetime->is_terminated()) {
                 try {
                     auto s = std::make_shared<CActiveSocket>();//CActiveSocket
-                    assert(s->Initialize());
-                    assert(s->DisableNagleAlgoritm());
+                    MY_ASSERT_THROW_MSG(s->Initialize(), "failed to init ActiveSocket");
+                    MY_ASSERT_THROW_MSG(s->DisableNagleAlgoritm(), "failed to DisableNagleAlgoritm");
 
                     // On windows connect will try to send SYN 3 times with interval of 500ms (total time is 1second)
                     // Connect timeout doesn't work if it's more than 1 second. But we don't need it because we can close socket any moment.
 
                     //https://stackoverflow.com/questions/22417228/prevent-tcp-socket-connection-retries
                     //HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\TcpMaxConnectRetransmissions
-                    assert(s->Open("127.0.0.1", this->port));
+                    MY_ASSERT_THROW_MSG(s->Open("127.0.0.1", this->port), "failed to open ActiveSocket");
 
 //                    synchronized(lock)
                     {
@@ -160,8 +160,8 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, int32
 SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, int32_t port = 0,
                            const std::string &id = "ServerSocket") : Base(id, lifetime, scheduler) {
     auto ss = std::make_shared<CPassiveSocket>();
-    assert(ss->Initialize());
-    assert(ss->Listen("127.0.0.1", port/* ? port : 16384*/));
+    MY_ASSERT_MSG(ss->Initialize(), "failed to initialize server socket");
+    MY_ASSERT_MSG(ss->Listen("127.0.0.1", port/* ? port : 16384*/), "failed to listen socket on port:" + std::to_string(port));
     this->port = ss->GetServerPort();
     MY_ASSERT_MSG(this->port != 0, "Port wasn't chosen");
 
@@ -169,9 +169,9 @@ SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, int32
     auto thread = std::make_shared<std::thread>([this, lifetime, ss, socket]() mutable {
         try {
             std::shared_ptr<CSimpleSocket> s(ss->Accept()); //could be terminated by close
-            MY_ASSERT_MSG(s != nullptr, "accepting failed");
+            MY_ASSERT_THROW_MSG(s != nullptr, "accepting failed");
             logger.info(this->id + ": accepted passive socket");
-            assert(s->DisableNagleAlgoritm());
+            MY_ASSERT_THROW_MSG(s->DisableNagleAlgoritm(), "tcpNoDelay failed");
 
 //                synchronized(lock)
             {
@@ -179,7 +179,7 @@ SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, int32
                 if (lifetime->is_terminated()) {
                     catch_([this, s]() {
                         logger.debug(this->id + ": closing passive socket");
-                        assert(s->Close());
+                        MY_ASSERT_THROW_MSG(s->Close(), "failed to close socket");
                         logger.info(this->id + ": close passive socket");
                     });
                 } else {

@@ -114,12 +114,12 @@ TEST(viewable_list, other_reactive_api) {
         EXPECT_EQ(log, (std::vector<std::string>{"Add 0 0", "Add 0 1"}));
 
 
-        EXPECT_EQ(list->toList(), arrayListOf({1, 0}));
+        EXPECT_EQ(convert_to_list(*list), arrayListOf({1, 0}));
         log.clear();
 
         list->set(1, 2);
         EXPECT_EQ(log, arrayListOf({"Remove 1 0"_s, "Add 1 2"_s}));
-        EXPECT_EQ(list->toList(), arrayListOf({1, 2}));
+        EXPECT_EQ(convert_to_list(*list), arrayListOf({1, 2}));
         log.clear();
 
         list->clear();
@@ -131,34 +131,34 @@ TEST(viewable_list, other_reactive_api) {
         list->addAll({1, 2});
 
         EXPECT_EQ(log, arrayListOf({"Add 0 1"_s, "Add 1 1"_s, "Add 2 2"_s}));
-        EXPECT_EQ(list->toList(), arrayListOf({1, 1, 2}));
+        EXPECT_EQ(convert_to_list(*list), arrayListOf({1, 1, 2}));
         log.clear();
 
         list->addAll(1, {3, 4});
 
         EXPECT_EQ(log, arrayListOf({"Add 1 3"_s, "Add 2 4"_s}));
-        EXPECT_EQ(list->toList(), arrayListOf({1, 3, 4, 1, 2}));
+        EXPECT_EQ(convert_to_list(*list), arrayListOf({1, 3, 4, 1, 2}));
         log.clear();
 
         list->removeAll({1, 3});
 
         EXPECT_EQ(log, arrayListOf({"Remove 3 1"_s, "Remove 1 3"_s, "Remove 0 1"_s}));
-        EXPECT_EQ(list->toList(), arrayListOf({4, 2}));
+        EXPECT_EQ(convert_to_list(*list), arrayListOf({4, 2}));
         log.clear();
 
         list->removeAt(0);
         EXPECT_EQ(log, arrayListOf({"Remove 0 4"_s}));
-        EXPECT_EQ(list->toList(), arrayListOf({2}));
+        EXPECT_EQ(convert_to_list(*list), arrayListOf({2}));
         log.clear();
 
         /*list->retainAll(listOf(1, 2))
         EXPECT_EQ(log, arrayListOf<String>(), "retainAll1")
-                EXPECT_EQ(list->toList(), arrayListOf(2), "retainAll1")
+                EXPECT_EQ(convert_to_list(*list), arrayListOf(2), "retainAll1")
         log.clear()
 
         list->retainAll(listOf(1))
         EXPECT_EQ(log, arrayListOf("Remove 0 2"), "retainAll2")
-                EXPECT_EQ(list->toList(), arrayListOf<Int>(), "retainAll2")
+                EXPECT_EQ(convert_to_list(*list), arrayListOf<Int>(), "retainAll2")
         log.clear()
 
         assertTrue(list->add(0))

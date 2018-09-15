@@ -161,7 +161,19 @@ public:
 
     bool empty() const override { return list.empty(); }
 
-    std::vector<V> toList() const { return list.toList(); }
+    std::vector<std::shared_ptr<V> > const &getList() const override { return list.getList(); }
+
+    bool addAll(size_t index, std::vector<V> elements) const override {
+        return local_change<bool>([&]() mutable { return list.addAll(index, std::move(elements)); });
+    }
+
+    bool addAll(std::vector<V> elements) const override {
+        return local_change<bool>([&]() mutable { return list.addAll(std::move(elements)); });
+    }
+
+    bool removeAll(std::vector<V> elements) const override {
+        return local_change<bool>([&]() mutable { return list.removeAll(std::move(elements)); });
+    }
 };
 
 

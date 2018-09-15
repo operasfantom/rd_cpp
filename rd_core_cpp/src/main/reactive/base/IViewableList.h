@@ -7,39 +7,46 @@
 
 
 #include <utility>
+
 #include <variant>
 #include <util.h>
 #include "../interfaces.h"
 
-template<typename V>
-class IViewableList : public IViewable<const std::pair<size_t, V const *>> {
+template<typename T>
+class IViewableList;
+
+template<typename T>
+std::vector<T> convert_to_list(IViewableList<T> const &list);
+
+template<typename T>
+class IViewableList : public IViewable<const std::pair<size_t, T const *>> {
 public:
     class Event {
     public:
         class Add {
         public:
             size_t index;
-            V const *new_value;
+            T const *new_value;
 
-            Add(size_t index, V const *new_value) : index(index), new_value(new_value) {}
+            Add(size_t index, T const *new_value) : index(index), new_value(new_value) {}
         };
 
         class Update {
         public:
             size_t index;
-            V const *old_value;
-            V const *new_value;
+            T const *old_value;
+            T const *new_value;
 
-            Update(size_t index, V const *old_value, V const *new_value) : index(index), old_value(old_value),
+            Update(size_t index, T const *old_value, T const *new_value) : index(index), old_value(old_value),
                                                                            new_value(new_value) {}
         };
 
         class Remove {
         public:
             size_t index;
-            V const *old_value;
+            T const *old_value;
 
-            Remove(size_t index, V const *old_value) : index(index), old_value(old_value) {}
+            Remove(size_t index, T const *old_value) : index(index), old_value(old_value) {}
         };
 
         std::variant<Add, Update, Remove> v;
@@ -64,7 +71,7 @@ public:
             }, v);
         }
 
-        V const *get_new_value() const {
+        T const *get_new_value() const {
             return std::visit(overloaded{
                     [](typename Event::Add const &e) {
                         return e.new_value;
@@ -73,7 +80,7 @@ public:
                         return e.new_value;
                     },
                     [](typename Event::Remove const &e) {
-                        return static_cast<V const *>(nullptr);
+                        return static_cast<T const *>(nullptr);
                     }
             }, v);
         }
@@ -84,7 +91,7 @@ protected:
 public:
     virtual ~IViewableList() = default;
 
-    void advise_add_remove(Lifetime lifetime, std::function<void(AddRemove, size_t, V const &)> handler) const {
+    void advise_add_remove(Lifetime lifetime, std::function<void(AddRemove, size_t, T const &)> handler) const {
         advise(lifetime, [handler](Event const &e) {
             std::visit(overloaded{
                     [handler](typename Event::Add const &e) {
@@ -103,14 +110,14 @@ public:
 
     virtual void
     view(Lifetime lifetime,
-         std::function<void(Lifetime lifetime, std::pair<size_t, V const *> const &)> handler) const {
-        view(lifetime, [handler](Lifetime lt, size_t idx, V const &v) {
+         std::function<void(Lifetime lifetime, std::pair<size_t, T const *> const &)> handler) const {
+        view(lifetime, [handler](Lifetime lt, size_t idx, T const &v) {
             handler(lt, std::make_pair(idx, &v));
         });
     }
 
-    void view(Lifetime lifetime, std::function<void(Lifetime, size_t, V const &)> handler) const {
-        advise_add_remove(lifetime, [this, lifetime, handler](AddRemove kind, size_t idx, V const &value) {
+    void view(Lifetime lifetime, std::function<void(Lifetime, size_t, T const &)> handler) const {
+        advise_add_remove(lifetime, [this, lifetime, handler](AddRemove kind, size_t idx, T const &value) {
             switch (kind) {
                 case AddRemove::ADD: {
                     LifetimeDefinition def(lifetime);
@@ -132,32 +139,44 @@ public:
 
     virtual void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const = 0;
 
-    virtual bool add(V element) const = 0;
+    virtual bool add(T element) const = 0;
 
-    virtual bool add(size_t index, V element) const = 0;
+    virtual bool add(size_t index, T element) const = 0;
 
-    virtual V removeAt(size_t index) const = 0;
+    virtual T removeAt(size_t index) const = 0;
 
-    virtual bool remove(V const &element) const = 0;
+    virtual bool remove(T const &element) const = 0;
 
-    virtual V const &get(size_t index) const = 0;
+    virtual T const &get(size_t index) const = 0;
 
-    virtual V set(size_t index, V element) const = 0;
+    virtual T set(size_t index, T element) const = 0;
 
-    virtual bool addAll(size_t index, std::initializer_list<V> elements) const = 0;
+    virtual bool addAll(size_t index, std::vector<T> elements) const = 0;
 
-    virtual bool addAll(std::initializer_list<V> elements) const = 0;
+    virtual bool addAll(std::vector<T> elements) const = 0;
 
     virtual void clear() const = 0;
 
-    virtual bool removeAll(std::initializer_list<V> elements) const = 0;
+    virtual bool removeAll(std::vector<T> elements) const = 0;
 
     virtual size_t size() const = 0;
 
     virtual bool empty() const = 0;
 
-    virtual std::vector<V> toList() const = 0;
+    template<typename U>
+    friend std::vector<U> convert_to_list(IViewableList<U> const &list);
+
+protected:
+    virtual const std::vector<std::shared_ptr<T>> &getList() const = 0;
 };
+
+template<typename T>
+std::vector<T> convert_to_list(IViewableList<T> const &list) {
+    std::vector<T> res(list.size());
+    std::transform(list.getList().begin(), list.getList().end(), res.begin(),
+                   [](std::shared_ptr<T> const &ptr) { return *ptr; });
+    return res;
+}
 
 
 #endif //RD_CPP_IVIEWABLELIST_H

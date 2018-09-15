@@ -6,6 +6,7 @@
 #define RD_CPP_CORE_VIEWABLELIST_H
 
 #include <set>
+#include <unordered_set>
 
 #include <base/IViewableList.h>
 #include "interfaces.h"
@@ -15,9 +16,19 @@ template<typename T>
 class ViewableList : public IViewableList<T> {
 public:
     using Event = typename IViewableList<T>::Event;
+
+    template<typename V, typename S>
+    friend class RdList;
+
 private:
     mutable std::vector<std::shared_ptr<T> > list;
     Signal<Event> change;
+
+protected:
+    virtual const std::vector<std::shared_ptr<T>> &getList() const {
+        return list;
+    }
+
 public:
 
     //region ctor/dtor
@@ -73,17 +84,17 @@ public:
         return std::move(*old_value);
     }
 
-    bool addAll(size_t index, std::initializer_list<T> elements) const override {
-        for (auto const &element : elements) {
-            add(index, element);
+    bool addAll(size_t index, std::vector<T> elements) const override {
+        for (auto &element : elements) {
+            add(index, std::move(element));
             ++index;
         }
         return true;
     }
 
-    bool addAll(std::initializer_list<T> elements) const override{
-        for (auto const &element : elements) {
-            add(element);
+    bool addAll(std::vector<T> elements) const override {
+        for (auto &element : elements) {
+            add(std::move(element));
         }
         return true;
     }
@@ -99,12 +110,12 @@ public:
         list.clear();
     }
 
-    bool removeAll(std::initializer_list<T> elements) const override {
-        std::set<T> set{elements};
+    bool removeAll(std::vector<T> elements) const override { //todo faster
+//        std::unordered_set<T> set(elements.begin(), elements.end());
 
         bool res = false;
         for (size_t i = list.size(); i > 0; --i) {
-            if (set.count(*list[i - 1]) > 0) {
+            if (std::count(elements.begin(), elements.end(), *list[i - 1]) > 0) {
                 removeAt(i - 1);
                 res = true;
             }
@@ -119,13 +130,6 @@ public:
     bool empty() const override {
         return list.empty();
     }
-
-    std::vector<T> toList() const override {
-        std::vector<T> res(list.size());
-        std::transform(list.begin(), list.end(), res.begin(),
-                       [](std::shared_ptr<T> const &ptr) -> T { return *ptr; });
-        return res;
-    };
 };
 
 #endif //RD_CPP_CORE_VIEWABLELIST_H

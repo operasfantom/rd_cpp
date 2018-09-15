@@ -10,15 +10,28 @@
 #include "../../main/wire/SocketWire.h"
 #include "../util/RdFrameworkTestBase.h"
 
+int find_free_port() {
+    CPassiveSocket fake_server;
+    fake_server.Initialize();
+    fake_server.Listen("127.0.0.1", 0);
+    uint16 port = fake_server.GetServerPort();
+//    fake_server.Close();
+    return port;
+}
+
+void sleep_this_thread(int ms) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+}
+
 template<typename T>
 void waitAndAssert(RdProperty<T> const &that, T const &expected, T const &prev) {
     for (int i = 0; i < 20 && that.get() != expected; ++i) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        sleep_this_thread(100);
         std::cout << ' ' << i << '\n';
     }
 
 
-    if (that.get() == prev){
+    if (that.get() == prev) {
         throw std::runtime_error("Timeout 5000 ms while waiting value " + std::to_string(expected));
     }
     EXPECT_EQ(expected, that.get());
@@ -44,6 +57,65 @@ Protocol client(Lifetime lifetime, int32_t port) {
     return Protocol(Identities(), &testScheduler, std::move(wire));
 }
 
+
+
+TEST_F(SocketWireTestBase, ClientWithoutServer) {
+    int port = find_free_port();
+    client(socketLifetime, port);
+
+    AfterTest();
+}
+
+TEST_F(SocketWireTestBase, ServerWithoutClient) {
+    server(socketLifetime);
+
+    AfterTest();
+}
+
+TEST_F(SocketWireTestBase, TestServerWithoutClientWithDelay) {
+    server(socketLifetime);
+    sleep_this_thread(100);
+
+    AfterTest();
+}
+
+TEST_F(SocketWireTestBase, TestClientWithoutServerWithDelay) {
+    int port = find_free_port();
+    client(socketLifetime, port);
+    sleep_this_thread(100);
+
+    AfterTest();
+}
+
+TEST_F(SocketWireTestBase,  TestServerWithoutClientWithDelayAndMessages) {
+    auto protocol = server(socketLifetime);
+    sleep_this_thread(100);
+
+    RdProperty<int> sp(0);
+    statics(sp, 1);
+    sp.bind(lifetime, &protocol, "top");
+
+    sp.set(1);
+    sp.set(2);
+    sleep_this_thread(50);
+
+    AfterTest();
+}
+
+TEST_F(SocketWireTestBase,  TestClientWithoutServerWithDelayAndMessages) {
+    int port = find_free_port();
+    auto clientProtocol = client(socketLifetime, port);
+
+    RdProperty<int> cp(0);
+    statics(cp, 1);
+    cp.bind(lifetime, &clientProtocol, "top");
+
+    cp.set(1);
+    cp.set(2);
+    sleep_this_thread(50);
+
+    AfterTest();
+}
 
 TEST_F(SocketWireTestBase, TestBasicRun) {
     int property_id = 1;
@@ -124,49 +196,5 @@ TEST_F(SocketWireTestBase, TestBasicRun) {
     val prev = sp.valueOrNull
     cp.set(4)
     sp.waitAndAssert(4, prev)
-}
-
-@Test
-        void TestServerWithoutClient() {
-    server(socketLifetime)
-}
-
-@Test
-        void TestServerWithoutClientWithDelay() {
-    server(socketLifetime)
-    Thread.sleep(100)
-}
-
-@Test
-        void TestServerWithoutClientWithDelayAndMessages() {
-    val protocol = server(socketLifetime)
-    Thread.sleep(100)
-    val sp = RdOptionalProperty<int>().static(1).apply { bind(lifetime, protocol, "top") }
-
-    sp.set(1)
-    sp.set(2)
-    Thread.sleep(50)
-}
-
-@Test
-        void TestClientWithoutServer() {
-    client(socketLifetime, NetUtils.findFreePort(0))
-}
-
-@Test
-        void TestClientWithoutServerWithDelay() {
-    client(socketLifetime, NetUtils.findFreePort(0))
-    Thread.sleep(100)
-}
-
-@Test
-        void TestClientWithoutServerWithDelayAndMessages() {
-    val clientProtocol = client(socketLifetime, NetUtils.findFreePort(0))
-
-    val cp = RdOptionalProperty<int>().static(1).apply { bind(lifetime, clientProtocol, "top") }
-
-    cp.set(1)
-    cp.set(2)
-    Thread.sleep(50)
 }
 */
