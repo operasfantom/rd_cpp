@@ -10,12 +10,12 @@
 #include "../../main/wire/SocketWire.h"
 #include "../util/RdFrameworkTestBase.h"
 
-int find_free_port() {
+uint16 find_free_port() {
     CPassiveSocket fake_server;
     fake_server.Initialize();
     fake_server.Listen("127.0.0.1", 0);
     uint16 port = fake_server.GetServerPort();
-//    fake_server.Close();
+    MY_ASSERT_MSG(port != 0, "no free port");
     return port;
 }
 
@@ -27,13 +27,13 @@ template<typename T>
 void waitAndAssert(RdProperty<T> const &that, T const &expected, T const &prev) {
     for (int i = 0; i < 20 && that.get() != expected; ++i) {
         sleep_this_thread(100);
-        std::cout << ' ' << i << '\n';
+        std::cout << ' ' << i << std::endl;
     }
 
 
-    if (that.get() == prev) {
+    /*if (that.get() == prev) {
         throw std::runtime_error("Timeout 5000 ms while waiting value " + std::to_string(expected));
-    }
+    }*/
     EXPECT_EQ(expected, that.get());
 }
 
@@ -51,7 +51,7 @@ Protocol client(Lifetime lifetime, Protocol const &serverProtocol) {
     return Protocol(Identities(), &testScheduler, std::move(wire));
 }
 
-Protocol client(Lifetime lifetime, int32_t port) {
+Protocol client(Lifetime lifetime, uint16 port) {
     SocketWire::Client *client = new SocketWire::Client(lifetime, &testScheduler, port, "TestClient");
     std::shared_ptr<IWire> wire(client);
     return Protocol(Identities(), &testScheduler, std::move(wire));
@@ -60,7 +60,7 @@ Protocol client(Lifetime lifetime, int32_t port) {
 
 
 TEST_F(SocketWireTestBase, ClientWithoutServer) {
-    int port = find_free_port();
+    uint16 port = find_free_port();
     auto protocol = client(socketLifetime, port);
 
     AfterTest();
@@ -80,7 +80,7 @@ TEST_F(SocketWireTestBase, TestServerWithoutClientWithDelay) {
 }
 
 TEST_F(SocketWireTestBase, TestClientWithoutServerWithDelay) {
-    int port = find_free_port();
+    uint16 port = find_free_port();
     auto protocol = client(socketLifetime, port);
     sleep_this_thread(100);
 
@@ -103,7 +103,7 @@ TEST_F(SocketWireTestBase,  TestServerWithoutClientWithDelayAndMessages) {
 }
 
 TEST_F(SocketWireTestBase,  TestClientWithoutServerWithDelayAndMessages) {
-    int port = find_free_port();
+    uint16 port = find_free_port();
     auto clientProtocol = client(socketLifetime, port);
 
     RdProperty<int> cp(0);
@@ -117,7 +117,7 @@ TEST_F(SocketWireTestBase,  TestClientWithoutServerWithDelayAndMessages) {
     AfterTest();
 }
 
-TEST_F(SocketWireTestBase, TestBasicRun) {
+TEST_F(SocketWireTestBase, /*DISABLED_*/TestBasicEmptyRun) {
     int property_id = 1;
 
     Protocol serverProtocol = server(socketLifetime);
@@ -131,7 +131,28 @@ TEST_F(SocketWireTestBase, TestBasicRun) {
     statics(cp, property_id);
     cp.bind(lifetime, &clientProtocol, "top");
 
-    cp.set(1);
+    for (int i = 0; i < 20; ++i) {
+        sleep_this_thread(100);
+    }
+
+    AfterTest();
+}
+
+TEST_F(SocketWireTestBase, /*DISABLED_*/TestBasicRun) {
+    int property_id = 1;
+
+    Protocol serverProtocol = server(socketLifetime);
+    Protocol clientProtocol = client(socketLifetime, serverProtocol);
+
+    RdProperty<int> sp(0);
+    statics(sp, property_id);
+    sp.bind(lifetime, &serverProtocol, "top");
+
+    RdProperty<int> cp(0);
+    statics(cp, property_id);
+    cp.bind(lifetime, &clientProtocol, "top");
+
+//    cp.set(1);
     waitAndAssert(sp, 1, 0);//todo
 
     /*sp.set(2);

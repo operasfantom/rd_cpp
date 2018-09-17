@@ -23,7 +23,7 @@ void catch_(std::optional<std::string> comment, const std::function<void()> &act
         action();
     }
     catch (std::exception const &e) {
-        std::string sfx = (comment.has_value() && !comment.value().empty()) ? comment.value() : " ";
+        std::string sfx = (comment.has_value() && !comment.value().empty()) ? comment.value() : " " + *e.what();
 //        get_logger("Default-Error-Logger").log(LogLevel::Error, "Catch$sfx", e);
     }
 }

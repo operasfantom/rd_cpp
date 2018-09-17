@@ -23,7 +23,7 @@ void Buffer::set_position(size_t value) const {
 void Buffer::check_available(size_t moreSize) const {
     if (offset + moreSize > size_) {
         throw std::out_of_range(
-                "Expected $moreSize bytes in buffer, only" + std::to_string(size_ - offset) + "available");
+                "Expected " + std::to_string(moreSize) + " bytes in buffer, only" + std::to_string(size_ - offset) + "available");
     }
 }
 

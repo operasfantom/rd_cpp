@@ -6,7 +6,6 @@
 
 bool FrameworkMarshallers::Bool::read(const SerializationCtx &ctx, const Buffer &buffer) {
     return buffer.read_pod<bool>();
-//        return (buffer.read_pod<bool>());
 }
 
 void FrameworkMarshallers::Bool::write(const SerializationCtx &ctx, const Buffer &buffer, bool const &value) {

@@ -144,10 +144,7 @@ public:
 
     bool remove(V const &element) const override { return local_change<bool>([&]() { return list.remove(element); }); }
 
-//    virtual bool removeAll(elements: Collection<V>): Boolean = local_change { list.removeAll(elements) }
     V removeAt(size_t index) const override { return local_change<V>([&]() { return list.removeAt(index); }); }
-
-//    virtual bool retainAll(elements: Collection<V>): Boolean = local_change { list.retainAll(elements) }
 
     V const &get(size_t index) const override { return list.get(index); };
 

@@ -8,11 +8,13 @@
 #include <string>
 #include <IScheduler.h>
 #include <WireBase.h>
+#include <condition_variable>
 
 #include "clsocket/src/ActiveSocket.h"
 #include "clsocket/src/PassiveSocket.h"
 #include "clsocket/src/SimpleSocket.h"
 #include "../../../../rd_core_cpp/src/main/Logger.h"
+#include "threading/ByteBufferAsyncProcessor.h"
 
 
 class SocketWire {
@@ -22,16 +24,17 @@ public:
     protected:
         Logger logger;
 
-        using mutex_t = std::timed_mutex;
-
-        mutex_t lock;
+        std::timed_mutex lock;
 
         std::string id;
         Lifetime lifetime;
         IScheduler const *const scheduler = nullptr;
         std::shared_ptr<CSimpleSocket> socketProvider;
 
-        Buffer sendBuffer;/* = ByteBufferAsyncProcessor(id+"-AsyncSendProcessor") { send0(it) }*/
+        std::shared_ptr<CActiveSocket> socket;
+
+        /*mutable ByteBufferAsyncProcessor sendBuffer{id + "-AsyncSendProcessor",
+                                                     [this](ByteArraySlice const &it) { this->send0(it); }};*/
         mutable Buffer::ByteArray threadLocalSendByteArray;
     public:
         //region ctor/dtor
@@ -41,9 +44,9 @@ public:
         virtual ~Base() = default;
         //endregion
 
-        void receiverProc();
+        void receiverProc() const;
 
-        void send0(const Buffer &msg) const;
+        void send0(const ByteArraySlice &msg) const;
 
         void send(RdId const &id, std::function<void(Buffer const &buffer)> writer) const override;
 
@@ -52,26 +55,28 @@ public:
 
     class Client : public Base {
     public:
-        int32_t port = 0;
+        uint16 port = 0;
 
         //region ctor/dtor
 
         virtual ~Client() = default;
         //endregion
 
-        Client(Lifetime lifetime, const IScheduler *scheduler, int32_t port, const std::string &id);
+        std::condition_variable_any cv;
+
+        Client(Lifetime lifetime, const IScheduler *scheduler, uint16 port, const std::string &id);
     };
 
     class Server : public Base {
     public:
-        int32_t port = 0;
+        uint16 port = 0;
 
         //region ctor/dtor
 
         virtual ~Server() = default;
         //endregion
 
-        Server(Lifetime lifetime, const IScheduler *scheduler, int32_t port, const std::string &id);
+        Server(Lifetime lifetime, const IScheduler *scheduler, uint16 port, const std::string &id);
     };
 
 };

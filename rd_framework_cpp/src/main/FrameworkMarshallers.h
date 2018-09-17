@@ -8,15 +8,6 @@
 #include "serialization/SerializationCtx.h"
 
 namespace FrameworkMarshallers {
-    class Bool {
-    private:
-        int32_t predefinedId = 8;
-    public:
-        static bool read(SerializationCtx const &ctx, Buffer const &buffer);
-
-        static void write(SerializationCtx const &ctx, Buffer const &buffer, bool const &value);
-    };
-
     class Int32 {
     private:
         int32_t predefinedId = 3;
@@ -24,6 +15,15 @@ namespace FrameworkMarshallers {
         static int32_t read(SerializationCtx const &ctx, Buffer const &buffer);
 
         static void write(SerializationCtx const &ctx, Buffer const &buffer, const int32_t &value);
+    };
+
+    class Bool {
+    private:
+        int32_t predefinedId = 8;
+    public:
+        static bool read(SerializationCtx const &ctx, Buffer const &buffer);
+
+        static void write(SerializationCtx const &ctx, Buffer const &buffer, bool const &value);
     };
 }
 

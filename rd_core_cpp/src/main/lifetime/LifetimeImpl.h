@@ -30,9 +30,7 @@ private:
 
     void terminate();
 
-    using mutex_t = std::/*recursive_*/mutex;
-
-    mutex_t lock;
+    std::mutex lock;
 public:
 
     //region ctor/dtor
