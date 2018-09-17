@@ -14,12 +14,7 @@ ByteBufferAsyncProcessor::ByteBufferAsyncProcessor(const std::string &id,
         : ByteBufferAsyncProcessor(id, DefaultChunkSize, processor) {}
 
 void ByteBufferAsyncProcessor::cleanup0() const {
-//        synchronized(lock)
-    {
-        state = StateKind::Terminated;
-//            freeChunk = Chunk.empty
-//            firstChunkToProcess = null
-    }
+    state = StateKind::Terminated;
 }
 
 bool ByteBufferAsyncProcessor::terminate0(time_t timeout,
@@ -95,7 +90,8 @@ void ByteBufferAsyncProcessor::start() const {
 
     state = StateKind::AsyncProcessing;
 
-    asyncProcessingThread = std::thread([this]() { this->ThreadProc(); });
+//    asyncProcessingThread = std::thread([this]() { this->ThreadProc(); });
+/*    asyncProcessingThread.detach();*/
 }
 
 bool ByteBufferAsyncProcessor::stop(ByteBufferAsyncProcessor::time_t timeout) const {

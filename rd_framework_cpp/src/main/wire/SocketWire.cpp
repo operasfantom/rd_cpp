@@ -12,7 +12,8 @@
 #include <thread>
 
 SocketWire::Base::Base(const std::string &id, Lifetime lifetime, const IScheduler *scheduler)
-        : WireBase(scheduler), id(id), lifetime(std::move(lifetime)), scheduler(scheduler)/*, threadLocalSendByteArray(16384)*/ {
+        : WireBase(scheduler), id(id), lifetime(std::move(lifetime)),
+          scheduler(scheduler)/*, threadLocalSendByteArray(16384)*/ {
 
 }
 
@@ -21,14 +22,15 @@ void SocketWire::Base::receiverProc() const {
         try {
             if (!socketProvider->IsSocketValid()) {
                 logger.debug("Stop receive messages because socket disconnected");
-//                sendBuffer.terminate();
+                sendBuffer.terminate();
                 break;
             }
             Buffer::ByteArray bytes(1024);
             int32_t sz = socketProvider->Receive(1024, &bytes[0]);
             MY_ASSERT_THROW_MSG(sz != -1, this->id + ": failed to receive message over the network");
             bytes.resize(sz);
-            MY_ASSERT_THROW_MSG(bytes.size() >= 4, this->id + ": message's length is not enough:" + std::to_string(bytes.size()));
+            MY_ASSERT_THROW_MSG(bytes.size() >= 4,
+                                this->id + ": message's length is not enough:" + std::to_string(bytes.size()));
             Buffer buffer(bytes);
             RdId id = RdId::read(buffer);
             logger.debug(this->id + ": message received");
@@ -36,7 +38,7 @@ void SocketWire::Base::receiverProc() const {
             logger.debug(this->id + ": message dispatched");
         } catch (std::exception const &ex) {
             logger.error(this->id + " caught processing", &ex);
-//            sendBuffer.terminate();
+            sendBuffer.terminate();
             break;
         }
     }
@@ -44,9 +46,10 @@ void SocketWire::Base::receiverProc() const {
 
 void SocketWire::Base::send0(const ByteArraySlice &msg) const {
     try {
-        MY_ASSERT_THROW_MSG(socketProvider->Send(&msg.data[0], msg.len) > 0, this->id + ": failed to send message over the network");
+        MY_ASSERT_THROW_MSG(socketProvider->Send(&msg.data[0], msg.len) > 0,
+                            this->id + ": failed to send message over the network");
     } catch (...) {
-//        sendBuffer.terminate();
+        sendBuffer.terminate();
     }
 }
 
@@ -66,18 +69,18 @@ void SocketWire::Base::send(RdId const &id, std::function<void(Buffer const &buf
 
     auto bytes = buffer.getArray();
     threadLocalSendByteArray = bytes;
-//    sendBuffer.put(bytes);
+    sendBuffer.put(bytes);
 }
 
 void SocketWire::Base::set_socket_provider(std::shared_ptr<CSimpleSocket> new_socket) {
     socketProvider = std::move(new_socket);
-    {//synchronized
+    {
         std::lock_guard _(lock);
         if (lifetime->is_terminated()) {
             return;
         }
 
-//        sendBuffer.start();
+        sendBuffer.start();
     }
     receiverProc();
 }
@@ -85,13 +88,11 @@ void SocketWire::Base::set_socket_provider(std::shared_ptr<CSimpleSocket> new_so
 
 SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, uint16 port = 0,
                            const std::string &id = "ClientSocket") : Base(id, lifetime, scheduler), port(port) {
-
-//    auto socket = std::make_shared<CActiveSocket>();
     auto thread = std::make_shared<std::thread>([this, lifetime]() mutable {
         try {
             while (!lifetime->is_terminated()) {
                 try {
-                    auto s = new CActiveSocket();//CActiveSocket
+                    auto s = new CActiveSocket();
                     MY_ASSERT_THROW_MSG(s->Initialize(), this->id + ": failed to init ActiveSocket");
                     MY_ASSERT_THROW_MSG(s->DisableNagleAlgoritm(), this->id + ": failed to DisableNagleAlgoritm");
 
@@ -135,8 +136,8 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, uint1
     lifetime->add_action([this, thread]() {
         logger.info(this->id + ": start terminating lifetime");
 
-//        bool sendBufferStopped = sendBuffer.stop(timeout);
-//        logger.debug(this->id + ": send buffer stopped, success: " + std::to_string(sendBufferStopped));
+        bool sendBufferStopped = sendBuffer.stop(timeout);
+        logger.debug(this->id + ": send buffer stopped, success: " + std::to_string(sendBufferStopped));
 
         {
             std::lock_guard _(lock);
@@ -164,7 +165,6 @@ SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, uint1
     this->port = ss->GetServerPort();
     MY_ASSERT_MSG(this->port != 0, this->id + "Port wasn't chosen");
 
-//    auto socket = std::make_shared<CActiveSocket>();
     auto thread = std::make_shared<std::thread>([this, lifetime, ss]() mutable {
         try {
             auto s = ss->Accept(); //could be terminated by close
@@ -196,8 +196,8 @@ SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, uint1
     lifetime->add_action([this, thread, ss]() mutable {
         logger.info(this->id + ": start terminating lifetime");
 
-//        bool sendBufferStopped = sendBuffer.stop(timeout);
-//        logger.debug(this->id + ": send buffer stopped, success: " + std::to_string(sendBufferStopped));
+        bool sendBufferStopped = sendBuffer.stop(timeout);
+        logger.debug(this->id + ": send buffer stopped, success: " + std::to_string(sendBufferStopped));
 
         catch_([this, ss]() {
             logger.debug(this->id + ": closing socket");

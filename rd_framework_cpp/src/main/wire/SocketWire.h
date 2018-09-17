@@ -33,8 +33,9 @@ public:
 
         std::shared_ptr<CActiveSocket> socket;
 
-        /*mutable ByteBufferAsyncProcessor sendBuffer{id + "-AsyncSendProcessor",
-                                                     [this](ByteArraySlice const &it) { this->send0(it); }};*/
+        mutable ByteBufferAsyncProcessor sendBuffer{id + "-AsyncSendProcessor",
+                                                    [this](ByteArraySlice const &it) { this->send0(it); }};
+
         mutable Buffer::ByteArray threadLocalSendByteArray;
     public:
         //region ctor/dtor

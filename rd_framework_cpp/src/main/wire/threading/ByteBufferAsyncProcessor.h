@@ -15,7 +15,6 @@
 #include <condition_variable>
 #include "../../../../../rd_core_cpp/src/main/Logger.h"
 #include "../../Buffer.h"
-#include "Chunk.h"
 
 class ByteArraySlice {
 public:
@@ -41,7 +40,7 @@ class ByteBufferAsyncProcessor {
     static const int32_t DefaultChunkSize = 16380;
     static const int32_t DefaultShrinkIntervalMs = 30000;
 
-    mutable std::mutex lock;
+    mutable std::recursive_mutex lock;
     mutable std::condition_variable_any cv;
 
     std::string id;
@@ -53,8 +52,6 @@ class ByteBufferAsyncProcessor {
     Logger log;
 
     mutable std::thread asyncProcessingThread;
-    mutable std::optional<Chunk> freeChunk;
-    mutable std::optional<Chunk> firstChunkToProcess;
 
     mutable Buffer::ByteArray data;
 public:

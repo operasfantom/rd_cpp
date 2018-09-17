@@ -33,7 +33,7 @@ add_library(rd_framework_cpp STATIC
         impl/RdMap.cpp impl/RdMap.h
         wire/SocketWire.cpp wire/SocketWire.h
         impl/RdSet.cpp impl/RdSet.h serialization/ISerializable.cpp serialization/ISerializable.h serialization/IMarshaller.cpp serialization/IMarshaller.h FrameworkMarshallers.cpp FrameworkMarshallers.h util/util.cpp util/util.h
-        wire/threading/ByteBufferAsyncProcessor.cpp wire/threading/ByteBufferAsyncProcessor.h wire/threading/Chunk.cpp wire/threading/Chunk.h)
+        wire/threading/ByteBufferAsyncProcessor.cpp wire/threading/ByteBufferAsyncProcessor.h)
 
 target_include_directories(rd_framework_cpp PUBLIC src/)
 target_include_directories(rd_framework_cpp PUBLIC base)
