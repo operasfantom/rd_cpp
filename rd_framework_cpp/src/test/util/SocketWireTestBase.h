@@ -20,6 +20,7 @@ public:
 
 //    @Before
     void setUp() {
+
         lifetimeDef = LifetimeDefinition(Lifetime::Eternal());
         socketLifetimeDef = LifetimeDefinition(Lifetime::Eternal());
     }

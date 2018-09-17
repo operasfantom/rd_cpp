@@ -34,7 +34,7 @@ void waitAndAssert(RdProperty<T> const &that, T const &expected, T const &prev) 
     /*if (that.get() == prev) {
         throw std::runtime_error("Timeout 5000 ms while waiting value " + std::to_string(expected));
     }*/
-//    EXPECT_EQ(expected, that.get());
+    EXPECT_EQ(expected, that.get());
 }
 
 Protocol server(Lifetime lifetime, int32_t port = 0) {
@@ -56,7 +56,6 @@ Protocol client(Lifetime lifetime, uint16 port) {
     std::shared_ptr<IWire> wire(client);
     return Protocol(Identities(), &testScheduler, std::move(wire));
 }
-
 
 
 TEST_F(SocketWireTestBase, ClientWithoutServer) {
@@ -87,7 +86,7 @@ TEST_F(SocketWireTestBase, TestClientWithoutServerWithDelay) {
     AfterTest();
 }
 
-TEST_F(SocketWireTestBase,  TestServerWithoutClientWithDelayAndMessages) {
+TEST_F(SocketWireTestBase, TestServerWithoutClientWithDelayAndMessages) {
     auto protocol = server(socketLifetime);
     sleep_this_thread(100);
 
@@ -102,7 +101,7 @@ TEST_F(SocketWireTestBase,  TestServerWithoutClientWithDelayAndMessages) {
     AfterTest();
 }
 
-TEST_F(SocketWireTestBase,  TestClientWithoutServerWithDelayAndMessages) {
+TEST_F(SocketWireTestBase, TestClientWithoutServerWithDelayAndMessages) {
     uint16 port = find_free_port();
     auto clientProtocol = client(socketLifetime, port);
 
@@ -155,49 +154,64 @@ TEST_F(SocketWireTestBase, /*DISABLED_*/TestBasicRun) {
     cp.set(1);
     waitAndAssert(sp, 1, 0);//todo
 
-    /*sp.set(2);
-    waitAndAssert(cp, 2, 1);*/
+    sp.set(2);
+    waitAndAssert(cp, 2, 1);
 
     AfterTest();
 }
 
-/*@Test
-        void TestOrdering() {
-    val serverProtocol = server(socketLifetime)
-    val clientProtocol = client(socketLifetime, serverProtocol)
+TEST_F(SocketWireTestBase, /*DISABLED_*/TestOrdering) {
+    int property_id = 1;
 
-    val sp = RdOptionalProperty<int>().static(1).apply { bind(lifetime, serverProtocol, "top") }
-    val cp = RdOptionalProperty<int>().static(1).apply { bind(lifetime, clientProtocol, "top") }
+    Protocol serverProtocol = server(socketLifetime);
+    Protocol clientProtocol = client(socketLifetime, serverProtocol);
 
-    val log = ConcurrentLinkedQueue<int>()
-    sp.advise(lifetime) { log.add(it) }
-    cp.set(1)
-    cp.set(2)
-    cp.set(3)
-    cp.set(4)
-    cp.set(5)
+    RdProperty<int> sp(0);
+    statics(sp, property_id);
+    sp.bind(lifetime, &serverProtocol, "top");
 
-    while (log.size < 5) Thread.sleep(100)
-    assertEquals(listOf(1, 2, 3, 4, 5), log.toList())
+    RdProperty<int> cp(0);
+    statics(cp, property_id);
+    cp.bind(lifetime, &clientProtocol, "top");
+
+    std::vector<int> log;//concurrent?
+    sp.advise(lifetime, [&log](const int &it) { log.push_back(it); });
+    cp.set(1);
+    cp.set(2);
+    cp.set(3);
+    cp.set(4);
+    cp.set(5);
+
+    while (log.size() < 5) {
+        sleep_this_thread(100);
+    }
+    EXPECT_EQ((std::vector<int>{1, 2, 3, 4, 5}), log);
+}
+
+TEST_F(SocketWireTestBase, /*DISABLED_*/TestBigBuffer) {
+    int property_id = 1;
+
+    Protocol serverProtocol = server(socketLifetime);
+    Protocol clientProtocol = client(socketLifetime, serverProtocol);
+
+    RdProperty<std::string> sp("");
+    statics(sp, property_id);
+    sp.bind(lifetime, &serverProtocol, "top");
+
+    RdProperty<std::string> cp("");
+    statics(cp, property_id);
+    cp.bind(lifetime, &clientProtocol, "top");
+
+    cp.set("1");
+    waitAndAssert<std::string>(sp, "1", "");
+
+    std::string str(100000, '3');
+    sp.set(str);
+    waitAndAssert<std::string>(cp, str, "1");
 }
 
 
-@Test
-        void TestBigBuffer() {
-    val serverProtocol = server(socketLifetime)
-    val clientProtocol = client(socketLifetime, serverProtocol)
-
-    val sp = RdOptionalProperty<String>().static(1).apply { bind(lifetime, serverProtocol, "top") }
-    val cp = RdOptionalProperty<String>().static(1).apply { bind(lifetime, clientProtocol, "top") }
-
-    cp.set("1")
-    sp.waitAndAssert("1")
-
-    sp.set("".padStart(100000, '3'))
-    cp.waitAndAssert("".padStart(100000, '3'), "1")
-}
-
-
+/*
 @Test
         void TestRunWithSlowpokeServer() {
 

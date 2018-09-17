@@ -36,7 +36,8 @@ public:
 
     explicit Buffer(size_t initialSize);
 
-    explicit Buffer(const ByteArray &array) : byteBufferMemoryBase(std::move(array)), offset(0), size_(array.size()) {}
+    explicit Buffer(const ByteArray &array, int32_t offset = 0)
+            : byteBufferMemoryBase(std::move(array)), offset(offset), size_(array.size()) {}
 
     Buffer(Buffer const &) = delete;
 

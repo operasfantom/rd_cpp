@@ -25,6 +25,7 @@ public:
         Logger logger;
 
         std::timed_mutex lock;
+        mutable std::mutex send_lock;
 
         std::string id;
         Lifetime lifetime;
@@ -33,8 +34,9 @@ public:
 
         std::shared_ptr<CActiveSocket> socket;
 
-        mutable ByteBufferAsyncProcessor sendBuffer{id + "-AsyncSendProcessor",
-                                                    [this](ByteArraySlice const &it) { this->send0(it); }};
+        mutable std::condition_variable send_var;
+        /*mutable ByteBufferAsyncProcessor sendBuffer{id + "-AsyncSendProcessor",
+                                                    [this](ByteArraySlice const &it) { this->send0(it); }};*/
 
         mutable Buffer::ByteArray threadLocalSendByteArray;
     public:
@@ -47,7 +49,7 @@ public:
 
         void receiverProc() const;
 
-        void send0(const ByteArraySlice &msg) const;
+        void send0(const Buffer &msg) const;
 
         void send(RdId const &id, std::function<void(Buffer const &buffer)> writer) const override;
 

@@ -22,7 +22,7 @@ void SocketWire::Base::receiverProc() const {
         try {
             if (!socketProvider->IsSocketValid()) {
                 logger.debug("Stop receive messages because socket disconnected");
-                sendBuffer.terminate();
+//                sendBuffer.terminate();
                 break;
             }
             Buffer::ByteArray bytes(1024);
@@ -31,25 +31,25 @@ void SocketWire::Base::receiverProc() const {
             bytes.resize(sz);
             MY_ASSERT_THROW_MSG(bytes.size() >= 4,
                                 this->id + ": message's length is not enough:" + std::to_string(bytes.size()));
-            Buffer buffer(bytes);
+            Buffer buffer(bytes, 4);
             RdId id = RdId::read(buffer);
             logger.debug(this->id + ": message received");
             message_broker.dispatch(id, std::move(buffer));
             logger.debug(this->id + ": message dispatched");
         } catch (std::exception const &ex) {
             logger.error(this->id + " caught processing", &ex);
-            sendBuffer.terminate();
+//            sendBuffer.terminate();
             break;
         }
     }
 }
 
-void SocketWire::Base::send0(const ByteArraySlice &msg) const {
+void SocketWire::Base::send0(const Buffer &msg) const {
     try {
-        MY_ASSERT_THROW_MSG(socketProvider->Send(&msg.data[0], msg.len) > 0,
+        MY_ASSERT_THROW_MSG(socketProvider->Send(msg.data(), msg.size()) > 0,
                             this->id + ": failed to send message over the network");
     } catch (...) {
-        sendBuffer.terminate();
+//        sendBuffer.terminate();
     }
 }
 
@@ -69,18 +69,22 @@ void SocketWire::Base::send(RdId const &id, std::function<void(Buffer const &buf
 
     auto bytes = buffer.getArray();
     threadLocalSendByteArray = bytes;
-    sendBuffer.put(bytes);
+    /*sendBuffer.put(bytes);*/
+    std::unique_lock<std::mutex> ul(send_lock);
+    send_var.wait(ul, [this]() -> bool { return socketProvider != nullptr; });
+    send0(buffer);
 }
 
 void SocketWire::Base::set_socket_provider(std::shared_ptr<CSimpleSocket> new_socket) {
     socketProvider = std::move(new_socket);
+    send_var.notify_all();
     {
         std::lock_guard _(lock);
         if (lifetime->is_terminated()) {
             return;
         }
 
-        sendBuffer.start();
+//        sendBuffer.start();
     }
     receiverProc();
 }
@@ -136,8 +140,8 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, uint1
     lifetime->add_action([this, thread]() {
         logger.info(this->id + ": start terminating lifetime");
 
-        bool sendBufferStopped = sendBuffer.stop(timeout);
-        logger.debug(this->id + ": send buffer stopped, success: " + std::to_string(sendBufferStopped));
+//        bool sendBufferStopped = sendBuffer.stop(timeout);
+//        logger.debug(this->id + ": send buffer stopped, success: " + std::to_string(sendBufferStopped));
 
         {
             std::lock_guard _(lock);
@@ -196,8 +200,8 @@ SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, uint1
     lifetime->add_action([this, thread, ss]() mutable {
         logger.info(this->id + ": start terminating lifetime");
 
-        bool sendBufferStopped = sendBuffer.stop(timeout);
-        logger.debug(this->id + ": send buffer stopped, success: " + std::to_string(sendBufferStopped));
+//        bool sendBufferStopped = sendBuffer.stop(timeout);
+//        logger.debug(this->id + ": send buffer stopped, success: " + std::to_string(sendBufferStopped));
 
         catch_([this, ss]() {
             logger.debug(this->id + ": closing socket");
