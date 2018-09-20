@@ -46,6 +46,7 @@ void SocketWire::Base::receiverProc() const {
 
 void SocketWire::Base::send0(const Buffer &msg) const {
     try {
+        std::lock_guard _(socket_lock);
         MY_ASSERT_THROW_MSG(socketProvider->Send(msg.data(), msg.size()) > 0,
                             this->id + ": failed to send message over the network");
     } catch (...) {
@@ -76,8 +77,11 @@ void SocketWire::Base::send(RdId const &id, std::function<void(Buffer const &buf
 }
 
 void SocketWire::Base::set_socket_provider(std::shared_ptr<CSimpleSocket> new_socket) {
-    socketProvider = std::move(new_socket);
-    send_var.notify_all();
+    {
+        std::unique_lock<std::mutex> ul(send_lock);
+        socketProvider = std::move(new_socket);
+        send_var.notify_all();
+    }
     {
         std::lock_guard _(lock);
         if (lifetime->is_terminated()) {
@@ -92,27 +96,24 @@ void SocketWire::Base::set_socket_provider(std::shared_ptr<CSimpleSocket> new_so
 
 SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, uint16 port = 0,
                            const std::string &id = "ClientSocket") : Base(id, lifetime, scheduler), port(port) {
-    auto thread = std::make_shared<std::thread>([this, lifetime]() mutable {
+    thread = std::thread([this, lifetime]() mutable {
         try {
             while (!lifetime->is_terminated()) {
                 try {
-                    auto s = new CActiveSocket();
-                    MY_ASSERT_THROW_MSG(s->Initialize(), this->id + ": failed to init ActiveSocket");
-                    MY_ASSERT_THROW_MSG(s->DisableNagleAlgoritm(), this->id + ": failed to DisableNagleAlgoritm");
+                    MY_ASSERT_THROW_MSG(socket->Initialize(), this->id + ": failed to init ActiveSocket");
+                    MY_ASSERT_THROW_MSG(socket->DisableNagleAlgoritm(), this->id + ": failed to DisableNagleAlgoritm");
 
                     // On windows connect will try to send SYN 3 times with interval of 500ms (total time is 1second)
                     // Connect timeout doesn't work if it's more than 1 second. But we don't need it because we can close socket any moment.
 
                     //https://stackoverflow.com/questions/22417228/prevent-tcp-socket-connection-retries
                     //HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\TcpMaxConnectRetransmissions
-                    MY_ASSERT_THROW_MSG(s->Open("127.0.0.1", this->port), this->id + ": failed to open ActiveSocket");
+                    MY_ASSERT_THROW_MSG(socket->Open("127.0.0.1", this->port), this->id + ": failed to open ActiveSocket");
 
                     {
                         std::lock_guard _(lock);
                         if (lifetime->is_terminated()) {
-                            catch_([&s]() { s->Close(); });
-                        } else {
-                            socket.reset(s);
+                            catch_([this]() { socket->Close(); });
                         }
                     }
 
@@ -137,7 +138,7 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, uint1
         logger.debug(this->id + ": thread expired");
     });
 
-    lifetime->add_action([this, thread]() {
+    lifetime->add_action([this]() {
         logger.info(this->id + ": start terminating lifetime");
 
 //        bool sendBufferStopped = sendBuffer.stop(timeout);
@@ -155,21 +156,20 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, uint1
         }
 
         logger.debug(this->id + ": waiting for receiver thread");
-        thread->join();
+        thread.join();
         logger.info(this->id + ": termination finished");
     });
 }
 
 SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, uint16 port = 0,
                            const std::string &id = "ServerSocket") : Base(id, lifetime, scheduler) {
-    auto ss = std::make_shared<CPassiveSocket>();
     MY_ASSERT_MSG(ss->Initialize(), this->id + ": failed to initialize socket");
     MY_ASSERT_MSG(ss->Listen("127.0.0.1", port/* ? port : 16384*/),
                   this->id + ": failed to listen socket on port:" + std::to_string(port));
     this->port = ss->GetServerPort();
     MY_ASSERT_MSG(this->port != 0, this->id + "Port wasn't chosen");
 
-    auto thread = std::make_shared<std::thread>([this, lifetime, ss]() mutable {
+    thread = std::thread([this, lifetime]() mutable {
         try {
             auto s = ss->Accept(); //could be terminated by close
             MY_ASSERT_THROW_MSG(s != nullptr, this->id + ": accepting failed");
@@ -197,13 +197,13 @@ SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, uint1
         logger.debug(this->id + ": thread expired");
     });
 
-    lifetime->add_action([this, thread, ss]() mutable {
+    lifetime->add_action([this]() mutable {
         logger.info(this->id + ": start terminating lifetime");
 
 //        bool sendBufferStopped = sendBuffer.stop(timeout);
 //        logger.debug(this->id + ": send buffer stopped, success: " + std::to_string(sendBufferStopped));
 
-        catch_([this, ss]() {
+        catch_([this]() {
             logger.debug(this->id + ": closing socket");
             MY_ASSERT_THROW_MSG(ss->Close(), this->id + ": failed to close socket");
         });
@@ -218,7 +218,7 @@ SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, uint1
         });
 
         logger.debug(this->id + ": waiting for receiver thread");
-        thread->join();
+        thread.join();
         logger.info(this->id + ": termination finished");
     });
 }

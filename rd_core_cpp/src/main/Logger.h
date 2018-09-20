@@ -11,6 +11,8 @@
 #include <string>
 #include <exception>
 #include <iostream>
+#include <ctime>
+#include <chrono>
 
 enum class LogLevel {
     Trace,

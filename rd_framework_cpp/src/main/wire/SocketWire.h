@@ -26,13 +26,16 @@ public:
 
         std::timed_mutex lock;
         mutable std::mutex send_lock;
+        mutable std::recursive_mutex socket_lock;
+
+        std::thread thread;
 
         std::string id;
         Lifetime lifetime;
         IScheduler const *const scheduler = nullptr;
         std::shared_ptr<CSimpleSocket> socketProvider;
 
-        std::shared_ptr<CActiveSocket> socket;
+        std::shared_ptr<CActiveSocket> socket = std::make_shared<CActiveSocket>();
 
         mutable std::condition_variable send_var;
         /*mutable ByteBufferAsyncProcessor sendBuffer{id + "-AsyncSendProcessor",
@@ -73,6 +76,8 @@ public:
     class Server : public Base {
     public:
         uint16 port = 0;
+
+        std::unique_ptr<CPassiveSocket> ss = std::make_unique<CPassiveSocket>();
 
         //region ctor/dtor
 
