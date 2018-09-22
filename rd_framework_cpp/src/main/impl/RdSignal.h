@@ -22,6 +22,10 @@ public:
     virtual ~RdSignal() = default;
     //endregion
 
+    std::string logmsg(T const &value) const {
+        return "signal " + location.toString() + " " + rd_id.toString() + ":: value = " + to_string(value);
+    }
+
     void init(Lifetime lifetime) const override {
         RdReactiveBase::init(lifetime);
 //        wire_scheduler = get_default_scheduler();
@@ -30,8 +34,8 @@ public:
 
     void on_wire_received(Buffer const &buffer) const override {
         T value = S::read(this->get_serialization_context(), buffer);
-        this->logReceived.trace(
-                "signal " + location.toString() + " " + rd_id.toString() + ":: value = ${value.printToString()}");
+        this->logReceived.trace(logmsg(value));
+
         signal.fire(value);
     }
 
@@ -41,13 +45,11 @@ public:
             assert_threading();
         }
         get_wire()->send(rd_id, [this, &value](Buffer const &buffer) {
-            this->logSend.trace(
-                    "signal " + location.toString() + " " + rd_id.toString() + ":: value = ${value.printToString()}");
+            this->logSend.trace(logmsg(value));
             S::write(get_serialization_context(), buffer, value);
         });
         signal.fire(value);
     }
-
 
     void advise(Lifetime lifetime, std::function<void(const T &)> handler) const {
         if (is_bound()) {

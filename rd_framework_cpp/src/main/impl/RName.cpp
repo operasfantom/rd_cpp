@@ -16,7 +16,9 @@ namespace {
 }
 
 std::string RName::toString() {
-    std::optional<std::string> res = parent ? parent->toString() : nullptr;
+    std::optional<std::string> res;
+    if (parent)
+        res = parent->toString();
     if (res && !res->empty()) {
         return *res + separator + local_name;
     } else {

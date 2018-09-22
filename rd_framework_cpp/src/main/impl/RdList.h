@@ -27,8 +27,6 @@ public:
     virtual ~RdList() = default;
     //endregion
 
-    static std::string to_string(Op op);
-
     class Companion {
     public:
         static RdList<V, S> read(SerializationCtx const &ctx, Buffer const &buffer) {
@@ -52,6 +50,13 @@ public:
     static const int32_t versionedFlagShift = 2; // update when changing Op
 
     bool optimizeNested = false;
+
+    std::string logmsg(Op op, int64_t version, int32_t key, V const *value = nullptr) const {
+        return "list " + location.toString() + " " + rd_id.toString() + ":: " + to_string(op) +
+               ":: key = " + std::to_string(key) +
+               ((version > 0) ? " :: version = " + /*std::*/to_string(version) : "") +
+               " :: value = " + (value ? to_string(value) : "");
+    }
 
     void init(Lifetime lifetime) const override {
         RdBindableBase::init(lifetime);
@@ -79,11 +84,7 @@ public:
                     if (new_value) {
                         S::write(this->get_serialization_context(), buffer, *new_value);
                     }
-
-                    this->logSend.trace("list " + location.toString() + " " + rd_id.toString() + to_string(op) +
-                                  "::key = " + std::to_string(e.get_index()) +
-                                  "::version = " + std::to_string(nextVersion - 1) +
-                                  "::value = ${value.printToString()}");
+                    this->logSend.trace(logmsg(op, nextVersion - 1, e.get_index(), new_value));
                 });
             });
         });
@@ -102,12 +103,6 @@ public:
         Op op = static_cast<Op>((header & ((1 << versionedFlagShift) - 1L)));
         int32_t index = (buffer.read_pod<int32_t>());
 
-        this->logReceived.trace("list " + location.toString() + " " + rd_id.toString() + to_string(op) +
-                          "::key = ${key.printToString()}" +
-                          "::version = " + std::to_string(version) +
-                          "::value = ${value.printToString()}");
-
-
         MY_ASSERT_MSG(version == nextVersion, ("Version conflict for " + location.toString() + "}. Expected version " +
                                                std::to_string(nextVersion) +
                                                ", received " +
@@ -117,20 +112,30 @@ public:
         nextVersion++;
 
         switch (op) {
-            case Op::Add: {
+            case Op::ADD: {
                 V value = S::read(this->get_serialization_context(), buffer);
+
+                this->logReceived.trace(logmsg(op, version, index, &value));
+
                 (index < 0) ? list.add(std::move(value)) : list.add(static_cast<size_t>(index), std::move(value));
                 break;
             }
-            case Op::Update: {
+            case Op::UPDATE: {
                 V value = S::read(this->get_serialization_context(), buffer);
+
+                this->logReceived.trace(logmsg(op, version, index, &value));
+
                 list.set(static_cast<size_t>(index), std::move(value));
                 break;
             }
-            case Op::Remove: {
+            case Op::REMOVE: {
+                this->logReceived.trace(logmsg(op, version, index));
+
                 list.removeAt(static_cast<size_t>(index));
                 break;
             }
+            case Op::ACK:
+                break;
         }
     }
 
@@ -176,14 +181,6 @@ public:
         return local_change<bool>([&]() mutable { return list.removeAll(std::move(elements)); });
     }
 };
-
-template<typename V, typename S>
-std::string RdList<V, S>::to_string(Op op) {
-    if (op == Op::Add) return "ADD";
-    if (op == Op::Remove) return "REMOVE";
-    if (op == Op::Update) return "Update";
-    return "";
-}
 
 
 #endif //RD_CPP_RDLIST_H

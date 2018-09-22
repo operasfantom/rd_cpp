@@ -20,7 +20,7 @@ uint16 find_free_port();
 
 void sleep_this_thread(int ms);
 
-Protocol server(Lifetime lifetime, int32_t port = 0);
+Protocol server(Lifetime lifetime, uint16 port = 0);
 
 Protocol client(Lifetime lifetime, Protocol const &serverProtocol);
 

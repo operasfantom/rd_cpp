@@ -9,6 +9,7 @@
 #include <memory>
 #include <cassert>
 #include <iostream>
+#include <string>
 
 #define MY_ASSERT_MSG(expr, msg) if(!(expr)){std::cerr<<std::endl<<(msg)<<std::endl;assert(expr);}
 #define MY_ASSERT_THROW_MSG(expr, msg) if(!(expr)){std::cerr<<std::endl<<(msg)<<std::endl;throw std::runtime_error(msg);}
@@ -45,6 +46,17 @@ typename std::enable_if_t<std::is_copy_constructible_v<U>, std::shared_ptr<U> >
 //std::shared_ptr<U>
 deleted_shared_ptr(U const &element) {
     return std::make_shared<U>(element);
+}
+
+
+template<typename T>
+typename std::enable_if_t<std::is_arithmetic_v<T, std::string> > to_string(T const &val) {
+    return std::to_string(val);
+}
+
+template<typename T>
+std::string to_string(T const &val) {
+    return "";
 }
 
 //todo

@@ -11,9 +11,9 @@ std::string to_string(AddRemove kind) {
 }
 
 std::string to_string(Op op) {
-    if (op == Op::Add) return "Add";
-    if (op == Op::Remove) return "Remove";
-    if (op == Op::Update) return "Update";
-    if (op == Op::Ack) return "Ack";
+    if (op == Op::ADD) return "Add";
+    if (op == Op::REMOVE) return "Remove";
+    if (op == Op::UPDATE) return "Update";
+    if (op == Op::ACK) return "Ack";
     return "";
 }

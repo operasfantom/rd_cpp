@@ -1,15 +1,12 @@
-#include <utility>
-
 //
 // Created by jetbrains on 23.08.2018.
 //
 
+#include <utility>
+#include <thread>
 
 #include "SocketWire.h"
 #include "../../../../rd_core_cpp/src/main/Logger.h"
-
-
-#include <thread>
 
 SocketWire::Base::Base(const std::string &id, Lifetime lifetime, const IScheduler *scheduler)
         : WireBase(scheduler), id(id), lifetime(std::move(lifetime)),
@@ -170,7 +167,7 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, uint1
 SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, uint16 port = 0,
                            const std::string &id = "ServerSocket") : Base(id, lifetime, scheduler) {
     MY_ASSERT_MSG(ss->Initialize(), this->id + ": failed to initialize socket");
-    MY_ASSERT_MSG(ss->Listen("127.0.0.1", port/* ? port : 16384*/),
+    MY_ASSERT_MSG(ss->Listen("127.0.0.1", port),
                   this->id + ": failed to listen socket on port:" + std::to_string(port));
     this->port = ss->GetServerPort();
     MY_ASSERT_MSG(this->port != 0, this->id + "Port wasn't chosen");

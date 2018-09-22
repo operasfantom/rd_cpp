@@ -14,7 +14,7 @@ enum class AddRemove {
 std::string to_string(AddRemove kind);
 
 enum class Op {
-    Add, Update, Remove, Ack
+    ADD, UPDATE, REMOVE, ACK
 };
 
 std::string to_string(Op op);

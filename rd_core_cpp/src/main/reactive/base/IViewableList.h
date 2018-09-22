@@ -26,7 +26,7 @@ public:
     public:
         class Add {
         public:
-            size_t index;
+            int32_t index;
             T const *new_value;
 
             Add(size_t index, T const *new_value) : index(index), new_value(new_value) {}
@@ -34,7 +34,7 @@ public:
 
         class Update {
         public:
-            size_t index;
+            int32_t index;
             T const *old_value;
             T const *new_value;
 
@@ -44,7 +44,7 @@ public:
 
         class Remove {
         public:
-            size_t index;
+            int32_t index;
             T const *old_value;
 
             Remove(size_t index, T const *old_value) : index(index), old_value(old_value) {}
@@ -58,7 +58,7 @@ public:
 
         Event(Remove const &x) : v(x) {}
 
-        size_t get_index() const {
+        int32_t get_index() const {
             return std::visit(overloaded{
                     [](typename Event::Add const &e) {
                         return e.index;

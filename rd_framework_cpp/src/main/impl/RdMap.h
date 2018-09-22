@@ -45,13 +45,19 @@ public:
 //        return withId<RdMap<K, V>>(RdMap(valSzr, ViewableMap(), buffer.read_pod<int64_t>()), RdId::read(buffer));
     }
 
-    template<typename X, typename Y>
-    static void write(SerializationCtx ctx, Buffer const &buffer, RdMap<X, Y> const &that) {
+    static void write(SerializationCtx ctx, Buffer const &buffer, RdMap<K, V, S> const &that) {
         buffer.write_pod<int64_t>(that.nextVersion);
         that.rd_id.write(buffer);
     }*/
 
     static const int32_t versionedFlagShift = 8; // update when changing Op
+
+    std::string logmsg(Op op, int64_t version, K const *key, V const *value = nullptr) const {
+        return "map " + location.toString() + " " + rd_id.toString() + ":: " + to_string(op) +
+               ":: key = ${key.printToString()}" +
+               ((version > 0) ? " :: version = " + /*std::*/to_string(version) : "") +
+                " :: value = " + (value ? to_string(value) : "");
+    }
 
     void init(Lifetime lifetime) const override {
         RdBindableBase::init(lifetime);
@@ -86,7 +92,7 @@ public:
                         VS::write(this->get_serialization_context(), buffer, *new_value);
                     }
 
-//                logSend.trace { logmsg(op, nextVersion-1, it.index, it.newValueOpt) }
+                    logSend.trace(logmsg(op, nextVersion - 1, e.get_key(), new_value));
                 });
             });
         });
@@ -108,7 +114,7 @@ public:
 
         K key = KS::read(this->get_serialization_context(), buffer);
 
-        if (op == Op::Ack) {
+        if (op == Op::ACK) {
             /*val errmsg =
             if (!msgVersioned) "Received ${Op.Ack} while msg hasn't versioned flag set"
             else if (!master) "Received ${Op.Ack} when not a Master"
@@ -127,13 +133,13 @@ public:
             logReceived.error {  logmsg(Op.Ack, version, key) + " >> $errmsg"}*/
 
         } else {
-            bool isPut = (op == Op::Add || op == Op::Update);
+            bool isPut = (op == Op::ADD || op == Op::UPDATE);
             std::optional<V> value;
             if (isPut)
                 value = VS::read(this->get_serialization_context(), buffer);
 
             if (msgVersioned || !is_master() || pendingForAck.count(key) == 0) {
-//                    logReceived.trace { logmsg(op, version, key, value) }
+                logReceived.trace(logmsg(op, version, &key, value.operator->()));
 
                 if (value.has_value()) {
                     map.set(key, std::move(*value));
@@ -141,20 +147,22 @@ public:
                     map.remove(key);
                 }
             } else {
-//                    logReceived.trace { logmsg(op, version, key, value) + " >> REJECTED" }
+                logReceived.trace(logmsg(op, version, &key, value.operator->()) + " >> REJECTED");
             }
 
 
             if (msgVersioned) {
                 get_wire()->send(rd_id, [this, version, key](Buffer const &innerBuffer) {
-                    innerBuffer.write_pod<int32_t>((1 << versionedFlagShift) | static_cast<int32_t>(Op::Ack));
+                    innerBuffer.write_pod<int32_t>((1 << versionedFlagShift) | static_cast<int32_t>(Op::ACK));
                     innerBuffer.write_pod<int64_t>(version);
                     KS::write(this->get_serialization_context(), innerBuffer, key);
 
-//                    logSend.trace { logmsg(Op.Ack, version, key) }
+                    logSend.trace(logmsg(Op::ACK, version, &key));
                 });
 
-//                if (is_master()) logReceived.error { "Both ends are masters: $location" }
+                if (is_master()) {
+                    logReceived.error("Both ends are masters:" + location.toString());
+                }
             }
 
         }
