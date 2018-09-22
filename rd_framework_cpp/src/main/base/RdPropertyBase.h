@@ -62,7 +62,8 @@ public:
             get_wire()->send(rd_id, [this, &v](Buffer const &buffer) {
                 buffer.write_pod<int32_t>(master_version);
                 S::write(this->get_serialization_context(), buffer, v);
-//                logSend.trace{ "property `$location` ($rdid):: ver = $masterVersion, value = ${v.printToString()}" }
+                this->logSend.trace("property " + location.toString() + " + " + rd_id.toString() +
+                              ":: ver = " + std::to_string(master_version) + ", value = ${v.printToString()}");
             });
         });
 

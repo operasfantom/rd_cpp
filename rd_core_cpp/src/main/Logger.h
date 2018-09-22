@@ -33,6 +33,10 @@ public:
                   << std::endl;
     }
 
+    void trace(std::string const &msg, std::exception const *e = nullptr) const {
+        log(LogLevel::Trace, msg, e);
+    }
+
     void debug(std::string const &msg, std::exception const *e = nullptr) const {
         log(LogLevel::Debug, msg, e);
     }

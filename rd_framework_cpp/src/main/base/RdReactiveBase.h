@@ -10,16 +10,19 @@
 #include "IRdReactive.h"
 #include "IWire.h"
 #include "IProtocol.h"
+#include "../../../../rd_core_cpp/src/main/Logger.h"
 
 class RdReactiveBase : public RdBindableBase, public IRdReactive {
 public:
+    Logger logReceived;
+    Logger logSend;
 
     //region ctor/dtor
 
     RdReactiveBase() = default;
 
     RdReactiveBase(RdReactiveBase &&other) : RdBindableBase(std::move(other))/*, async(other.async)*/ {
-		async = other.async;
+        async = other.async;
     };
 
     RdReactiveBase &operator=(RdReactiveBase &&other) {

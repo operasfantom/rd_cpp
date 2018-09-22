@@ -8,12 +8,14 @@
 
 #include <interfaces.h>
 #include <util.h>
+#include "viewable_collections.h"
 
 template<typename T>
 class IViewableSet : public IViewable<T> {
 protected:
     mutable std::unordered_map<Lifetime, std::unordered_map<T, LifetimeDefinition>, Lifetime::Hash> lifetimes;
 public:
+
     class Event {
     public:
         Event(AddRemove kind, T const *value) : kind(kind), value(value) {}
@@ -24,7 +26,7 @@ public:
 
     virtual ~IViewableSet() = default;
 
-	virtual void advise(Lifetime lifetime, std::function<void(AddRemove, T const &)> handler) const {
+    virtual void advise(Lifetime lifetime, std::function<void(AddRemove, T const &)> handler) const {
         this->advise(lifetime, [handler](Event const &e) {
             handler(e.kind, *e.value);
         });

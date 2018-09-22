@@ -39,10 +39,6 @@ public:
     virtual ~RdMap() = default;
     //endregion
 
-    enum class Op {
-        Add, Update, Remove, Ack
-    }; // update versionedFlagShift when changing
-
 
 
 /*    static RdMap<K, V> read(SerializationCtx ctx, Buffer const &buffer) {

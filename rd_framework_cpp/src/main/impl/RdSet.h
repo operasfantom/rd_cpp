@@ -16,8 +16,13 @@ protected:
     ViewableSet<T> set;
 
     using Event = typename IViewableSet<T>::Event;
+
 public:
+    //region ctor/dtor
+
     virtual ~RdSet() = default;
+
+    //endregion
 
     bool optimizeNested = false;
 
@@ -32,7 +37,10 @@ public:
                     buffer.write_pod<int32_t>(static_cast<int32_t>(kind));
                     S::write(this->get_serialization_context(), buffer, v);
 
-//                logSend.trace { "set `$location` ($rdid) :: $kind :: ${v.printToString()} "}
+                    this->logSend.trace(
+                            "set " + location.toString() + " " + rd_id.toString() +
+                            ":: " + to_string(kind) +
+                            ":: ${v.printToString()} ");
                 });
             });
         });
@@ -42,7 +50,7 @@ public:
 
     void on_wire_received(Buffer const &buffer) const override {
         AddRemove kind = static_cast<AddRemove>(buffer.read_pod<int32_t>());
-        T const &value = S::read(this->get_serialization_context(), buffer);
+        T value = S::read(this->get_serialization_context(), buffer);
 
         //todo maybe identify is forgotten
 

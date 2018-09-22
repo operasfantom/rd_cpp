@@ -29,8 +29,9 @@ public:
     }
 
     void on_wire_received(Buffer const &buffer) const override {
-        T const& value = S::read(this->get_serialization_context(), buffer);
-//        logReceived.trace { "signal `$location` ($rdid):: value = ${value.printToString()}" }
+        T value = S::read(this->get_serialization_context(), buffer);
+        this->logReceived.trace(
+                "signal " + location.toString() + " " + rd_id.toString() + ":: value = ${value.printToString()}");
         signal.fire(value);
     }
 
@@ -40,7 +41,8 @@ public:
             assert_threading();
         }
         get_wire()->send(rd_id, [this, &value](Buffer const &buffer) {
-//            logSend.trace { "signal `$location` ($rdid):: value = ${value.printToString()}" }
+            this->logSend.trace(
+                    "signal " + location.toString() + " " + rd_id.toString() + ":: value = ${value.printToString()}");
             S::write(get_serialization_context(), buffer, value);
         });
         signal.fire(value);

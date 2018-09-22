@@ -2,8 +2,8 @@
 // Created by jetbrains on 13.08.2018.
 //
 
-#ifndef RD_CPP_UTIL_H
-#define RD_CPP_UTIL_H
+#ifndef RD_CORE_CPP_UTIL_H
+#define RD_CORE_CPP_UTIL_H
 
 #include <type_traits>
 #include <memory>
@@ -19,11 +19,6 @@ struct overloaded : Ts ... {
 };
 
 template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
-
-
-enum class AddRemove {
-    ADD, REMOVE
-};
 
 template<typename T>
 struct KeyEqualSharedPtr {
@@ -54,4 +49,4 @@ deleted_shared_ptr(U const &element) {
 
 //todo
 
-#endif //RD_CPP_UTIL_H
+#endif //RD_CORE_CPP_UTIL_H

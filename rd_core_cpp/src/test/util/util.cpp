@@ -8,7 +8,3 @@
 std::string operator "" _s(char const *str, size_t len) {
     return std::string(str, len);
 }
-
-std::string to_string(AddRemove kind) {
-    return (kind == AddRemove::ADD ? "Add" : "Remove");
-}

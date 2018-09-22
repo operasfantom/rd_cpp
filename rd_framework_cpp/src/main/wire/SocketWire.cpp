@@ -28,6 +28,7 @@ void SocketWire::Base::receiverProc() const {
             Buffer::ByteArray bytes(1024);
             int32_t sz = socketProvider->Receive(1024, &bytes[0]);
             MY_ASSERT_THROW_MSG(sz != -1, this->id + ": failed to receive message over the network");
+            logger.info("were received " + std::to_string(sz) + " bytes");
             bytes.resize(sz);
             MY_ASSERT_THROW_MSG(bytes.size() >= 4,
                                 this->id + ": message's length is not enough:" + std::to_string(bytes.size()));
@@ -47,8 +48,13 @@ void SocketWire::Base::receiverProc() const {
 void SocketWire::Base::send0(const Buffer &msg) const {
     try {
         std::lock_guard _(socket_lock);
-        MY_ASSERT_THROW_MSG(socketProvider->Send(msg.data(), msg.size()) > 0,
+        int sz = static_cast<int>(msg.size());
+        MY_ASSERT_THROW_MSG(socketProvider->Send(msg.data(), sz) > 0,
                             this->id + ": failed to send message over the network");
+        logger.info("were sent " + std::to_string(sz) + " bytes");
+        /*MY_ASSERT_THROW_MSG(socketProvider->Send(msg.data(), 0) > 0,
+                            this->id + ": failed to flush");*/
+//        MY_ASSERT_MSG(socketProvider->Flush(), this->id + ": failed to flush");
     } catch (...) {
 //        sendBuffer.terminate();
     }
@@ -63,7 +69,7 @@ void SocketWire::Base::send(RdId const &id, std::function<void(Buffer const &buf
     id.write(buffer); //write id
     writer(buffer); //write rest
 
-    size_t len = buffer.get_position();
+    int32_t len = static_cast<int32_t>(buffer.get_position());
 
     buffer.rewind();
     buffer.write_pod<int32_t>(len - 4);
@@ -171,21 +177,19 @@ SocketWire::Server::Server(Lifetime lifetime, const IScheduler *scheduler, uint1
 
     thread = std::thread([this, lifetime]() mutable {
         try {
-            auto s = ss->Accept(); //could be terminated by close
-            MY_ASSERT_THROW_MSG(s != nullptr, this->id + ": accepting failed");
+            socket.reset(ss->Accept());
+            MY_ASSERT_THROW_MSG(socket != nullptr, this->id + ": accepting failed");
             logger.info(this->id + this->id + ": accepted passive socket");
-            MY_ASSERT_THROW_MSG(s->DisableNagleAlgoritm(), this->id + ": tcpNoDelay failed");
+            MY_ASSERT_THROW_MSG(socket->DisableNagleAlgoritm(), this->id + ": tcpNoDelay failed");
 
             {
                 std::lock_guard _(lock);
                 if (lifetime->is_terminated()) {
-                    catch_([this, s]() {
+                    catch_([this]() {
                         logger.debug(this->id + ": closing passive socket");
-                        MY_ASSERT_THROW_MSG(s->Close(), this->id + ": failed to close socket");
+                        MY_ASSERT_THROW_MSG(socket->Close(), this->id + ": failed to close socket");
                         logger.info(this->id + ": close passive socket");
                     });
-                } else {
-                    socket.reset(s);
                 }
             }
 

@@ -25,16 +25,14 @@ std::string to_string(const std::pair<F, S> p) {
 }
 
 template<typename F, typename S>
-std::string to_string(const std::pair<F, S*> p) {
+std::string to_string(const std::pair<F, S *> p) {
     return "(" + std::to_string(p.first) + ", " + std::to_string(*p.second) + ")";
 }
 
 template<typename F, typename S>
-std::string to_string(const std::pair<F*, S*> p) {
+std::string to_string(const std::pair<F *, S *> p) {
     return "(" + std::to_string(*p.first) + ", " + std::to_string(*p.second) + ")";
 }
-
-std::string to_string(AddRemove kind);
 
 template<typename K, typename V>
 std::string to_string_map_event(typename IViewableMap<K, V>::Event const &e) {
@@ -104,6 +102,7 @@ inline std::string to_string_list_event<std::string>(typename IViewableList<std:
     }, e.v);
     return res;
 }
+
 /*
 template<typename K, typename V>
 std::string to_string_map_event(typename IViewableMap<K, V>::Event const &e) {

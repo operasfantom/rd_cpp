@@ -9,7 +9,7 @@
 #include <RdReactiveBase.h>
 #include "../serialization/Polymorphic.h"
 #include "../serialization/SerializationCtx.h"
-
+#include "util.h"
 
 template<typename V, typename S = Polymorphic<V>>
 class RdList : public RdReactiveBase, public IViewableList<V> {
@@ -27,9 +27,7 @@ public:
     virtual ~RdList() = default;
     //endregion
 
-    enum class Op {
-        Add, Update, Remove
-    }; // update versionedFlagShift when changing
+    static std::string to_string(Op op);
 
     class Companion {
     public:
@@ -82,7 +80,10 @@ public:
                         S::write(this->get_serialization_context(), buffer, *new_value);
                     }
 
-//                logSend.trace { logmsg(op, nextVersion-1, it.index, it.newValueOpt) }
+                    this->logSend.trace("list " + location.toString() + " " + rd_id.toString() + to_string(op) +
+                                  "::key = " + std::to_string(e.get_index()) +
+                                  "::version = " + std::to_string(nextVersion - 1) +
+                                  "::value = ${value.printToString()}");
                 });
             });
         });
@@ -101,7 +102,10 @@ public:
         Op op = static_cast<Op>((header & ((1 << versionedFlagShift) - 1L)));
         int32_t index = (buffer.read_pod<int32_t>());
 
-//            logReceived.trace { logmsg(op, version, index, value) }
+        this->logReceived.trace("list " + location.toString() + " " + rd_id.toString() + to_string(op) +
+                          "::key = ${key.printToString()}" +
+                          "::version = " + std::to_string(version) +
+                          "::value = ${value.printToString()}");
 
 
         MY_ASSERT_MSG(version == nextVersion, ("Version conflict for " + location.toString() + "}. Expected version " +
@@ -172,6 +176,14 @@ public:
         return local_change<bool>([&]() mutable { return list.removeAll(std::move(elements)); });
     }
 };
+
+template<typename V, typename S>
+std::string RdList<V, S>::to_string(Op op) {
+    if (op == Op::Add) return "ADD";
+    if (op == Op::Remove) return "REMOVE";
+    if (op == Op::Update) return "Update";
+    return "";
+}
 
 
 #endif //RD_CPP_RDLIST_H
