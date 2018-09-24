@@ -130,7 +130,8 @@ TEST_F(SocketWireTestBase, TestOrdering) {
     cp.set(5);
 
     while (true) {
-        if (std::lock_guard _(lock); log.size() < 6) {
+        if (lock.lock(); log.size() < 6) {
+            lock.unlock();
             sleep_this_thread(100);
         } else {
             break;
