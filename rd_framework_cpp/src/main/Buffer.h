@@ -20,10 +20,10 @@ public:
 protected:
 
     mutable ByteArray byteBufferMemoryBase;
-    mutable size_t offset = 0;
-    mutable size_t size_ = 0;
+    mutable int32_t offset = 0;
+    mutable int32_t size_ = 0;
 
-    void require_available(size_t size) const;
+    void require_available(int32_t size) const;
 
     //read
     void read(void *dst, size_t size) const;
@@ -34,7 +34,7 @@ protected:
 public:
     //region ctor/dtor
 
-    explicit Buffer(size_t initialSize);
+    explicit Buffer(int32_t initialSize);
 
     explicit Buffer(const ByteArray &array, int32_t offset = 0)
             : byteBufferMemoryBase(std::move(array)), offset(offset), size_(array.size()) {}
@@ -44,9 +44,9 @@ public:
     Buffer(Buffer &&) = default;
     //endregion
 
-    size_t get_position() const;
+    int32_t get_position() const;
 
-    void set_position(size_t value) const;
+    void set_position(int32_t value) const;
 
     void check_available(size_t moreSize) const;
 
@@ -86,11 +86,14 @@ public:
         return byteBufferMemoryBase.data();
     }
 
+    word_t *data() {
+        return byteBufferMemoryBase.data();
+    }
+
     size_t size() const {
         return size_;
     }
 
-    void put(ByteArray const& new_data) const;
 };
 
 

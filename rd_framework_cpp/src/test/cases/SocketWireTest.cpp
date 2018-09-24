@@ -83,7 +83,7 @@ TEST_F(SocketWireTestBase, DISABLED_TestClientWithoutServerWithDelayAndMessages)
     terminate();
 }
 
-TEST_F(SocketWireTestBase, /*DISABLED_*/TestBasicEmptyRun) {
+TEST_F(SocketWireTestBase, TestBasicEmptyRun) {
     Protocol serverProtocol = server(socketLifetime);
     Protocol clientProtocol = client(socketLifetime, serverProtocol);
 
@@ -96,7 +96,7 @@ TEST_F(SocketWireTestBase, /*DISABLED_*/TestBasicEmptyRun) {
     terminate();
 }
 
-TEST_F(SocketWireTestBase, /*DISABLED_*/TestBasicRun) {
+TEST_F(SocketWireTestBase, TestBasicRun) {
     Protocol serverProtocol = server(socketLifetime);
     Protocol clientProtocol = client(socketLifetime, serverProtocol);
 
@@ -111,7 +111,7 @@ TEST_F(SocketWireTestBase, /*DISABLED_*/TestBasicRun) {
     terminate();
 }
 
-TEST_F(SocketWireTestBase, /*DISABLED_*/TestOrdering) {
+TEST_F(SocketWireTestBase, TestOrdering) {
     Protocol serverProtocol = server(socketLifetime);
     Protocol clientProtocol = client(socketLifetime, serverProtocol);
 
@@ -130,7 +130,7 @@ TEST_F(SocketWireTestBase, /*DISABLED_*/TestOrdering) {
     cp.set(5);
 
     while (true) {
-        if (std::lock_guard _(lock); log.size() < 5) {
+        if (std::lock_guard _(lock); log.size() < 6) {
             sleep_this_thread(100);
         } else {
             break;
@@ -141,19 +141,31 @@ TEST_F(SocketWireTestBase, /*DISABLED_*/TestOrdering) {
     terminate();
 }
 
-TEST_F(SocketWireTestBase, /*DISABLED_*/TestBigBuffer) {
+TEST_F(SocketWireTestBase, TestBigBuffer) {
+    RdProperty<std::string> cp_string{""};
+    RdProperty<std::string> sp_string{""};
 
+    Protocol serverProtocol = server(socketLifetime);
+    Protocol clientProtocol = client(socketLifetime, serverProtocol);
 
-    /*cp.set("1");
-    waitAndAssert<std::string>(sp, "1", "");
+    statics(sp_string, property_id);
+    sp_string.bind(lifetime, &serverProtocol, "top");
+
+    statics(cp_string, property_id);
+    cp_string.bind(lifetime, &clientProtocol, "top");
+
+    cp_string.set("1");
+    waitAndAssert<std::string>(sp_string, "1", "");
 
     std::string str(100000, '3');
-    sp.set(str);
-    waitAndAssert<std::string>(cp, str, "1");*/
+    sp_string.set(str);
+    waitAndAssert<std::string>(cp_string, str, "1");
+
+    terminate();
 }
 
 
-TEST_F(SocketWireTestBase, TestRunWithSlowpokeServer) {
+TEST_F(SocketWireTestBase, DISABLED_TestRunWithSlowpokeServer) {
     uint16 port = find_free_port();
     auto clientProtocol = client(socketLifetime, port);
 

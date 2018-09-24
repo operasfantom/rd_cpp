@@ -22,17 +22,16 @@ void SocketWire::Base::receiverProc() const {
 //                sendBuffer.terminate();
                 break;
             }
-            Buffer::ByteArray bytes(1024);
-            int32_t sz = socketProvider->Receive(1024, &bytes[0]);
-            MY_ASSERT_THROW_MSG(sz != -1, this->id + ": failed to receive message over the network");
+
+            int32_t sz = 0;
+            MY_ASSERT_THROW_MSG(ReadFromSocket(reinterpret_cast<char *>(&sz), 4), this->id + ": failed to read message size");
             logger.info("were received " + std::to_string(sz) + " bytes");
-            bytes.resize(sz);
-            MY_ASSERT_THROW_MSG(bytes.size() >= 4,
-                                this->id + ": message's length is not enough:" + std::to_string(bytes.size()));
-            Buffer buffer(bytes, 4);
-            RdId id = RdId::read(buffer);
+            Buffer msg(sz);
+            MY_ASSERT_THROW_MSG(ReadFromSocket(reinterpret_cast<char *>(msg.data()), sz), this->id + ": failed to read message");
+
+            RdId id = RdId::read(msg);
             logger.debug(this->id + ": message received");
-            message_broker.dispatch(id, std::move(buffer));
+            message_broker.dispatch(id, std::move(msg));
             logger.debug(this->id + ": message dispatched");
         } catch (std::exception const &ex) {
             logger.error(this->id + " caught processing", &ex);
@@ -45,10 +44,10 @@ void SocketWire::Base::receiverProc() const {
 void SocketWire::Base::send0(const Buffer &msg) const {
     try {
         std::lock_guard _(socket_lock);
-        int sz = static_cast<int>(msg.size());
-        MY_ASSERT_THROW_MSG(socketProvider->Send(msg.data(), sz) > 0,
+        int32_t msglen = static_cast<int32_t>(msg.size());
+        MY_ASSERT_THROW_MSG(socketProvider->Send(msg.data(), msglen) == msglen,
                             this->id + ": failed to send message over the network");
-        logger.info("were sent " + std::to_string(sz) + " bytes");
+        logger.info("were sent " + std::to_string(msglen) + " bytes");
         /*MY_ASSERT_THROW_MSG(socketProvider->Send(msg.data(), 0) > 0,
                             this->id + ": failed to flush");*/
 //        MY_ASSERT_MSG(socketProvider->Flush(), this->id + ": failed to flush");
@@ -72,11 +71,12 @@ void SocketWire::Base::send(RdId const &id, std::function<void(Buffer const &buf
     buffer.write_pod<int32_t>(len - 4);
 
     auto bytes = buffer.getArray();
+    bytes.resize(len);
     threadLocalSendByteArray = bytes;
     /*sendBuffer.put(bytes);*/
     std::unique_lock<std::mutex> ul(send_lock);
     send_var.wait(ul, [this]() -> bool { return socketProvider != nullptr; });
-    send0(buffer);
+    send0(Buffer(bytes));
 }
 
 void SocketWire::Base::set_socket_provider(std::shared_ptr<CSimpleSocket> new_socket) {
@@ -96,6 +96,41 @@ void SocketWire::Base::set_socket_provider(std::shared_ptr<CSimpleSocket> new_so
     receiverProc();
 }
 
+bool SocketWire::Base::ReadFromSocket(char *res, int32_t msglen) const {
+    int32_t ptr = 0;
+    while (ptr < msglen) {
+        MY_ASSERT_MSG(hi >= lo, "hi >= lo");
+
+        int32_t rest = msglen - ptr;
+        int32_t available = hi - lo;
+
+        if (available > 0) {
+            int32_t copylen = std::min(rest, available);
+
+//            Array.Copy(buffer, lo, res, ptr, copylen);
+            std::copy(receiver_buffer.begin() + lo, receiver_buffer.begin() + lo + copylen, res + ptr);
+            lo += copylen;
+            ptr += copylen;
+        } else {
+            if (hi == receiver_buffer.size()) {
+                hi = lo = 0;
+            }
+//            Log.Verbose("{0}: >receive started", Id);
+//            (buffer, hi, buffer.size() - hi, 0);
+            int32_t read = socketProvider->Receive(static_cast<int32>(receiver_buffer.size()) - hi, &receiver_buffer[hi]);
+            if (read == -1) {
+                logger.error(this->id + "socket was shutted down for receiving");
+//                Log.Verbose("{0}: socket was shutted down for receiving", Id);
+                return false;
+            }
+            hi += read;
+//            Log.Verbose("{0}: >receive finished: {1} bytes read", Id, read);
+        }
+    }
+    MY_ASSERT_MSG(ptr == msglen, "resPtr == res.Length");
+    return true;
+}
+
 
 SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, uint16 port = 0,
                            const std::string &id = "ClientSocket") : Base(id, lifetime, scheduler), port(port) {
@@ -111,7 +146,8 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, uint1
 
                     //https://stackoverflow.com/questions/22417228/prevent-tcp-socket-connection-retries
                     //HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\TcpMaxConnectRetransmissions
-                    MY_ASSERT_THROW_MSG(socket->Open("127.0.0.1", this->port), this->id + ": failed to open ActiveSocket");
+                    MY_ASSERT_THROW_MSG(socket->Open("127.0.0.1", this->port),
+                                        this->id + ": failed to open ActiveSocket");
 
                     {
                         std::lock_guard _(lock);

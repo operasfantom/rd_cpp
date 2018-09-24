@@ -42,7 +42,14 @@ public:
                                                     [this](ByteArraySlice const &it) { this->send0(it); }};*/
 
         mutable Buffer::ByteArray threadLocalSendByteArray;
+
+
+        mutable Buffer::ByteArray receiver_buffer = Buffer::ByteArray(1u << 16);
+        mutable int32_t lo = 0, hi = 0;
+
     public:
+
+        bool ReadFromSocket(char *res, int32_t msglen) const;
         //region ctor/dtor
 
         Base(const std::string &id, Lifetime lifetime, const IScheduler *scheduler);

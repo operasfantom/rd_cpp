@@ -7,16 +7,16 @@
 #include <cstring>
 #include <string>
 
-Buffer::Buffer(size_t initialSize) {
+Buffer::Buffer(int32_t initialSize) {
     byteBufferMemoryBase.resize(initialSize);
     size_ = initialSize;
 }
 
-size_t Buffer::get_position() const {
+int32_t Buffer::get_position() const {
     return offset;
 }
 
-void Buffer::set_position(size_t value) const {
+void Buffer::set_position(int32_t value) const {
     offset = value;
 }
 
@@ -39,9 +39,9 @@ void Buffer::write(const void *src, size_t size) const {
     offset += size;
 }
 
-void Buffer::require_available(size_t moreSize) const {
+void Buffer::require_available(int32_t moreSize) const {
     if (offset + moreSize > size_) {
-        size_t newSize = std::max(size_ * 2, offset + moreSize);
+        int32_t newSize = std::max(size_ * 2, offset + moreSize);
         byteBufferMemoryBase.resize(newSize);
         size_ = newSize;
     }
@@ -51,8 +51,3 @@ void Buffer::rewind() const {
     set_position(0);
 }
 
-void Buffer::put(const Buffer::ByteArray &new_data) const {//todo
-    byteBufferMemoryBase = new_data;
-    size_ = new_data.size();
-    offset = 0;
-}

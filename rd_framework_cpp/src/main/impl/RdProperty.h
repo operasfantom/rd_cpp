@@ -43,7 +43,7 @@ public:
     static RdProperty<T, S> read(SerializationCtx const &ctx, Buffer const &buffer) {
         RdId id = RdId::read(buffer);
 //        val value = if (buffer.readBool()) valueSerializer.read(ctx, buffer) else null;
-        bool not_null = buffer.read_pod<bool>();
+        buffer.read_pod<bool>();//not null
         T value = S::read(ctx, buffer);
         RdProperty<T, S> property(value);
         withId(property, id);
