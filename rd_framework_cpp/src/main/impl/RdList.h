@@ -55,7 +55,7 @@ public:
         return "list " + location.toString() + " " + rd_id.toString() + ":: " + to_string(op) +
                ":: key = " + std::to_string(key) +
                ((version > 0) ? " :: version = " + /*std::*/to_string(version) : "") +
-               " :: value = " + (value ? to_string(value) : "");
+               " :: value = " + (value ? to_string(*value) : "");
     }
 
     void init(Lifetime lifetime) const override {

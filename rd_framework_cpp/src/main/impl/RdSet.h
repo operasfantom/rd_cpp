@@ -30,7 +30,7 @@ public:
         RdBindableBase::init(lifetime);
 
         local_change([this, lifetime]() {
-            advise(lifetime, [this](AddRemove kind, T v) {
+            advise(lifetime, [this](AddRemove kind, T const &v) {
                 if (!is_local_change) return;
 
                 get_wire()->send(rd_id, [this, kind, v](Buffer const &buffer) {
@@ -40,7 +40,7 @@ public:
                     this->logSend.trace(
                             "set " + location.toString() + " " + rd_id.toString() +
                             ":: " + to_string(kind) +
-                            ":: ${v.printToString()} ");
+                            ":: " + to_string(v));
                 });
             });
         });

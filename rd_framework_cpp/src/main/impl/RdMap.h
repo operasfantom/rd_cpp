@@ -17,8 +17,7 @@ private:
 //    using list = typename ViewableMap<K, V>;
     ViewableMap<K, V> map;
     mutable int64_t nextVersion = 0;
-    mutable std::map<K, int64_t>
-            pendingForAck;
+    mutable std::map<K/* const **/, int64_t> pendingForAck;
 
     bool is_master() const {
         return manualMaster.has_value() ? *manualMaster : !optimizeNested;
@@ -54,9 +53,9 @@ public:
 
     std::string logmsg(Op op, int64_t version, K const *key, V const *value = nullptr) const {
         return "map " + location.toString() + " " + rd_id.toString() + ":: " + to_string(op) +
-               ":: key = ${key.printToString()}" +
+               ":: key = " + to_string(*key) +
                ((version > 0) ? " :: version = " + /*std::*/to_string(version) : "") +
-                " :: value = " + (value ? to_string(value) : "");
+                " :: value = " + (value ? to_string(*value) : "");
     }
 
     void init(Lifetime lifetime) const override {
@@ -139,7 +138,7 @@ public:
                 value = VS::read(this->get_serialization_context(), buffer);
 
             if (msgVersioned || !is_master() || pendingForAck.count(key) == 0) {
-                logReceived.trace(logmsg(op, version, &key, value.operator->()));
+                logReceived.trace(logmsg(op, version, &key, value ? value.operator->() : nullptr));
 
                 if (value.has_value()) {
                     map.set(key, std::move(*value));

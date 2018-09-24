@@ -39,14 +39,14 @@ public:
         return *get_by(key);
     }
 
-    const V *set(K key, V value) const {
+    const V *set(K key, V value) const override {
         if (map.count(deleted_shared_ptr(key)) == 0) {
             auto[it, success] = map.insert(std::make_pair(
                     std::make_shared<K>(std::move(key)),
                     std::make_shared<V>(std::move(value))
             ));
-            auto const& key_ptr = it->first;
-            auto const& value_ptr = it->second;
+            auto const &key_ptr = it->first;
+            auto const &value_ptr = it->second;
             change.fire(typename Event::Add(key_ptr.get(), value_ptr.get()));
             return nullptr;
         } else {
@@ -65,7 +65,7 @@ public:
         }
     }
 
-    std::optional<V> remove(K const &key) const {
+    std::optional<V> remove(K const &key) const override {
         if (map.count(deleted_shared_ptr(key)) > 0) {
             std::shared_ptr<V> old_value = get_by(key);
             change.fire(typename Event::Remove(&key, old_value.get()));

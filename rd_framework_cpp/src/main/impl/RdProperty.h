@@ -43,6 +43,7 @@ public:
     static RdProperty<T, S> read(SerializationCtx const &ctx, Buffer const &buffer) {
         RdId id = RdId::read(buffer);
 //        val value = if (buffer.readBool()) valueSerializer.read(ctx, buffer) else null;
+        bool not_null = buffer.read_pod<bool>();
         T value = S::read(ctx, buffer);
         RdProperty<T, S> property(value);
         withId(property, id);
@@ -51,10 +52,11 @@ public:
 
     void write(SerializationCtx const &ctx, Buffer const &buffer) const override {
         this->rd_id.write(buffer);
+        buffer.write_pod<bool>(true);
         S::write(ctx, buffer, this->value);
     }
 
-    void advise(Lifetime lifetime, std::function<void(const T &)> handler) const {
+    void advise(Lifetime lifetime, std::function<void(const T &)> handler) const override {
         RdPropertyBase<T, S>::advise(lifetime, handler);
     }
 
@@ -64,7 +66,7 @@ public:
     }
 
 
-    virtual void identify(IIdentities const &identities, RdId id) const {
+    virtual void identify(IIdentities const &identities, RdId const &id) const override {
         RdBindableBase::identify(identities, id);
         if (!this->optimize_nested)
             identifyPolymorphic(this->get(), identities, identities.next(id));
