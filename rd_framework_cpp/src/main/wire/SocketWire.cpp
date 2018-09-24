@@ -4,6 +4,7 @@
 
 #include <utility>
 #include <thread>
+#include <algorithm>
 
 #include "SocketWire.h"
 #include "../../../../rd_core_cpp/src/main/Logger.h"
@@ -105,7 +106,7 @@ bool SocketWire::Base::ReadFromSocket(char *res, int32_t msglen) const {
         int32_t available = hi - lo;
 
         if (available > 0) {
-            int32_t copylen = std::min(rest, available);
+            int32_t copylen = (std::min)(rest, available);
 
 //            Array.Copy(buffer, lo, res, ptr, copylen);
             std::copy(receiver_buffer.begin() + lo, receiver_buffer.begin() + lo + copylen, res + ptr);
