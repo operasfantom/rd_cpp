@@ -14,10 +14,9 @@
 template<typename K, typename V, typename KS = Polymorphic<K>, typename VS = Polymorphic<V>>
 class RdMap : public RdReactiveBase, public IViewableMap<K, V> {
 private:
-//    using list = typename ViewableMap<K, V>;
     ViewableMap<K, V> map;
     mutable int64_t nextVersion = 0;
-    mutable std::map<K/* const **/, int64_t> pendingForAck;
+    mutable std::map<K, int64_t> pendingForAck;
 
     bool is_master() const {
         return manualMaster.has_value() ? *manualMaster : !optimizeNested;
@@ -38,16 +37,14 @@ public:
     virtual ~RdMap() = default;
     //endregion
 
-
-
-/*    static RdMap<K, V> read(SerializationCtx ctx, Buffer const &buffer) {
-//        return withId<RdMap<K, V>>(RdMap(valSzr, ViewableMap(), buffer.read_pod<int64_t>()), RdId::read(buffer));
+    static RdMap<K, V> read(SerializationCtx ctx, Buffer const &buffer) {
+        RdMap<K, V> res;
+        return withId(res, RdId::read(buffer));
     }
 
-    static void write(SerializationCtx ctx, Buffer const &buffer, RdMap<K, V, S> const &that) {
-        buffer.write_pod<int64_t>(that.nextVersion);
+    void write(SerializationCtx ctx, Buffer const &buffer, RdMap<K, V, KS, VS> const &that) {
         that.rd_id.write(buffer);
-    }*/
+    }
 
     static const int32_t versionedFlagShift = 8; // update when changing Op
 
@@ -55,14 +52,14 @@ public:
         return "map " + location.toString() + " " + rd_id.toString() + ":: " + to_string(op) +
                ":: key = " + to_string(*key) +
                ((version > 0) ? " :: version = " + /*std::*/to_string(version) : "") +
-                " :: value = " + (value ? to_string(*value) : "");
+               " :: value = " + (value ? to_string(*value) : "");
     }
 
     void init(Lifetime lifetime) const override {
         RdBindableBase::init(lifetime);
 
         local_change([this, lifetime]() {
-            advise(lifetime, [this, lifetime](Event const &e) {
+            advise(lifetime, [this, lifetime](Event e) {
                 if (!is_local_change) return;
 
                 V const *new_value = e.get_new_value();
@@ -99,8 +96,8 @@ public:
         get_wire()->advise(lifetime, this);
 
         if (!optimizeNested)
-            this->view(lifetime, [this](Lifetime lf, std::pair<K const *, V const *> const &entry) {
-                bindPolymorphic(entry.second, lf, this, "[" + std::to_string(*entry.first) + "]");
+            this->view(lifetime, [this](Lifetime lf, std::pair<K const *, V const *> entry) {
+                bindPolymorphic(entry.second, lf, this, "[" + to_string(*entry.first) + "]");
             });
     }
 
@@ -114,41 +111,50 @@ public:
         K key = KS::read(this->get_serialization_context(), buffer);
 
         if (op == Op::ACK) {
-            /*val errmsg =
-            if (!msgVersioned) "Received ${Op.Ack} while msg hasn't versioned flag set"
-            else if (!master) "Received ${Op.Ack} when not a Master"
-            else pendingForAck[key]?.let { pendingVersion ->
-                    if (pendingVersion < version) "Pending version `$pendingVersion` < ${Op.Ack} version `$version`"
-                    else {
+            std::string errmsg;
+            if (!msgVersioned) {
+                errmsg = "Received " + to_string(Op::ACK) + " while msg hasn't versioned flag set";
+            } else if (!is_master()) {
+                errmsg = "Received " + to_string(Op::ACK) + " when not a Master";
+            } else {
+                if (pendingForAck.count(key)) {
+                    int64_t pendingVersion = pendingForAck[key];
+                    if (pendingVersion < version) {
+                        errmsg = "Pending version " + to_string(pendingVersion) + " < " + to_string(Op::ACK) +
+                                 " version `" + to_string(version);
+                    } else {
                         //side effect
-                        if (pendingVersion == version) pendingForAck.remove(key) //else we don't need to remove, silently drop
-                        "" //return good result
+                        if (pendingVersion == version) {
+                            pendingForAck.erase(key); //else we don't need to remove, silently drop
+                        }
+                        // return good result
                     }
-            } ?: "No pending for ${Op.Ack}"
-
-            if (errmsg.isEmpty())
-                logReceived.trace  { logmsg(Op.Ack, version, key) }
-            else
-            logReceived.error {  logmsg(Op.Ack, version, key) + " >> $errmsg"}*/
-
+                } else {
+                    errmsg = "No pending for " + to_string(Op::ACK);
+                }
+            }
+            if (errmsg.empty()) {
+                logReceived.trace(logmsg(Op::ACK, version, &key));
+            } else {
+                logReceived.error(logmsg(Op::ACK, version, &key) + " >> " + errmsg);
+            }
         } else {
             bool isPut = (op == Op::ADD || op == Op::UPDATE);
             std::optional<V> value;
-            if (isPut)
+            if (isPut) {
                 value = VS::read(this->get_serialization_context(), buffer);
+            }
 
             if (msgVersioned || !is_master() || pendingForAck.count(key) == 0) {
-                logReceived.trace(logmsg(op, version, &key, value ? value.operator->() : nullptr));
-
+                logReceived.trace(logmsg(op, version, &key, value ? &value.value() : nullptr));
                 if (value.has_value()) {
                     map.set(key, std::move(*value));
                 } else {
                     map.remove(key);
                 }
             } else {
-                logReceived.trace(logmsg(op, version, &key, value.operator->()) + " >> REJECTED");
+                logReceived.trace(logmsg(op, version, &key, value ? &value.value() : nullptr) + " >> REJECTED");
             }
-
 
             if (msgVersioned) {
                 get_wire()->send(rd_id, [this, version, key](Buffer const &innerBuffer) {
@@ -158,17 +164,15 @@ public:
 
                     logSend.trace(logmsg(Op::ACK, version, &key));
                 });
-
                 if (is_master()) {
                     logReceived.error("Both ends are masters:" + location.toString());
                 }
             }
-
         }
     }
 
     void
-    advise(Lifetime lifetime, std::function<void(typename IViewableMap<K, V>::Event const &)> handler) const override {
+    advise(Lifetime lifetime, std::function<void(Event)> handler) const override {
         if (is_bound()) assert_threading();
         map.advise(lifetime, handler);
     }

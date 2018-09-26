@@ -28,8 +28,8 @@ public:
     virtual ~ViewableMap() = default;
     //endregion
 
-    void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const override {
-        change.advise(lifetime, handler);
+    void advise(Lifetime lifetime, std::function<void(Event)> handler) const override {
+        change.advise(std::move(lifetime), handler);
         for (auto const &[key, value] : map) {
             handler(Event(typename Event::Add(key.get(), value.get())));;
         }

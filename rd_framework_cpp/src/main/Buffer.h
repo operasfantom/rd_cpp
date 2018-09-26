@@ -1,5 +1,3 @@
-#include <utility>
-
 //
 // Created by jetbrains on 30.07.2018.
 //
@@ -8,6 +6,7 @@
 #define RD_CPP_UNSAFEBUFFER_H
 
 
+#include <utility>
 #include <optional>
 #include <vector>
 #include <type_traits>
@@ -48,7 +47,7 @@ public:
 
     void set_position(int32_t value) const;
 
-    void check_available(size_t moreSize) const;
+    void check_available(int32_t moreSize) const;
 
     void rewind() const;
 

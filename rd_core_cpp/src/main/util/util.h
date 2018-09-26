@@ -59,6 +59,11 @@ typename std::enable_if_t<!std::is_arithmetic_v<T>, std::string> to_string(T con
     return "";
 }
 
+template<>
+inline std::string to_string<std::string>(std::string const &val) {
+    return val;
+}
+
 //todo
 
 #endif //RD_CORE_CPP_UTIL_H

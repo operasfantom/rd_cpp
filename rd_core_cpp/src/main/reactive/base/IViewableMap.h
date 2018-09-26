@@ -110,7 +110,7 @@ public:
     }
 
     void advise_add_remove(Lifetime lifetime, std::function<void(AddRemove, K const &, V const &)> handler) const {
-        advise(lifetime, [handler](Event const &e) {
+        advise(lifetime, [handler](Event e) {
             std::visit(overloaded{
                     [handler](typename Event::Add const &e) {
                         handler(AddRemove::ADD, *e.key, *e.new_value);
@@ -132,7 +132,7 @@ public:
         });
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const = 0;
+    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) const = 0;
 
     virtual V const &get(K const &) const = 0;
 

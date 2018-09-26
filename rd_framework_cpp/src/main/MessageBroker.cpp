@@ -17,7 +17,7 @@ void MessageBroker::invoke(const IRdReactive *that, const Buffer &msg, bool sync
             if (std::lock_guard _(lock); subscriptions.count(that->rd_id) > 0) {
                 that->on_wire_received(msg);
             } else {
-//                    log.trace{ "Handler for $this dissapeared" }
+                logger.trace("Handler for $this dissapeared");
             }
         });
     }
@@ -46,7 +46,7 @@ void MessageBroker::dispatch(RdId id, Buffer message) const {
                     else
                         invoke(subscription, message);
                 } else {
-//                        log.trace { "No handler for id: $id" }
+                    logger.trace("No handler for id: " + to_string(id));
                 }
 
                 if (--broker[id].defaultSchedulerMessages == 0) {

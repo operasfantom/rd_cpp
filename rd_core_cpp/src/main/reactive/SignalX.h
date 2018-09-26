@@ -27,7 +27,7 @@ private:
     using listeners_t = std::map<counter_t, std::function<void(T const &)> >;
     mutable listeners_t listeners, priority_listeners;
 
-    void advise0(Lifetime lifetime, std::function<void(T const &)> handler, listeners_t &queue) const {
+    void advise0(const Lifetime &lifetime, std::function<void(T const &)> handler, listeners_t &queue) const {
         auto id = advise_id;
         lifetime->bracket(
                 [&queue, lifetime, id, handler]() { queue[id] = handler; },

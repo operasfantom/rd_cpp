@@ -93,7 +93,7 @@ public:
     virtual ~IViewableList() = default;
 
     void advise_add_remove(Lifetime lifetime, std::function<void(AddRemove, size_t, T const &)> handler) const {
-        advise(lifetime, [handler](Event const &e) {
+        advise(std::move(lifetime), [handler](Event e) {
             std::visit(overloaded{
                     [handler](typename Event::Add const &e) {
                         handler(AddRemove::ADD, e.index, *e.new_value);
@@ -112,7 +112,7 @@ public:
     virtual void
     view(Lifetime lifetime,
          std::function<void(Lifetime lifetime, std::pair<size_t, T const *> const &)> handler) const {
-        view(lifetime, [handler](Lifetime lt, size_t idx, T const &v) {
+        view(std::move(lifetime), [handler](Lifetime lt, size_t idx, T const &v) {
             handler(lt, std::make_pair(idx, &v));
         });
     }
@@ -138,7 +138,7 @@ public:
         });
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const = 0;
+    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) const = 0;
 
     virtual bool add(T element) const = 0;
 

@@ -72,7 +72,7 @@ public:
 
         if (!optimize_nested) {
             this->view(lifetime, [this](Lifetime lf, T const &v) {
-                bindPolymorphic(v, lf, this, "\'$");
+                bindPolymorphic(v, lf, this, "$");
             });
         }
     }

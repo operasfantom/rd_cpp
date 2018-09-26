@@ -23,6 +23,8 @@ public:
 
     static Lifetime const &Eternal();
 
+    //region ctor/dtor
+    
     Lifetime() = delete;
 
     Lifetime(Lifetime const &other) = default;
@@ -32,6 +34,7 @@ public:
     Lifetime(Lifetime &&other) noexcept = default;
 
     Lifetime &operator=(Lifetime &&other) noexcept = default;
+    //endregion
 
     friend bool operator==(Lifetime const &lw1, Lifetime const &lw2) {
         return lw1.ptr == lw2.ptr;

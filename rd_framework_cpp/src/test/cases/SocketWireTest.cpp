@@ -3,6 +3,7 @@
 //
 
 #include <gtest/gtest.h>
+#include <RdMap.h>
 
 #include "../../main/Protocol.h"
 #include "RdProperty.h"
@@ -10,20 +11,41 @@
 #include "../../main/wire/SocketWire.h"
 #include "../util/RdFrameworkTestBase.h"
 #include "../util/WireUtil.h"
+#include "../util/DynamicEntity.h"
+
+const int TIME_OUT = 50;
+const int TIME_WAIT = 2000;
 
 template<typename T>
 void waitAndAssert(RdProperty<T> const &that, T const &expected, T const &prev) {
-    for (int i = 0; i < 50 && that.get() != expected; ++i) {
-        sleep_this_thread(100);
+    for (int i = 0; i < TIME_WAIT / TIME_OUT && that.get() != expected; ++i) {
+        sleep_this_thread(TIME_OUT);
         std::cout << ' ' << i << std::endl;
     }
 
-
-    /*if (that.get() == prev) {
-        throw std::runtime_error("Timeout 5000 ms while waiting value " + std::to_string(expected));
-    }*/
     EXPECT_EQ(expected, that.get());
 }
+
+template<typename T>
+void waitAndAssert(std::function<T()> action, T const &expected) {
+    for (int i = 0; i < TIME_WAIT / TIME_OUT && action() != expected; ++i) {
+        sleep_this_thread(TIME_OUT);
+        std::cout << ' ' << i << std::endl;
+    }
+
+    EXPECT_EQ(expected, action());
+}
+
+template<typename T>
+void waitAndAssert(T const &value, T const &expected) {
+    for (int i = 0; i < TIME_WAIT / TIME_OUT && value != expected; ++i) {
+        sleep_this_thread(TIME_OUT);
+        std::cout << ' ' << i << std::endl;
+    }
+
+    EXPECT_EQ(expected, value);
+}
+
 
 TEST_F(SocketWireTestBase, ClientWithoutServer) {
     uint16 port = find_free_port();
@@ -87,9 +109,9 @@ TEST_F(SocketWireTestBase, TestBasicEmptyRun) {
     Protocol serverProtocol = server(socketLifetime);
     Protocol clientProtocol = client(socketLifetime, serverProtocol);
 
-    init(serverProtocol, clientProtocol);;
+    init(serverProtocol, clientProtocol);
 
-    for (int i = 0; i < 20; ++i) {
+    for (int i = 0; i < 10; ++i) {
         sleep_this_thread(100);
     }
 
@@ -100,7 +122,11 @@ TEST_F(SocketWireTestBase, TestBasicRun) {
     Protocol serverProtocol = server(socketLifetime);
     Protocol clientProtocol = client(socketLifetime, serverProtocol);
 
-    init(serverProtocol, clientProtocol);
+
+    RdProperty<int> sp{0};
+    RdProperty<int> cp{0};
+
+    init(serverProtocol, clientProtocol, &sp, &cp);
 
     cp.set(1);
     waitAndAssert(sp, 1, 0);//todo
@@ -115,7 +141,10 @@ TEST_F(SocketWireTestBase, TestOrdering) {
     Protocol serverProtocol = server(socketLifetime);
     Protocol clientProtocol = client(socketLifetime, serverProtocol);
 
-    init(serverProtocol, clientProtocol);;
+    RdProperty<int> sp{0};
+    RdProperty<int> cp{0};
+
+    init(serverProtocol, clientProtocol, &sp, &cp);
 
     std::vector<int> log;//concurrent?
     std::mutex lock;
@@ -165,10 +194,128 @@ TEST_F(SocketWireTestBase, TestBigBuffer) {
     terminate();
 }
 
+TEST_F(SocketWireTestBase, TestComplicatedProperty) {
+    using listOf = std::vector<int32_t>;
+
+    int property_id = 1;
+
+    Protocol serverProtocol = server(socketLifetime);
+    Protocol clientProtocol = client(socketLifetime, serverProtocol);
+
+    RdProperty<DynamicEntity> client_property_storage{DynamicEntity(0)};
+    RdProperty<DynamicEntity> server_property_storage{DynamicEntity(0)};
+
+    RdProperty<DynamicEntity> &client_property = statics(client_property_storage, (property_id));
+    RdProperty<DynamicEntity> &server_property = statics(server_property_storage, (property_id)).slave();
+
+    client_property.get().rd_id = server_property.get().rd_id = RdId(2);
+    client_property.get().foo.rd_id = server_property.get().foo.rd_id = RdId(3);
+
+    DynamicEntity::registry(&clientProtocol);
+    DynamicEntity::registry(&serverProtocol);
+    //bound
+
+    server_property.bind(lifetime, &serverProtocol, "top");
+    client_property.bind(lifetime, &clientProtocol, "top");
+
+    std::vector<int32_t> clientLog;
+    std::vector<int32_t> serverLog;
+
+    client_property.advise(Lifetime::Eternal(), [&](DynamicEntity const &entity) {
+        entity.foo.advise(Lifetime::Eternal(), [&](int32_t const &it) { clientLog.push_back(it); });
+    });
+    server_property.advise(Lifetime::Eternal(), [&](DynamicEntity const &entity) {
+        entity.foo.advise(Lifetime::Eternal(), [&](int32_t const &it) { serverLog.push_back(it); });
+    });
+
+    EXPECT_EQ((listOf{0}), clientLog);
+    EXPECT_EQ((listOf{0}), serverLog);
+
+    client_property.set(DynamicEntity(2));
+
+    waitAndAssert(clientLog, (listOf{0, 2}));
+    waitAndAssert(serverLog, (listOf{0, 2}));
+
+    client_property.get().foo.set(5);
+
+    waitAndAssert(clientLog, (listOf{0, 2, 5}));
+    waitAndAssert(serverLog, (listOf{0, 2, 5}));
+
+    client_property.get().foo.set(5);
+
+    waitAndAssert(clientLog, (listOf{0, 2, 5}));
+    waitAndAssert(serverLog, (listOf{0, 2, 5}));
+
+    client_property.set(DynamicEntity(5));
+
+    waitAndAssert(clientLog, (listOf{0, 2, 5, 5}));
+    waitAndAssert(serverLog, (listOf{0, 2, 5, 5}));
+
+    terminate();
+}
+
+
+TEST_F(SocketWireTestBase, TestEqualChangesRdMap) { //Test pending for ack
+    auto serverProtocol = server(lifetime);
+    auto clientProtocol = client(lifetime, serverProtocol);
+
+    RdMap<std::string, std::string> s_map, c_map;
+    s_map.manualMaster = true;
+    init(serverProtocol, clientProtocol, &s_map, &c_map);
+
+    s_map.set("A", "B");
+    s_map.set("A", "B");
+    s_map.set("A", "B");
+    s_map.set("A", "B");
+    s_map.set("A", "B");
+
+    c_map.set("A", "B");
+    c_map.set("A", "B");
+    c_map.set("A", "B");
+    c_map.set("A", "B");
+    c_map.set("A", "B");
+
+    sleep_this_thread(500);
+
+    EXPECT_EQ(s_map.get("A"), "B");
+    EXPECT_EQ(c_map.get("A"), "B");
+
+    terminate();
+}
+
+TEST_F(SocketWireTestBase, TestDifferentChangesRdMap) { //Test pending for ack
+    auto serverProtocol = server(lifetime);
+    auto clientProtocol = client(lifetime, serverProtocol);
+
+    RdMap<std::string, std::string> s_map, c_map;
+    s_map.manualMaster = true;
+    init(serverProtocol, clientProtocol, &s_map, &c_map);
+
+    s_map.set("A", "B");
+    s_map.set("A", "B");
+    s_map.set("A", "B");
+    s_map.set("A", "B");
+    s_map.set("A", "B");
+
+    c_map.set("A", "C");
+    c_map.set("A", "C");
+    c_map.set("A", "C");
+    c_map.set("A", "C");
+    c_map.set("A", "C");
+
+    waitAndAssert<std::string>([&c_map]() { return c_map.get("A"); }, "C");
+    waitAndAssert<std::string>([&s_map]() { return s_map.get("A"); }, "C");
+
+
+    terminate();
+}
 
 TEST_F(SocketWireTestBase, DISABLED_TestRunWithSlowpokeServer) {
     uint16 port = find_free_port();
     auto clientProtocol = client(socketLifetime, port);
+
+    RdProperty<int> sp{0};
+    RdProperty<int> cp{0};
 
     statics(cp, property_id);
     cp.bind(lifetime, &clientProtocol, "top");

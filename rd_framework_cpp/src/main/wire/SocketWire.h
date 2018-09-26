@@ -44,12 +44,12 @@ public:
         mutable Buffer::ByteArray threadLocalSendByteArray;
 
 
-        mutable Buffer::ByteArray receiver_buffer = Buffer::ByteArray(1u << 16);
-        mutable int32_t lo = 0, hi = 0;
-
-    public:
+        mutable std::array<Buffer::word_t, 1u << 16> receiver_buffer;
+        mutable decltype(receiver_buffer)::iterator lo = receiver_buffer.begin(), hi = receiver_buffer.begin();
 
         bool ReadFromSocket(char *res, int32_t msglen) const;
+
+    public:
         //region ctor/dtor
 
         Base(const std::string &id, Lifetime lifetime, const IScheduler *scheduler);

@@ -57,7 +57,7 @@ public:
     }
 
     void advise(Lifetime lifetime, std::function<void(const T &)> handler) const override {
-        RdPropertyBase<T, S>::advise(lifetime, handler);
+        RdPropertyBase<T, S>::advise(std::move(lifetime), handler);
     }
 
     RdProperty<T, S> &slave() {

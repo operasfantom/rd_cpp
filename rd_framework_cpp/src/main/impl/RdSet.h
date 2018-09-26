@@ -90,8 +90,10 @@ public:
         return local_change<bool>([&]() { return set.empty(); });
     }
 
-    void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const override {
-        if (is_bound()) assert_threading();
+    void advise(Lifetime lifetime, std::function<void(Event)> handler) const override {
+        if (is_bound()) {
+            assert_threading();
+        }
         set.advise(lifetime, handler);
     }
 

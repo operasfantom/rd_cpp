@@ -62,7 +62,7 @@ public:
         RdBindableBase::init(lifetime);
 
         local_change([this, lifetime]() {
-            advise(lifetime, [this, lifetime](typename IViewableList<V>::Event const &e) {
+            advise(lifetime, [this, lifetime](typename IViewableList<V>::Event e) {
                 if (!is_local_change) return;
 
                 if (!optimizeNested) {
@@ -139,10 +139,9 @@ public:
         }
     }
 
-    void
-    advise(Lifetime lifetime, std::function<void(typename IViewableList<V>::Event const &)> handler) const override {
+    void advise(Lifetime lifetime, std::function<void(Event)> handler) const override {
         if (is_bound()) assert_threading();
-        list.advise(lifetime, handler);
+        list.advise(std::move(lifetime), handler);
     }
 
     bool add(V element) const override { return local_change<bool>([&]() { return list.add(std::move(element)); }); }

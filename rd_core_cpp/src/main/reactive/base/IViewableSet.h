@@ -27,7 +27,7 @@ public:
     virtual ~IViewableSet() = default;
 
     virtual void advise(Lifetime lifetime, std::function<void(AddRemove, T const &)> handler) const {
-        this->advise(lifetime, [handler](Event const &e) {
+        this->advise(lifetime, [handler](Event e) {
             handler(e.kind, *e.value);
         });
     }
@@ -51,7 +51,7 @@ public:
         });
     }
 
-    virtual void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const = 0;
+    virtual void advise(Lifetime lifetime, std::function<void(Event)> handler) const = 0;
 
     virtual bool add(T) const = 0;
 

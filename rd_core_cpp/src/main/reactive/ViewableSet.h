@@ -21,7 +21,7 @@ private:
 
     mutable tsl::ordered_set<std::shared_ptr<T>, HashSharedPtr<T>, KeyEqualSharedPtr<T>> set;
 
-    std::shared_ptr<T> factory(T element) const {
+    static std::shared_ptr<T> factory(T &&element) {
         return std::make_unique<T>(std::move(element));
     }
 
@@ -64,7 +64,7 @@ public:
         return true;
     }
 
-    void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const override {
+    void advise(Lifetime lifetime, std::function<void(Event)> handler) const override {
         for (auto const &x : set) {
             handler(Event(AddRemove::ADD, x.get()));
         }

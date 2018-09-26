@@ -8,6 +8,7 @@
 #include <mutex>
 #include <thread>
 #include "IRdReactive.h"
+#include "../../../rd_core_cpp/src/main/Logger.h"
 
 class Mq {
 public:
@@ -29,6 +30,8 @@ private:
     IScheduler const *defaultScheduler = nullptr;
     mutable std::unordered_map<RdId, IRdReactive const *, RdId::Hasher> subscriptions;
     mutable std::unordered_map<RdId, Mq, RdId::Hasher> broker;
+
+    Logger logger;
 
     void invoke(const IRdReactive *that, Buffer const &msg, bool sync = false) const;
 

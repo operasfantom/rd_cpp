@@ -70,7 +70,7 @@ public:
     template<typename T>
     T const &local_change_ref(std::function<T const &()> action) const {
         if (is_bound() && !async) {
-//            assertThreading();
+            assert_threading();
         }
 
         MY_ASSERT_MSG(!is_local_change, "!isLocalChange");
@@ -83,7 +83,7 @@ public:
 
     void local_change(const std::function<void()> &action) const {
         if (is_bound() && !async) {
-//            assertThreading();
+            assert_threading();
         }
 
         MY_ASSERT_MSG(!is_local_change, "!isLocalChange");

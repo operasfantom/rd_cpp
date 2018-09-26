@@ -27,20 +27,23 @@ public:
     /*Protocol serverProtocol = server(socketLifetime);
     Protocol clientProtocol = client(socketLifetime, serverProtocol);*/
 
-    RdProperty<int> cp{0};
-    RdProperty<int> sp{0};
-
 //    @Before
     void SetUp() {
 
     }
 
-    void init(Protocol const &serverProtocol, Protocol const &clientProtocol) {
-        statics(sp, property_id);
-        sp.bind(lifetime, &serverProtocol, "top");
+    void
+    init(Protocol const &serverProtocol, Protocol const &clientProtocol, RdBindableBase const *serverEntity = nullptr,
+         RdBindableBase const *clientEntity = nullptr) {
+        if (serverEntity) {
+            statics(*serverEntity, property_id);
+            serverEntity->bind(lifetime, &serverProtocol, "top");
+        }
 
-        statics(cp, property_id);
-        cp.bind(lifetime, &clientProtocol, "top");
+        if (clientEntity) {
+            statics(*clientEntity, property_id);
+            clientEntity->bind(lifetime, &clientProtocol, "top");
+        }
     }
 
 //    @After

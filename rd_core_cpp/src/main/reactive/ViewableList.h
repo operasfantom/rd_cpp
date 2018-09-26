@@ -18,7 +18,8 @@ public:
     using Event = typename IViewableList<T>::Event;
 
     template<typename V, typename S>
-    friend class RdList;
+    friend
+    class RdList;
 
 private:
     mutable std::vector<std::shared_ptr<T> > list;
@@ -36,9 +37,9 @@ public:
 
     //endregion
 
-    void advise(Lifetime lifetime, std::function<void(Event const &)> handler) const override {
+    void advise(Lifetime lifetime, std::function<void(Event)> handler) const override {
         if (lifetime->is_terminated()) return;
-        change.advise(lifetime, handler);
+        change.advise(std::move(lifetime), handler);
         for (size_t i = 0; i < size(); ++i) {
             handler(typename Event::Add(i, list[i].get()));
         }

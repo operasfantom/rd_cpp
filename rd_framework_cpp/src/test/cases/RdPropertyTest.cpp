@@ -71,8 +71,6 @@ TEST_F(RdFrameworkTestBase, property_dynamic) {
     bindStatic(serverProtocol.get(), server_property, "top");
     bindStatic(clientProtocol.get(), client_property, "top");
 
-    using listOf = std::vector<int32_t>;
-
     std::vector<int32_t> clientLog;
     std::vector<int32_t> serverLog;
 
