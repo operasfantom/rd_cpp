@@ -20,8 +20,6 @@ public:
     //endregion
 
     IProtocol const *const get_protocol() const override;
-//    static std::string log_category = "protocol";
-//    fun sublogger(subcategory: String) = getLogger("$logCategory.$subcategory")
 };
 
 

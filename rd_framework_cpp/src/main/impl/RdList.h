@@ -14,7 +14,6 @@
 template<typename V, typename S = Polymorphic<V>>
 class RdList : public RdReactiveBase, public IViewableList<V> {
 private:
-//    using list = typename ViewableList<V>;
     mutable ViewableList<V> list;
     mutable int64_t nextVersion = 1;
 
@@ -38,7 +37,7 @@ public:
         }
     };
 
-    static RdList<V> read(SerializationCtx ctx, Buffer const &buffer, ISerializer<V> *valSzr) {
+    static RdList<V> read(SerializationCtx ctx, Buffer const &buffer) {
 //        return withId<RdList<V>>(RdList(valSzr, ViewableList(), buffer.read_pod<int64_t>()), RdId::read(buffer));
     }
 

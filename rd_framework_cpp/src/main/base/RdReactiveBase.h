@@ -92,6 +92,7 @@ public:
         action();
         is_local_change = false;
     }
+    //todo catch exception in action()
 };
 
 

@@ -19,7 +19,7 @@ private:
     mutable std::map<K, int64_t> pendingForAck;
 
     bool is_master() const {
-        return manualMaster.has_value() ? *manualMaster : !optimizeNested;
+        return manualMaster.has_value() ? *manualMaster : false;
     }
 
 public:
@@ -46,13 +46,17 @@ public:
         that.rd_id.write(buffer);
     }
 
-    static const int32_t versionedFlagShift = 8; // update when changing Op
+    static const int32_t versionedFlagShift = 8;
 
     std::string logmsg(Op op, int64_t version, K const *key, V const *value = nullptr) const {
         return "map " + location.toString() + " " + rd_id.toString() + ":: " + to_string(op) +
                ":: key = " + to_string(*key) +
                ((version > 0) ? " :: version = " + /*std::*/to_string(version) : "") +
                " :: value = " + (value ? to_string(*value) : "");
+    }
+
+    std::string logmsg(Op op, int64_t version, K const *key, std::optional<V> const &value) const {
+        return logmsg(op, version, key, value.has_value() ? &value.value() : nullptr);
     }
 
     void init(Lifetime lifetime) const override {
@@ -146,14 +150,14 @@ public:
             }
 
             if (msgVersioned || !is_master() || pendingForAck.count(key) == 0) {
-                logReceived.trace(logmsg(op, version, &key, value ? &value.value() : nullptr));
+                logReceived.trace(logmsg(op, version, &key, value));
                 if (value.has_value()) {
                     map.set(key, std::move(*value));
                 } else {
                     map.remove(key);
                 }
             } else {
-                logReceived.trace(logmsg(op, version, &key, value ? &value.value() : nullptr) + " >> REJECTED");
+                logReceived.trace(logmsg(op, version, &key, value) + " >> REJECTED");
             }
 
             if (msgVersioned) {
@@ -165,14 +169,13 @@ public:
                     logSend.trace(logmsg(Op::ACK, version, &key));
                 });
                 if (is_master()) {
-                    logReceived.error("Both ends are masters:" + location.toString());
+                    logReceived.error("Both ends are masters: " + location.toString());
                 }
             }
         }
     }
 
-    void
-    advise(Lifetime lifetime, std::function<void(Event)> handler) const override {
+    void advise(Lifetime lifetime, std::function<void(Event)> handler) const override {
         if (is_bound()) assert_threading();
         map.advise(lifetime, handler);
     }

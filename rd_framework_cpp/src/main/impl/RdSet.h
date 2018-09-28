@@ -52,8 +52,6 @@ public:
         AddRemove kind = static_cast<AddRemove>(buffer.read_pod<int32_t>());
         T value = S::read(this->get_serialization_context(), buffer);
 
-        //todo maybe identify is forgotten
-
         switch (kind) {
             case AddRemove::ADD : {
                 set.add(value);

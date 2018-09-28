@@ -18,7 +18,7 @@ private:
     mutable tsl::ordered_map<std::shared_ptr<K>, std::shared_ptr<V>, HashSharedPtr<K>, KeyEqualSharedPtr<K>> map;
     Signal<Event> change;
 
-    std::shared_ptr<V> &get_by(K const &key) const {
+    std::shared_ptr<V> const &get_by(K const &key) const {
         return map.at(deleted_shared_ptr(key));
     }
 

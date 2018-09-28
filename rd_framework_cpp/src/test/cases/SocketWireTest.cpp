@@ -123,13 +123,12 @@ TEST_F(SocketWireTestBase, TestBasicRun) {
     Protocol clientProtocol = client(socketLifetime, serverProtocol);
 
 
-    RdProperty<int> sp{0};
-    RdProperty<int> cp{0};
+    RdProperty<int> sp{0}, cp{0};
 
     init(serverProtocol, clientProtocol, &sp, &cp);
 
     cp.set(1);
-    waitAndAssert(sp, 1, 0);//todo
+    waitAndAssert(sp, 1, 0);
 
     sp.set(2);
     waitAndAssert(cp, 2, 1);
@@ -141,8 +140,7 @@ TEST_F(SocketWireTestBase, TestOrdering) {
     Protocol serverProtocol = server(socketLifetime);
     Protocol clientProtocol = client(socketLifetime, serverProtocol);
 
-    RdProperty<int> sp{0};
-    RdProperty<int> cp{0};
+    RdProperty<int> sp{0}, cp{0};
 
     init(serverProtocol, clientProtocol, &sp, &cp);
 
@@ -172,8 +170,7 @@ TEST_F(SocketWireTestBase, TestOrdering) {
 }
 
 TEST_F(SocketWireTestBase, TestBigBuffer) {
-    RdProperty<std::string> cp_string{""};
-    RdProperty<std::string> sp_string{""};
+    RdProperty<std::string> cp_string{""}, sp_string{""};
 
     Protocol serverProtocol = server(socketLifetime);
     Protocol clientProtocol = client(socketLifetime, serverProtocol);
@@ -202,8 +199,7 @@ TEST_F(SocketWireTestBase, TestComplicatedProperty) {
     Protocol serverProtocol = server(socketLifetime);
     Protocol clientProtocol = client(socketLifetime, serverProtocol);
 
-    RdProperty<DynamicEntity> client_property_storage{DynamicEntity(0)};
-    RdProperty<DynamicEntity> server_property_storage{DynamicEntity(0)};
+    RdProperty<DynamicEntity> client_property_storage{DynamicEntity(0)}, server_property_storage{DynamicEntity(0)};
 
     RdProperty<DynamicEntity> &client_property = statics(client_property_storage, (property_id));
     RdProperty<DynamicEntity> &server_property = statics(server_property_storage, (property_id)).slave();
@@ -256,8 +252,8 @@ TEST_F(SocketWireTestBase, TestComplicatedProperty) {
 
 
 TEST_F(SocketWireTestBase, TestEqualChangesRdMap) { //Test pending for ack
-    auto serverProtocol = server(lifetime);
-    auto clientProtocol = client(lifetime, serverProtocol);
+    auto serverProtocol = server(socketLifetime);
+    auto clientProtocol = client(socketLifetime, serverProtocol);
 
     RdMap<std::string, std::string> s_map, c_map;
     s_map.manualMaster = true;
@@ -284,28 +280,52 @@ TEST_F(SocketWireTestBase, TestEqualChangesRdMap) { //Test pending for ack
 }
 
 TEST_F(SocketWireTestBase, TestDifferentChangesRdMap) { //Test pending for ack
-    auto serverProtocol = server(lifetime);
-    auto clientProtocol = client(lifetime, serverProtocol);
+    auto serverProtocol = server(socketLifetime);
+    auto clientProtocol = client(socketLifetime, serverProtocol);
+
+    RdMap<std::string, std::string> s_map, c_map;
+    s_map.manualMaster = true;
+    init(serverProtocol, clientProtocol, &s_map, &c_map);
+
+    const int C = 5;
+    for (int i = 0; i < C; ++i) {
+        s_map.set("A", "B");
+    }
+
+    for (int i = 0; i < C; ++i) {
+        c_map.set("A", "B");
+    }
+
+    /*waitAndAssert<std::string>([&c_map]() { return c_map.get("A"); }, "C");
+    waitAndAssert<std::string>([&s_map]() { return s_map.get("A"); }, "C");*/
+
+    sleep_this_thread(2000);
+
+    terminate();
+}
+
+TEST_F(SocketWireTestBase, TestPingPongRdMap) { //Test pending for ack
+    auto serverProtocol = server(socketLifetime);
+    auto clientProtocol = client(socketLifetime, serverProtocol);
 
     RdMap<std::string, std::string> s_map, c_map;
     s_map.manualMaster = true;
     init(serverProtocol, clientProtocol, &s_map, &c_map);
 
     s_map.set("A", "B");
+    s_map.set("A", "C");
     s_map.set("A", "B");
-    s_map.set("A", "B");
-    s_map.set("A", "B");
+    s_map.set("A", "C");
     s_map.set("A", "B");
 
     c_map.set("A", "C");
+    c_map.set("A", "B");
     c_map.set("A", "C");
-    c_map.set("A", "C");
-    c_map.set("A", "C");
+    c_map.set("A", "B");
     c_map.set("A", "C");
 
     waitAndAssert<std::string>([&c_map]() { return c_map.get("A"); }, "C");
     waitAndAssert<std::string>([&s_map]() { return s_map.get("A"); }, "C");
-
 
     terminate();
 }
@@ -314,8 +334,7 @@ TEST_F(SocketWireTestBase, DISABLED_TestRunWithSlowpokeServer) {
     uint16 port = find_free_port();
     auto clientProtocol = client(socketLifetime, port);
 
-    RdProperty<int> sp{0};
-    RdProperty<int> cp{0};
+    RdProperty<int> sp{0}, cp{0};
 
     statics(cp, property_id);
     cp.bind(lifetime, &clientProtocol, "top");

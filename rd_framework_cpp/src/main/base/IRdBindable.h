@@ -51,7 +51,6 @@ template<typename T>
 typename std::enable_if_t<!std::is_base_of_v<IRdBindable, T>>
 inline bindPolymorphic(T const &that, Lifetime lf, const IRdDynamic *parent, std::string const &name) {}
 
-/*template <typename T, typename std::enable_if<std::is_base_of<IRdBindable, T>::value>::type>*/
 inline void bindPolymorphic(IRdBindable const &that, Lifetime lf, const IRdDynamic *parent, std::string const &name) {
     that.bind(lf, parent, name);
 }
@@ -63,11 +62,6 @@ inline bindPolymorphic(std::vector<T> const &that, Lifetime lf, IRdDynamic const
         obj.bind(lf, parent, name);
     }
 }
-
-/*void bindPolymorphic(? &that, Lifetime lf, IRdDynamic *parent, std::string const &name){
-    for (auto &x){
-        x.bind(lf, parent, name);
-    }
-}*/
+//todo clean sfinae
 
 #endif //RD_CPP_FRAMEWORK_IRDBINDABLE_H
