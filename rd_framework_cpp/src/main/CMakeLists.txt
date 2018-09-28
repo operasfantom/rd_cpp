@@ -16,7 +16,7 @@ add_library(rd_framework_cpp STATIC
         base/RdReactiveBase.cpp base/RdReactiveBase.h
         base/RdBindableBase.cpp base/RdBindableBase.h
         impl/RdProperty.cpp impl/RdProperty.h
-        base/RdExtBase.cpp base/RdExtBase.h
+        base/ext/RdExtBase.cpp base/ext/RdExtBase.h
         serialization/Serializers.cpp serialization/Serializers.h
         base/WireBase.cpp base/WireBase.h
         Protocol.cpp Protocol.h base/RdPropertyBase.cpp
@@ -33,7 +33,7 @@ add_library(rd_framework_cpp STATIC
         impl/RdMap.cpp impl/RdMap.h
         wire/SocketWire.cpp wire/SocketWire.h
         impl/RdSet.cpp impl/RdSet.h serialization/ISerializable.cpp serialization/ISerializable.h serialization/IMarshaller.cpp serialization/IMarshaller.h FrameworkMarshallers.cpp FrameworkMarshallers.h util/util.cpp util/util.h
-        wire/threading/ByteBufferAsyncProcessor.cpp wire/threading/ByteBufferAsyncProcessor.h)
+        wire/threading/ByteBufferAsyncProcessor.cpp wire/threading/ByteBufferAsyncProcessor.h base/ext/ExtWire.cpp base/ext/ExtWire.h util/shared_function.cpp util/shared_function.h)
 
 target_include_directories(rd_framework_cpp PUBLIC src/)
 target_include_directories(rd_framework_cpp PUBLIC base)

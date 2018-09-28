@@ -7,12 +7,10 @@
 
 
 #include <functional>
+#include "../Logger.h"
 
 class IScheduler {
-/*
-protected:
-    bool is_active_ = false;
-*/
+    Logger logger;
 public:
     virtual void queue(std::function<void()> action) const = 0;
 
@@ -27,11 +25,11 @@ public:
 
     bool out_of_order_execution = false;
 
-    void assert_thread() const;
+    virtual void assert_thread() const;
 
     void invoke_or_queue(std::function<void()> action);
 
-    virtual void flush() = 0;
+    virtual void flush() const = 0;
 
     virtual bool is_active() const = 0;
 };

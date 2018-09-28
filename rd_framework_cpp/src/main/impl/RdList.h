@@ -96,7 +96,7 @@ public:
             });
     }
 
-    void on_wire_received(Buffer const &buffer) const override {
+    void on_wire_received(Buffer buffer) const override {
         int64_t header = (buffer.read_pod<int64_t>());
         int64_t version = header >> versionedFlagShift;
         Op op = static_cast<Op>((header & ((1 << versionedFlagShift) - 1L)));

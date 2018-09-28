@@ -21,11 +21,16 @@ public:
     Lifetime lifetime = lifetimeDef.lifetime;
     Lifetime socketLifetime = socketLifetimeDef.lifetime;
 
+    SocketScheduler serverScheduler{"server"};
+    SocketScheduler clientScheduler{"client"};
 
     int property_id = 1;
 
-    /*Protocol serverProtocol = server(socketLifetime);
-    Protocol clientProtocol = client(socketLifetime, serverProtocol);*/
+    Protocol server(Lifetime lifetime, uint16 port = 0);
+
+    Protocol client(Lifetime lifetime, Protocol const &serverProtocol);
+
+    Protocol client(Lifetime lifetime, uint16 port);
 
 //    @Before
     void SetUp() {

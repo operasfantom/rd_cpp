@@ -32,7 +32,7 @@ public:
         get_wire()->advise(lifetime, this);
     }
 
-    void on_wire_received(Buffer const &buffer) const override {
+    void on_wire_received(Buffer buffer) const override {
         T value = S::read(this->get_serialization_context(), buffer);
         this->logReceived.trace(logmsg(value));
 

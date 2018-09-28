@@ -19,12 +19,12 @@ private:
     mutable std::map<K, int64_t> pendingForAck;
 
     bool is_master() const {
-        return manualMaster.has_value() ? *manualMaster : false;
+        return master;
     }
 
 public:
 
-    std::optional<bool> manualMaster;
+    bool master = false;
 
     bool optimizeNested = false;
 
@@ -105,7 +105,7 @@ public:
             });
     }
 
-    void on_wire_received(Buffer const &buffer) const override {
+    void on_wire_received(Buffer buffer) const override {
         int32_t header = buffer.read_pod<int32_t>();
         bool msgVersioned = (header >> versionedFlagShift) != 0;
         Op op = static_cast<Op>(header & ((1 << versionedFlagShift) - 1));
@@ -176,7 +176,9 @@ public:
     }
 
     void advise(Lifetime lifetime, std::function<void(Event)> handler) const override {
-        if (is_bound()) assert_threading();
+        if (is_bound()) {
+            assert_threading();
+        }
         map.advise(lifetime, handler);
     }
 

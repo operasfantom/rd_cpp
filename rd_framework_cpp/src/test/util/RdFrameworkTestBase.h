@@ -18,15 +18,11 @@ class TestScheduler : public IScheduler {
 public:
     virtual ~TestScheduler() = default;
 
-    void flush() override {}
+    void flush() const override {}
 
-    void queue(std::function<void()> action) const override {
-        action();
-    }
+    void queue(std::function<void()> action) const override;
 
-    bool is_active() const override {
-        return true;
-    }
+    bool is_active() const override;
 };
 
 extern TestScheduler testScheduler;

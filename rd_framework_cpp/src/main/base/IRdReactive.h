@@ -25,7 +25,7 @@ public:
 
     virtual const IScheduler *const get_wire_scheduler() const = 0;
 
-    virtual void on_wire_received(Buffer const &buffer) const = 0;
+    virtual void on_wire_received(Buffer buffer) const = 0;
 };
 
 

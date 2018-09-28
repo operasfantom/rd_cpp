@@ -9,6 +9,7 @@
 #include <IScheduler.h>
 #include <WireBase.h>
 #include <condition_variable>
+#include <array>
 
 #include "clsocket/src/ActiveSocket.h"
 #include "clsocket/src/PassiveSocket.h"
@@ -16,6 +17,8 @@
 #include "../../../../rd_core_cpp/src/main/Logger.h"
 #include "threading/ByteBufferAsyncProcessor.h"
 
+
+class Lifetime;
 
 class SocketWire {
     static inline std::chrono::milliseconds timeout = std::chrono::milliseconds(500);

@@ -7,10 +7,7 @@
 
 void IScheduler::assert_thread() const {
     if (!is_active()) {
-        /*Logger.root.error {
-            "Illegal scheduler for current action, must be: $this, current thread: ${currentThreadName()}" +
-            (debugInfo?.let { ", debug info: $it" } ?:"")
-        }*/
+
     }
 }
 

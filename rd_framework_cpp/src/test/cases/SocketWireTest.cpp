@@ -250,28 +250,26 @@ TEST_F(SocketWireTestBase, TestComplicatedProperty) {
     terminate();
 }
 
+const int STEP = 5;
 
 TEST_F(SocketWireTestBase, TestEqualChangesRdMap) { //Test pending for ack
     auto serverProtocol = server(socketLifetime);
     auto clientProtocol = client(socketLifetime, serverProtocol);
 
     RdMap<std::string, std::string> s_map, c_map;
-    s_map.manualMaster = true;
+    s_map.master = true;
     init(serverProtocol, clientProtocol, &s_map, &c_map);
 
-    s_map.set("A", "B");
-    s_map.set("A", "B");
-    s_map.set("A", "B");
-    s_map.set("A", "B");
-    s_map.set("A", "B");
-
-    c_map.set("A", "B");
-    c_map.set("A", "B");
-    c_map.set("A", "B");
-    c_map.set("A", "B");
-    c_map.set("A", "B");
-
-    sleep_this_thread(500);
+    for (int i = 0; i < STEP; ++i) {
+        s_map.set("A", "B");
+        clientScheduler.pump();
+        serverScheduler.pump();
+    }
+    for (int i = 0; i < STEP; ++i) {
+        c_map.set("A", "B");
+        serverScheduler.pump();
+        clientScheduler.pump();
+    }
 
     EXPECT_EQ(s_map.get("A"), "B");
     EXPECT_EQ(c_map.get("A"), "B");
@@ -284,48 +282,51 @@ TEST_F(SocketWireTestBase, TestDifferentChangesRdMap) { //Test pending for ack
     auto clientProtocol = client(socketLifetime, serverProtocol);
 
     RdMap<std::string, std::string> s_map, c_map;
-    s_map.manualMaster = true;
+    s_map.master = true;
     init(serverProtocol, clientProtocol, &s_map, &c_map);
 
     const int C = 5;
     for (int i = 0; i < C; ++i) {
         s_map.set("A", "B");
+        clientScheduler.pump();
     }
 
     for (int i = 0; i < C; ++i) {
-        c_map.set("A", "B");
+        c_map.set("A", "C");
+        serverScheduler.pump();
     }
 
-    /*waitAndAssert<std::string>([&c_map]() { return c_map.get("A"); }, "C");
-    waitAndAssert<std::string>([&s_map]() { return s_map.get("A"); }, "C");*/
-
-    sleep_this_thread(2000);
+    EXPECT_EQ(s_map.get("A"), "C");
+    EXPECT_EQ(c_map.get("A"), "C");
 
     terminate();
 }
 
 TEST_F(SocketWireTestBase, TestPingPongRdMap) { //Test pending for ack
+    srand(0);
+
     auto serverProtocol = server(socketLifetime);
     auto clientProtocol = client(socketLifetime, serverProtocol);
 
-    RdMap<std::string, std::string> s_map, c_map;
-    s_map.manualMaster = true;
+    RdMap<std::string, int> s_map, c_map;
+    s_map.master = true;
     init(serverProtocol, clientProtocol, &s_map, &c_map);
 
-    s_map.set("A", "B");
-    s_map.set("A", "C");
-    s_map.set("A", "B");
-    s_map.set("A", "C");
-    s_map.set("A", "B");
+    const int C = 5;
+    for (int i = 0; i < C; ++i) {
+        if (i % 2 == 0) {
+            s_map.set("A", rand());
+            clientScheduler.pump();
+        } else {
+            c_map.set("A", rand());
+            serverScheduler.pump();
+        }
+    }
+    c_map.set("A", -1);
+    serverScheduler.pump();
 
-    c_map.set("A", "C");
-    c_map.set("A", "B");
-    c_map.set("A", "C");
-    c_map.set("A", "B");
-    c_map.set("A", "C");
-
-    waitAndAssert<std::string>([&c_map]() { return c_map.get("A"); }, "C");
-    waitAndAssert<std::string>([&s_map]() { return s_map.get("A"); }, "C");
+    EXPECT_EQ(s_map.get("A"), -1);
+    EXPECT_EQ(c_map.get("A"), -1);
 
     terminate();
 }

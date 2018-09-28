@@ -33,7 +33,7 @@ private:
 
     Logger logger;
 
-    void invoke(const IRdReactive *that, Buffer const &msg, bool sync = false) const;
+    void invoke(const IRdReactive *that, Buffer msg, bool sync = false) const;
 
 public:
 

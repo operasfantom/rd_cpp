@@ -78,8 +78,6 @@ TEST_F(RdFrameworkTestBase, rd_map_dynamic) {
     RdMap<int32_t, DynamicEntity> &serverMap = statics(server_map_storage, id);
     RdMap<int32_t, DynamicEntity> &clientMap = statics(client_map_storage, id);
 
-    serverMap.manualMaster = false;
-
     DynamicEntity::registry(clientProtocol.get());
     DynamicEntity::registry(serverProtocol.get());
 

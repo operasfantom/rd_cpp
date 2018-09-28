@@ -77,7 +77,7 @@ public:
         }
     }
 
-    void on_wire_received(Buffer const &buffer) const override {
+    void on_wire_received(Buffer buffer) const override {
         int32_t version = buffer.read_pod<int32_t>();
         T v = S::read(this->get_serialization_context(), buffer);
 

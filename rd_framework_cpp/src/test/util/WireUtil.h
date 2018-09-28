@@ -16,15 +16,38 @@
 #include "RdFrameworkTestBase.h"
 #include "../../main/Identities.h"
 
+class SocketScheduler : public IScheduler {
+public:
+    std::string name;
+
+    mutable std::condition_variable cv;
+    mutable std::mutex lock;
+
+    std::thread::id created_thread_id;
+    mutable std::queue<std::function<void()> > messages;
+
+    //region ctor/dtor
+
+    SocketScheduler();
+
+    explicit SocketScheduler(std::string const& name);
+
+    virtual ~SocketScheduler() = default;
+    //endregion
+
+    void flush() const override;
+
+    void queue(std::function<void()> action) const override;
+
+    bool is_active() const override;
+
+    void assert_thread() const override;
+
+    void pump() const;
+};
+
 uint16 find_free_port();
 
 void sleep_this_thread(int ms);
-
-Protocol server(Lifetime lifetime, uint16 port = 0);
-
-Protocol client(Lifetime lifetime, Protocol const &serverProtocol);
-
-Protocol client(Lifetime lifetime, uint16 port);
-
 
 #endif //RD_CPP_WIREUTIL_H
