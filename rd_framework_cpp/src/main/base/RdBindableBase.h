@@ -10,6 +10,7 @@
 #include <util.h>
 
 #include "IRdBindable.h"
+#include "IProtocol.h"
 
 class RdBindableBase : public virtual IRdBindable/*, IPrintable*/ {
 protected:
@@ -23,7 +24,8 @@ protected:
 
     const IProtocol *const get_protocol() const override;
 
-    std::vector<std::pair<std::string, std::any> > bindable_children;
+    mutable std::vector<std::pair<std::string, std::shared_ptr<IRdBindable> > > bindable_children;
+    mutable std::vector<std::pair<std::string, std::any> > non_bindable_children;
 
     SerializationCtx const &get_serialization_context() const override;
 
@@ -53,16 +55,34 @@ public:
 
     void identify(const IIdentities &identities, const RdId &id) const override;
 
-    std::map<std::string, std::any> extensions;//todo concurrency
+    mutable std::map<std::string, std::shared_ptr<IRdBindable> > bindable_extensions;//todo concurrency
+    mutable std::map<std::string, std::any> non_bindable_extensions;//todo concurrency
 
     template<typename T>
-    T const&getOrCreateExtension(std::string const &name, T create) {
-        std::any res;
-        if (extensions.count(name) > 0) {
-            res = extensions[name];
+    std::enable_if_t<std::is_base_of_v<IRdBindable, T>, T> const &
+    getOrCreateExtension(std::string const &name, std::function<T()> create) const {
+        if (bindable_extensions.count(name) > 0) {
+            return *dynamic_cast<T const *>(bindable_extensions[name].get());
         } else {
-
+            std::shared_ptr<IRdBindable> new_extension = std::make_shared<T>(create());
+            T const &res = *dynamic_cast<T const *>(new_extension.get());
+            if (bind_lifetime.has_value()) {
+                new_extension->identify(protocol->identity, rd_id.mix("." + name));
+                new_extension->bind(*bind_lifetime, this, name);
+            }
+            bindable_children.emplace_back(name, new_extension);
+            return res;
         }
+    }
+
+    template<typename T>
+    std::enable_if_t<!std::is_base_of_v<IRdBindable, T>, T> const &
+    getOrCreateExtension(std::string const &name, std::function<T()> create) const {
+        if (non_bindable_extensions.count(name) == 0) {
+            non_bindable_children.emplace_back(name, create());
+            return non_bindable_children.back().second;
+        }
+        return non_bindable_extensions[name];
     }
     /*void print(PrettyPrinter printer) {
         printer.print(toString())

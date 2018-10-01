@@ -58,11 +58,11 @@ public:
         RdId(h).write(stream);
 
 
-        size_t lengthTagPosition = stream.get_position();
+        int32_t lengthTagPosition = stream.get_position();
         stream.write_pod<int32_t>(0);
-        size_t objectStartPosition = stream.get_position();
+        int32_t objectStartPosition = stream.get_position();
         value.write(ctx, stream);
-        size_t objectEndPosition = stream.get_position();
+        int32_t objectEndPosition = stream.get_position();
         stream.set_position(lengthTagPosition);
         stream.write_pod<int32_t>(objectEndPosition - objectStartPosition);
         stream.set_position(objectEndPosition);

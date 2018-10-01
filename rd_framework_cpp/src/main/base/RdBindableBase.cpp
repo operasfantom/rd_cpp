@@ -39,7 +39,7 @@ void RdBindableBase::identify(const IIdentities &identities, const RdId &id) con
 
     this->rd_id = id;
     for (const auto&[name, child] : bindable_children) {
-        identifyPolymorphic(child, identities, id.mix("." + name));
+        identifyPolymorphic(*child, identities, id.mix("." + name));
     }
 }
 
@@ -61,8 +61,8 @@ SerializationCtx const &RdBindableBase::get_serialization_context() const {
 
 void RdBindableBase::init(Lifetime lifetime) const {
     for (const auto&[name, child] : bindable_children) {
-        if (child.has_value()) {
-            bindPolymorphic(child, lifetime, this, name);
+        if (child != nullptr) {
+            bindPolymorphic(*child, lifetime, this, name);
         }
     }
 }

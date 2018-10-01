@@ -9,7 +9,7 @@
 #include "RdReactiveBase.h"
 #include "ExtWire.h"
 
-class RdExtBase : RdReactiveBase {
+class RdExtBase : public RdReactiveBase {
 public:
     enum class ExtState {
         Ready,
