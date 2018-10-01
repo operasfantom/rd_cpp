@@ -9,13 +9,20 @@
 #include "../util/DynamicExt.h"
 #include "../util/SocketWireTestBase.h"
 
-TEST_F(RdFrameworkTestBase, DISABLED_testExtension) {
+TEST_F(RdFrameworkTestBase, /*DISABLED_*/testExtension) {
     int property_id = 1;
+    int entity_id = 2;
+    int32_t foo_id = 3;
+
     RdProperty<DynamicEntity> clientProperty{DynamicEntity(0)};
     statics(clientProperty, property_id);
+    statics(clientProperty.get(), entity_id);
+    statics(clientProperty.get().foo, foo_id);
 
     RdProperty<DynamicEntity> serverProperty{DynamicEntity(0)};
     statics(serverProperty, property_id);
+    statics(serverProperty.get(), entity_id);
+    statics(serverProperty.get().foo, foo_id);
     serverProperty.slave();
 
     DynamicEntity::registry(clientProtocol.get());

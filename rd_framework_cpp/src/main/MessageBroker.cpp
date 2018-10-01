@@ -80,7 +80,7 @@ void MessageBroker::dispatch(RdId id, Buffer message) const {
 }
 
 void MessageBroker::advise_on(Lifetime lifetime, IRdReactive const *entity) const {
-    MY_ASSERT_MSG(!entity->rd_id.isNull(), ("id is null for entity: " + std::string(typeid(entity).name())));
+    MY_ASSERT_MSG(!entity->rd_id.isNull(), ("id is null for entity: " + std::string(typeid(*entity).name())));
 
     //advise MUST happen under default scheduler, not custom
     defaultScheduler->assert_thread();

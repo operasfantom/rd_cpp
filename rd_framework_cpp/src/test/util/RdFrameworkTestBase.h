@@ -43,8 +43,8 @@ public:
     TestScheduler clientScheduler;
     TestScheduler serverScheduler;
 
-    std::unique_ptr<TestWire> clientWire = std::make_unique<TestWire>(&clientScheduler);
-    std::unique_ptr<TestWire> serverWire = std::make_unique<TestWire>(&serverScheduler);
+    std::shared_ptr<TestWire> clientWire;
+    std::shared_ptr<TestWire> serverWire;
 
     //    /*std::unique_ptr<IWire>*/TestWire clientWire{&clientScheduler};
     //    /*std::unique_ptr<IWire>*/TestWire serverTestWire{&serverScheduler};
@@ -61,10 +61,14 @@ public:
                             serverLifetime(serverLifetimeDef.lifetime) {
 
         clientProtocol = std::unique_ptr<IProtocol>(
-                std::make_unique<Protocol>(/*serializers, */clientIdentities, &clientScheduler, std::move(clientWire)));
+                std::make_unique<Protocol>(/*serializers, */clientIdentities, &clientScheduler,
+                                                            std::make_shared<TestWire>(&clientScheduler)));
         serverProtocol = std::unique_ptr<IProtocol>(
-                std::make_unique<Protocol>(/*serializers,*/ serverIdentities, &serverScheduler, std::move(serverWire)));
+                std::make_unique<Protocol>(/*serializers,*/ serverIdentities, &serverScheduler,
+                                                            std::make_shared<TestWire>(&serverScheduler)));
 
+        clientWire = std::dynamic_pointer_cast<TestWire>(clientProtocol->wire);
+        serverWire = std::dynamic_pointer_cast<TestWire>(serverProtocol->wire);
 
         std::pair<TestWire const *, TestWire const *> p = std::make_pair(
                 dynamic_cast<TestWire const *>(clientProtocol->wire.get()),

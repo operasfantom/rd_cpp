@@ -17,7 +17,7 @@ public:
         Disconnected
     };
 
-    std::shared_ptr<ExtWire> extWire /*= nullptr*/;
+    std::shared_ptr<ExtWire> extWire = std::make_shared<ExtWire>();
     mutable std::shared_ptr<IProtocol> extProtocol/* = nullptr*/;
     int64_t serializationHash = 0;
 
