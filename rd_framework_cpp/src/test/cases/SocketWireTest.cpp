@@ -16,39 +16,7 @@
 #include "../util/WireUtil.h"
 #include "../util/DynamicEntity.h"
 
-const int TIME_OUT = 50;
-const int TIME_WAIT = 2000;
-
-template<typename T>
-void waitAndAssert(RdProperty<T> const &that, T const &expected, T const &prev) {
-    for (int i = 0; i < TIME_WAIT / TIME_OUT && that.get() != expected; ++i) {
-        sleep_this_thread(TIME_OUT);
-        std::cout << ' ' << i << std::endl;
-    }
-
-    EXPECT_EQ(expected, that.get());
-}
-
-template<typename T>
-void waitAndAssert(std::function<T()> action, T const &expected) {
-    for (int i = 0; i < TIME_WAIT / TIME_OUT && action() != expected; ++i) {
-        sleep_this_thread(TIME_OUT);
-        std::cout << ' ' << i << std::endl;
-    }
-
-    EXPECT_EQ(expected, action());
-}
-
-template<typename T>
-void waitAndAssert(T const &value, T const &expected) {
-    for (int i = 0; i < TIME_WAIT / TIME_OUT && value != expected; ++i) {
-        sleep_this_thread(TIME_OUT);
-        std::cout << ' ' << i << std::endl;
-    }
-
-    EXPECT_EQ(expected, value);
-}
-
+const int STEP = 5;
 
 TEST_F(SocketWireTestBase, ClientWithoutServer) {
     uint16 port = find_free_port();
@@ -131,10 +99,12 @@ TEST_F(SocketWireTestBase, TestBasicRun) {
     init(serverProtocol, clientProtocol, &sp, &cp);
 
     cp.set(1);
-    waitAndAssert(sp, 1, 0);
+    serverScheduler.pump_one_message();
+    EXPECT_EQ(sp.get(), 1);
 
     sp.set(2);
-    waitAndAssert(cp, 2, 1);
+    clientScheduler.pump_one_message();
+    EXPECT_EQ(cp.get(), 2);
 
     terminate();
 }
@@ -153,11 +123,10 @@ TEST_F(SocketWireTestBase, TestOrdering) {
         std::lock_guard _(lock);
         log.push_back(it);
     });
-    cp.set(1);
-    cp.set(2);
-    cp.set(3);
-    cp.set(4);
-    cp.set(5);
+    for (int i = 1; i <= STEP; ++i) {
+        cp.set(i);
+        serverScheduler.pump_one_message();
+    }
 
     while (true) {
         if (lock.lock(); log.size() < 6) {
@@ -185,11 +154,13 @@ TEST_F(SocketWireTestBase, TestBigBuffer) {
     cp_string.bind(lifetime, &clientProtocol, "top");
 
     cp_string.set("1");
-    waitAndAssert<std::string>(sp_string, "1", "");
+    serverScheduler.pump_one_message();
+    EXPECT_EQ(sp_string.get(), "1");
 
     std::string str(100000, '3');
     sp_string.set(str);
-    waitAndAssert<std::string>(cp_string, str, "1");
+    clientScheduler.pump_one_message();
+    EXPECT_EQ(cp_string.get(), str);
 
     terminate();
 }
@@ -231,29 +202,30 @@ TEST_F(SocketWireTestBase, TestComplicatedProperty) {
     EXPECT_EQ((listOf{0}), serverLog);
 
     client_property.set(DynamicEntity(2));
+    serverScheduler.pump_one_message();
 
-    waitAndAssert(clientLog, (listOf{0, 2}));
-    waitAndAssert(serverLog, (listOf{0, 2}));
+    EXPECT_EQ(clientLog, (listOf{0, 2}));
+    EXPECT_EQ(serverLog, (listOf{0, 2}));
+
+    client_property.get().foo.set(5);
+    serverScheduler.pump_one_message();
+
+    EXPECT_EQ(clientLog, (listOf{0, 2, 5}));
+    EXPECT_EQ(serverLog, (listOf{0, 2, 5}));
 
     client_property.get().foo.set(5);
 
-    waitAndAssert(clientLog, (listOf{0, 2, 5}));
-    waitAndAssert(serverLog, (listOf{0, 2, 5}));
-
-    client_property.get().foo.set(5);
-
-    waitAndAssert(clientLog, (listOf{0, 2, 5}));
-    waitAndAssert(serverLog, (listOf{0, 2, 5}));
+    EXPECT_EQ(clientLog, (listOf{0, 2, 5}));
+    EXPECT_EQ(serverLog, (listOf{0, 2, 5}));
 
     client_property.set(DynamicEntity(5));
+    serverScheduler.pump_one_message();
 
-    waitAndAssert(clientLog, (listOf{0, 2, 5, 5}));
-    waitAndAssert(serverLog, (listOf{0, 2, 5, 5}));
+    EXPECT_EQ(clientLog, (listOf{0, 2, 5, 5}));
+    EXPECT_EQ(serverLog, (listOf{0, 2, 5, 5}));
 
     terminate();
 }
-
-const int STEP = 5;
 
 TEST_F(SocketWireTestBase, TestEqualChangesRdMap) { //Test pending for ack
     auto serverProtocol = server(socketLifetime);
@@ -264,8 +236,8 @@ TEST_F(SocketWireTestBase, TestEqualChangesRdMap) { //Test pending for ack
     init(serverProtocol, clientProtocol, &s_map, &c_map);
 
     s_map.set("A", "B");
-    clientScheduler.pump();
-    serverScheduler.pump();
+    clientScheduler.pump_one_message();
+    serverScheduler.pump_one_message();
     for (int i = 0; i < STEP; ++i) {
         s_map.set("A", "B");
     }
@@ -286,14 +258,14 @@ TEST_F(SocketWireTestBase, TestDifferentChangesRdMap) { //Test pending for ack
     init(serverProtocol, clientProtocol, &s_map, &c_map);
 
     s_map.set("A", "B");
-    clientScheduler.pump();
-    serverScheduler.pump();
+    clientScheduler.pump_one_message();
+    serverScheduler.pump_one_message();
     for (int i = 0; i < STEP; ++i) {
         s_map.set("A", "B");
     }
 
     c_map.set("A", "C");
-    serverScheduler.pump();
+    serverScheduler.pump_one_message();
     for (int i = 0; i < STEP; ++i) {
         c_map.set("A", "C");
     }
@@ -323,11 +295,11 @@ TEST_F(SocketWireTestBase, TestPingPongRdMap) { //Test pending for ack
     for (auto x : list) {
         if (f) {
             s_map.set("A", x);
-            clientScheduler.pump();
-            serverScheduler.pump();
+            clientScheduler.pump_one_message();
+            serverScheduler.pump_one_message();
         } else {
             c_map.set("A", x);
-            serverScheduler.pump();
+            serverScheduler.pump_one_message();
         }
         f = !f;
     }
@@ -356,9 +328,9 @@ TEST_F(SocketWireTestBase, DISABLED_TestRunWithSlowpokeServer) {
     statics(sp, property_id);
     sp.bind(lifetime, &serverProtocol, "top");
 
-    auto prev = sp.get();
     cp.set(4);
-    waitAndAssert(sp, 4, prev);
+    serverScheduler.pump_one_message();
+    EXPECT_EQ(sp.get(), 4);
 
     terminate();
 }

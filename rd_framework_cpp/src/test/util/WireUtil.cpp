@@ -34,7 +34,7 @@ void SocketScheduler::assert_thread() const {
                   ", current thread: " + to_string(std::this_thread::get_id()));
 }
 
-void SocketScheduler::pump() const {
+void SocketScheduler::pump_one_message() const {
     std::unique_lock ul(lock);
     cv.wait(ul, [this]() -> bool { return !messages.empty(); });
     flush();

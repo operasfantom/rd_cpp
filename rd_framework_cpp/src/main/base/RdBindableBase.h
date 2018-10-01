@@ -53,6 +53,17 @@ public:
 
     void identify(const IIdentities &identities, const RdId &id) const override;
 
+    std::map<std::string, std::any> extensions;//todo concurrency
+
+    template<typename T>
+    T const&getOrCreateExtension(std::string const &name, T create) {
+        std::any res;
+        if (extensions.count(name) > 0) {
+            res = extensions[name];
+        } else {
+
+        }
+    }
     /*void print(PrettyPrinter printer) {
         printer.print(toString())
         printer.print(" (")

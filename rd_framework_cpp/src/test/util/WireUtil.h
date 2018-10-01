@@ -43,7 +43,7 @@ public:
 
     void assert_thread() const override;
 
-    void pump() const;
+    void pump_one_message() const;
 };
 
 uint16 find_free_port();
