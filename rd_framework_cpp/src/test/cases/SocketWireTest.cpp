@@ -1,9 +1,12 @@
+#include <random>
+
 //
 // Created by jetbrains on 27.08.2018.
 //
 
 #include <gtest/gtest.h>
 #include <RdMap.h>
+#include <unordered_set>
 
 #include "../../main/Protocol.h"
 #include "RdProperty.h"
@@ -260,16 +263,13 @@ TEST_F(SocketWireTestBase, TestEqualChangesRdMap) { //Test pending for ack
     s_map.master = true;
     init(serverProtocol, clientProtocol, &s_map, &c_map);
 
+    s_map.set("A", "B");
+    clientScheduler.pump();
+    serverScheduler.pump();
     for (int i = 0; i < STEP; ++i) {
         s_map.set("A", "B");
-        clientScheduler.pump();
-        serverScheduler.pump();
     }
-    for (int i = 0; i < STEP; ++i) {
-        c_map.set("A", "B");
-        serverScheduler.pump();
-        clientScheduler.pump();
-    }
+    c_map.set("A", "B");
 
     EXPECT_EQ(s_map.get("A"), "B");
     EXPECT_EQ(c_map.get("A"), "B");
@@ -285,15 +285,17 @@ TEST_F(SocketWireTestBase, TestDifferentChangesRdMap) { //Test pending for ack
     s_map.master = true;
     init(serverProtocol, clientProtocol, &s_map, &c_map);
 
-    const int C = 5;
-    for (int i = 0; i < C; ++i) {
+    s_map.set("A", "B");
+    clientScheduler.pump();
+    serverScheduler.pump();
+    for (int i = 0; i < STEP; ++i) {
         s_map.set("A", "B");
-        clientScheduler.pump();
     }
 
-    for (int i = 0; i < C; ++i) {
+    c_map.set("A", "C");
+    serverScheduler.pump();
+    for (int i = 0; i < STEP; ++i) {
         c_map.set("A", "C");
-        serverScheduler.pump();
     }
 
     EXPECT_EQ(s_map.get("A"), "C");
@@ -312,21 +314,27 @@ TEST_F(SocketWireTestBase, TestPingPongRdMap) { //Test pending for ack
     s_map.master = true;
     init(serverProtocol, clientProtocol, &s_map, &c_map);
 
-    const int C = 5;
-    for (int i = 0; i < C; ++i) {
-        if (i % 2 == 0) {
-            s_map.set("A", rand());
+    std::vector<int> list(STEP);
+    int number = 0;
+    std::generate_n(list.begin(), STEP, [&number]() { return ++number; });
+    std::shuffle(list.begin(), list.end(), std::mt19937(std::random_device()()));
+
+    bool f = true;
+    for (auto x : list) {
+        if (f) {
+            s_map.set("A", x);
             clientScheduler.pump();
+            serverScheduler.pump();
         } else {
-            c_map.set("A", rand());
+            c_map.set("A", x);
             serverScheduler.pump();
         }
+        f = !f;
     }
-    c_map.set("A", -1);
-    serverScheduler.pump();
 
-    EXPECT_EQ(s_map.get("A"), -1);
-    EXPECT_EQ(c_map.get("A"), -1);
+    int last = *list.rbegin();
+    EXPECT_EQ(s_map.get("A"), last);
+    EXPECT_EQ(c_map.get("A"), last);
 
     terminate();
 }
