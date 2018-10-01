@@ -129,11 +129,15 @@ TEST_F(SocketWireTestBase, TestOrdering) {
     }
 
     while (true) {
-        if (lock.lock(); log.size() < 6) {
-            lock.unlock();
+        bool x;
+        {
+            std::lock_guard _(lock);
+            x = log.size() < 6;
+        }
+        if (x) {
             sleep_this_thread(100);
         } else {
-            break;
+			break;
         }
     }
     EXPECT_EQ((std::vector<int>{0, 1, 2, 3, 4, 5}), log);
