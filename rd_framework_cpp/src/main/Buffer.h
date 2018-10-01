@@ -77,6 +77,17 @@ public:
         write(array.data(), sizeof(T) * array.size());
     }
 
+    template<typename T>
+    T read_enum() const {
+        int32_t x = read_pod<int32_t>();
+        return static_cast<T>(x);
+    }
+
+    template<typename T>
+    void write_enum(T x) const {
+        write_pod<int32_t>(static_cast<int32_t>(x));
+    }
+
     ByteArray getArray() {
         return byteBufferMemoryBase;
     }

@@ -29,7 +29,7 @@ void RdBindableBase::bind(Lifetime lf, IRdDynamic const *parent, const std::stri
     get_protocol()->scheduler->assert_thread();
 
     priorityAdviseSection(
-            [this, lf]() { this->init(lf); }
+            [this, lf]() mutable { init(lf); }
     );
 }
 

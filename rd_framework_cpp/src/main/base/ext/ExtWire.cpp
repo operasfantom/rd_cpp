@@ -5,16 +5,21 @@
 #include "ExtWire.h"
 
 ExtWire::ExtWire() {
-    connected.advise(Lifetime::Eternal(), [](bool b) {
+    connected.advise(Lifetime::Eternal(), [this](bool b) {
         if (b) {
-/*
-        Sync.lock(sendQ) {
-            while (true) {
-                val (id, payload) = sendQ.poll() ?: return@lock
-                realWire.send(id) { buffer -> buffer.writeByteArrayRaw(payload) }
+            {
+                std::lock_guard _(lock);
+                while (true) {
+                    if (sendQ.empty()) {
+                        return;
+                    }
+                    auto[id, payload] = std::move(sendQ.front());
+                    sendQ.pop();
+                    realWire->send(id, [payload = std::move(payload)](Buffer const &buffer) {
+                        buffer.write_array(payload);
+                    });
+                }
             }
-        }
-*/
         }
     });
 }
@@ -24,16 +29,14 @@ void ExtWire::advise(Lifetime lifetime, IRdReactive const *entity) const {
 }
 
 void ExtWire::send(RdId const &id, std::function<void(Buffer const &buffer)> writer) const {
-/*
-    Sync.lock(sendQ) {
-        if (!sendQ.isEmpty() || !connected.value) {
-            val buffer = createAbstractBuffer()
-            writer(buffer)
-            sendQ.offer(id to buffer.getArray())
-            return
+    {
+        std::lock_guard _(lock);
+        if (!sendQ.empty() || !connected.get()) {
+            Buffer buffer(10);
+            writer(buffer);
+            sendQ.push(std::make_pair(id, buffer.getArray()));
+            return;
         }
-
     }
-    realWire.send(id, writer)
-*/
+    realWire->send(id, writer);
 }

@@ -43,10 +43,10 @@ public:
     TestScheduler clientScheduler;
     TestScheduler serverScheduler;
 
-    std::unique_ptr<TestWire> clientTestWire = std::make_unique<TestWire>(&clientScheduler);
-    std::unique_ptr<TestWire> serverTestWire = std::make_unique<TestWire>(&serverScheduler);
+    std::unique_ptr<TestWire> clientWire = std::make_unique<TestWire>(&clientScheduler);
+    std::unique_ptr<TestWire> serverWire = std::make_unique<TestWire>(&serverScheduler);
 
-    //    /*std::unique_ptr<IWire>*/TestWire clientTestWire{&clientScheduler};
+    //    /*std::unique_ptr<IWire>*/TestWire clientWire{&clientScheduler};
     //    /*std::unique_ptr<IWire>*/TestWire serverTestWire{&serverScheduler};
 
     Identities clientIdentities;
@@ -61,9 +61,9 @@ public:
                             serverLifetime(serverLifetimeDef.lifetime) {
 
         clientProtocol = std::unique_ptr<IProtocol>(
-                std::make_unique<Protocol>(/*serializers, */clientIdentities, &clientScheduler, std::move(clientTestWire)));
+                std::make_unique<Protocol>(/*serializers, */clientIdentities, &clientScheduler, std::move(clientWire)));
         serverProtocol = std::unique_ptr<IProtocol>(
-                std::make_unique<Protocol>(/*serializers,*/ serverIdentities, &serverScheduler, std::move(serverTestWire)));
+                std::make_unique<Protocol>(/*serializers,*/ serverIdentities, &serverScheduler, std::move(serverWire)));
 
 
         std::pair<TestWire const *, TestWire const *> p = std::make_pair(
@@ -96,8 +96,8 @@ public:
     }
 
     void setWireAutoFlush(bool flag) {
-        clientTestWire->set_auto_flush(flag);
-        serverTestWire->set_auto_flush(flag);
+        clientWire->set_auto_flush(flag);
+        serverWire->set_auto_flush(flag);
     }
 };
 

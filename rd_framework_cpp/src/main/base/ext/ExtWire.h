@@ -5,14 +5,18 @@
 #ifndef RD_CPP_EXTWIRE_H
 #define RD_CPP_EXTWIRE_H
 
+#include <queue>
 
 #include <IWire.h>
 
-class ExtWire : IWire {
+class ExtWire : public IWire {
+    mutable std::mutex lock;
+
+    mutable std::queue<std::pair<RdId, Buffer::ByteArray> > sendQ;
 public:
     ExtWire();
 
-    IWire const * realWire = nullptr;
+    mutable IWire const * realWire = nullptr;
 
     void advise(Lifetime lifetime, IRdReactive const *entity) const override;
 

@@ -17,15 +17,19 @@ public:
         Disconnected
     };
 
-    ExtWire const *const extWire = nullptr;
-    IProtocol const *extProtocol = nullptr;
+    std::shared_ptr<ExtWire> extWire /*= nullptr*/;
+    mutable std::shared_ptr<IProtocol> extProtocol/* = nullptr*/;
     int64_t serializationHash = 0;
 
     const IProtocol *const get_protocol() const override;
 
-    void init(Lifetime lifetime) const override;
+    virtual void init(Lifetime lifetime) const;
 
     void on_wire_received(Buffer buffer) const override;
+
+    void sendState(IWire const &wire, RdExtBase::ExtState state) const;
+
+    void traceMe(const Logger &logger, std::string const &message) const;
 };
 
 

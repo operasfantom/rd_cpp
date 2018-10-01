@@ -28,15 +28,6 @@ public:
     virtual void advise(Lifetime lifetime, IRdReactive const *entity) const = 0;
 
     virtual void send(RdId const &id, std::function<void(Buffer const &buffer)> writer) const = 0;
-
-    /*void sendState(RdExtBase::ExtState state) {
-
-        send(rd_id, [&](Buffer const &buffer) {
-//            logSend.traceMe(state);
-            buffer.write_pod<int32_t>(state);
-            buffer.write_pod<int64_t>(serializationHash);
-        });
-    }*/
 };
 
 

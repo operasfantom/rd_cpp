@@ -8,43 +8,42 @@
 #include "../../Protocol.h"
 
 const IProtocol *const RdExtBase::get_protocol() const {
-    return extProtocol ? extProtocol : RdReactiveBase::get_protocol();
+    return extProtocol ? extProtocol.get() : RdReactiveBase::get_protocol();
 }
 
 
 void RdExtBase::init(Lifetime lifetime) const {
-//    RdBindableBase::init(lifetime);
 //    Protocol.initializationLogger.traceMe { "binding" }
 
     auto parentProtocol = RdReactiveBase::get_protocol();
-    auto parentWire = parentProtocol->wire;
+    std::shared_ptr<IWire> parentWire = parentProtocol->wire;
 
-//    serializersOwner.register(parentProtocol.serializers)
+//    serializersOwner.registry(parentProtocol.serializers);
 
 //        val sc = ExtScheduler(parentProtocol.scheduler)
     auto sc = parentProtocol->scheduler;
-//    extWire->realWire = parentWire;
-    /*lifetime->bracket(
+    extWire->realWire = parentWire.get();
+    lifetime->bracket(
             [&]() {
-                //                extScheduler = sc
-                extProtocol = Protocol(*//*parentProtocol.serializers, *//*parentProtocol->identity, sc, extWire)
+                extProtocol = std::make_shared<IProtocol>(parentProtocol->identity, sc, std::dynamic_pointer_cast<IWire>(extWire));
             },
             [&]() {
                 extProtocol = nullptr;
-//                extScheduler = null
             }
-    );*/
+    );
 
     parentWire->advise(lifetime, this);
 
     //it's critical to advise before 'Ready' is sent because we advise on SynchronousScheduler
 
-/*
     lifetime->bracket(
-            [&parentWire]() { parentWire->sendState(ExtState::Ready) },
-            [&parentWire]() { parentWire->sendState(ExtState::Disconnected) }
+            [this, parentWire]() {
+                sendState(*parentWire, ExtState::Ready);
+            },
+            [this, parentWire]() {
+                sendState(*parentWire, ExtState::Disconnected);
+            }
     );
-*/
 
 
     //todo make it smarter
@@ -63,14 +62,13 @@ void RdExtBase::init(Lifetime lifetime) const {
 }
 
 void RdExtBase::on_wire_received(Buffer buffer) const {
-    ExtState remoteState = static_cast<ExtState>( buffer.read_pod<int32_t>());
-//    logReceived.traceMe { "remote: $remoteState " }
+    ExtState remoteState = buffer.read_enum<ExtState>();
+    traceMe(logReceived, "remote: " + to_string(remoteState));
 
 
-/*
     switch (remoteState) {
         case ExtState::Ready : {
-            extWire->realWire->sendState(ExtState::ReceivedCounterpart);
+            sendState(*extWire->realWire, ExtState::ReceivedCounterpart);
             extWire->connected.set(true);
             break;
         }
@@ -80,10 +78,9 @@ void RdExtBase::on_wire_received(Buffer buffer) const {
         }
         case ExtState::Disconnected : {
             extWire->connected.set(false);
-            break
+            break;
         }
     }
-*/
 
     int64_t counterpartSerializationHash = buffer.read_pod<int64_t>();
 /*
@@ -94,4 +91,17 @@ void RdExtBase::on_wire_received(Buffer buffer) const {
 //        error("serializationHash of ext '$location' doesn't match to counterpart: maybe you forgot to generate models?")
     }
 */
+}
+
+void RdExtBase::sendState(IWire const &wire, RdExtBase::ExtState state) const {
+
+    wire.send(rd_id, [&](Buffer const &buffer) {
+//            logSend.traceMe(state);
+        buffer.write_enum<ExtState>(state);
+        buffer.write_pod<int64_t>(serializationHash);
+    });
+}
+
+void RdExtBase::traceMe(const Logger &logger, std::string const &message) const {
+    logger.trace("ext " + location.toString() + " " + rd_id.toString() + ":: " + message);
 }
