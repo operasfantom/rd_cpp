@@ -22,11 +22,11 @@ TEST(viewable_map, advise) {
 
     Lifetime::use<int>([&](Lifetime lifetime) {
         map->advise_add_remove(lifetime,
-                               [&log_add_remove](AddRemove kind, int key, int value) {
+                               [&](AddRemove kind, int const &key, int const &value) {
                                    log_add_remove.push_back(
                                            to_string(kind) + " " + std::to_string(key) + ":" + std::to_string(value));
                                });
-        map->advise(lifetime, [&log_update](typename IViewableMap<int, int>::Event entry) {
+        map->advise(lifetime, [&](typename IViewableMap<int, int>::Event entry) {
             log_update.push_back(to_string_map_event<int, int>(entry));
         });
         map->view(lifetime, [&](Lifetime inner, const std::pair<int const *, int const *> x) {
@@ -55,7 +55,7 @@ TEST(viewable_map, advise) {
 
     log_add_remove.clear();
     Lifetime::use<int>([&](Lifetime lifetime) {
-        map->advise_add_remove(lifetime, [&log_add_remove](AddRemove kind, int key, int value) {
+        map->advise_add_remove(lifetime, [&log_add_remove](AddRemove kind, int const &key, int const &value) {
             log_add_remove.push_back(to_string(kind) + " " + std::to_string(key) + ":" + std::to_string(value));
         });
         map->set(0, 0);

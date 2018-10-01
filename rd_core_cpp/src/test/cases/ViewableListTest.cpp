@@ -85,7 +85,7 @@ TEST(viewable_list, insert_middle) {
     std::unique_ptr<IViewableList<int> > list(new ViewableList<int>());
     std::vector<std::string> log;
     Lifetime::use<int>([&](Lifetime lifetime) {
-        list->advise_add_remove(lifetime, [&list, &log](AddRemove kind, size_t index, int const &value) {
+        list->advise_add_remove(lifetime, [&log](AddRemove kind, size_t index, int const &value) {
             log.push_back(to_string(kind) + " " + std::to_string(index) + " " + std::to_string(value));
         });
         list->add(0);

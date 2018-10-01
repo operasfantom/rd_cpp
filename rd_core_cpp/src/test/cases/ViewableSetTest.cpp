@@ -13,16 +13,16 @@ TEST (viewable_set, advise) {
     std::vector<int> logView1;
     std::vector<int> logView2;
     Lifetime::use<int>([&](Lifetime lt) {
-        set->advise(lt, [&](AddRemove kind, int v) {
+        set->advise(lt, [&](AddRemove kind, int const &v) {
             logAdvise.push_back(kind == AddRemove::ADD ? v : -v);
         });
-        set->view(lt, [&logView1](Lifetime inner, int v) {
+        set->view(lt, [&](Lifetime inner, int const &v) {
             logView1.push_back(v);
-            inner->add_action([&logView1, v]() { logView1.push_back(-v); });
+            inner->add_action([&]() { logView1.push_back(-v); });
         });
-        set->view(Lifetime::Eternal(), [&logView2](Lifetime inner, int v) {
+        set->view(Lifetime::Eternal(), [&](Lifetime inner, int const &v) {
             logView2.push_back(v);
-            inner->add_action([&logView2, v]() { logView2.push_back(-v); });
+            inner->add_action([&]() { logView2.push_back(-v); });
         });
 
         EXPECT_TRUE(set->add(1));//1
@@ -70,9 +70,9 @@ TEST (viewable_set, view) {
     std::unique_ptr<IViewableSet<int>> set(new ViewableSet<int>());
     std::vector<std::string> log;
     Lifetime::use([&](Lifetime lifetime) {
-        set->view(lifetime, [&](Lifetime lt, int32_t const &value) {
+        set->view(lifetime, [&](Lifetime lt, int const &value) {
                       log.push_back("View " + std::to_string(value));
-                      lt->add_action([&log, &value]() { log.push_back("UnView " + std::to_string(value)); });
+                      lt->add_action([&]() { log.push_back("UnView " + std::to_string(value)); });
                   }
         );
         for (auto x : elementsView) {
@@ -91,9 +91,9 @@ TEST (viewable_set, view) {
 
     log.clear();
     Lifetime::use([&](Lifetime lifetime) {
-        set->view(lifetime, [&](Lifetime lt, int32_t const &value) {
+        set->view(lifetime, [&](Lifetime lt, int const &value) {
                       log.push_back("View " + std::to_string(value));
-                      lt->add_action([&log, &value]() { log.push_back("UnView " + std::to_string(value)); });
+                      lt->add_action([&]() { log.push_back("UnView " + std::to_string(value)); });
                   }
         );
         set->clear();
@@ -120,7 +120,7 @@ TEST(viewable_set, add_remove_fuzz) {
     Lifetime::use([&](Lifetime lifetime) {
         set->view(lifetime, [&log](Lifetime lt, int const &value) {
             log.push_back("View " + std::to_string(value));
-            lt->add_action([&log, &value]() { log.push_back("UnView " + std::to_string(value)); });
+            lt->add_action([&]() { log.push_back("UnView " + std::to_string(value)); });
         });
 
         for (int i = 0; i < C; ++i) {

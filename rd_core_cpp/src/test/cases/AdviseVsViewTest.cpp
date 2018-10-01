@@ -22,7 +22,7 @@ TEST(advise_vs_view, advise_behaviour1) {
     std::vector<bool> log;
 
     lifetime->add_action([&property]() { property.set(true); });
-    property.advise(lifetime, [&log](bool value) {
+    property.advise(lifetime, [&log](bool const &value) {
         log.push_back(value);
     });
     lifetimeDef.terminate();
@@ -39,7 +39,7 @@ TEST(advise_vs_view, view_behaviour1) {
     std::vector<bool> log;
 
     lifetime->add_action([&property]() { property.set(true); });
-    property.view(lifetime, [&log](Lifetime _, bool value) {
+    property.view(lifetime, [&log](Lifetime _, bool const &value) {
         log.push_back(value);
     });
 //	int c = lifetime.use_count();
@@ -57,7 +57,7 @@ TEST(advise_vs_view, advise_behaviour2) {
     std::vector<bool> log;
 
 
-    property.advise(lifetime, [&log](bool value) {
+    property.advise(lifetime, [&log](bool const &value) {
         log.push_back(value);
     });
     lifetime->add_action([&property]() { property.set(true); });
@@ -74,7 +74,7 @@ TEST(advise_vs_view, view_behaviour2) {
 
     std::vector<bool> log;
 
-    property.view(lifetime, [&log](Lifetime _, bool value) {
+    property.view(lifetime, [&log](Lifetime _, bool const &value) {
         log.push_back(value);
     });
     lifetime->add_action([&property]() { property.set(true); });
@@ -95,11 +95,11 @@ TEST(advise_vs_view, advise_behaviour3) {
     std::vector<int> log_b;
 
 
-    property_a.advise(lifetime, [&log_a](int value) {
+    property_a.advise(lifetime, [&log_a](int const &value) {
         log_a.push_back(value);
     });
 
-    property_b.advise(lifetime, [&log_b](int value) {
+    property_b.advise(lifetime, [&log_b](int const &value) {
         log_b.push_back(value);
     });
 
@@ -128,11 +128,11 @@ TEST(advise_vs_view, view_behaviour3) {
     std::vector<int> log_b;
 
 
-    property_a.view(lifetime, [&log_a](Lifetime _, int value) {
+    property_a.view(lifetime, [&log_a](Lifetime _, int const &value) {
         log_a.push_back(value);
     });
 
-    property_b.view(lifetime, [&log_b](Lifetime _, int value) {
+    property_b.view(lifetime, [&log_b](Lifetime _, int const &value) {
         log_b.push_back(value);
     });
 

@@ -14,7 +14,7 @@ TEST(property, advise) {
 
     std::vector<int> log;
     Lifetime::use<int>([&property, &acc, &log](Lifetime lifetime) {
-        property->advise(lifetime, [&log](int x) {
+        property->advise(lifetime, [&log](int const &x) {
             log.push_back(-x);
         });
         property->view(lifetime, [&log](Lifetime inner, int const &x) {
