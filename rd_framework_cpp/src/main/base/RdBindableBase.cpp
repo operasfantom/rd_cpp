@@ -22,7 +22,7 @@ void RdBindableBase::bind(Lifetime lf, IRdDynamic const *parent, const std::stri
                     this->bind_lifetime = lf;
                     location = location.sub("<<unbound>>", "::");
                     this->parent = nullptr;
-//                    rd_id = RdId::Null();
+                    rd_id = RdId::Null();
                 }
     );
 
