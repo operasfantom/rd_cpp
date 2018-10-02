@@ -20,6 +20,8 @@ public:
     //endregion
 
     IProtocol const *const get_protocol() const override;
+
+    static const Logger initializationLogger;
 };
 
 

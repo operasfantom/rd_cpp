@@ -25,7 +25,8 @@ void RdExtBase::init(Lifetime lifetime) const {
     extWire->realWire = parentWire.get();
     lifetime->bracket(
             [&]() {
-                extProtocol = std::make_shared<IProtocol>(parentProtocol->identity, sc, std::dynamic_pointer_cast<IWire>(extWire));
+                extProtocol = std::make_shared<IProtocol>(parentProtocol->identity, sc,
+                                                          std::dynamic_pointer_cast<IWire>(extWire));
             },
             [&]() {
                 extProtocol = nullptr;
@@ -58,7 +59,7 @@ void RdExtBase::init(Lifetime lifetime) const {
         }*/
     }
 
-//    Protocol.initializationLogger.traceMe{ "created and bound :: ${printToString()}" }
+    traceMe(Protocol::initializationLogger, "created and bound :: ${printToString()}");
 }
 
 void RdExtBase::on_wire_received(Buffer buffer) const {
@@ -83,14 +84,11 @@ void RdExtBase::on_wire_received(Buffer buffer) const {
     }
 
     int64_t counterpartSerializationHash = buffer.read_pod<int64_t>();
-/*
-    if (serializationHash != counterpartSerializationHash) {
+    /*if (serializationHash != counterpartSerializationHash) {
         //need to queue since outOfSyncModels is not synchronized
-        RdReactiveBase::get_protocol()->scheduler->queue(
-        [](){ RdReactiveBase::get_protocol().outOfSyncModels.add(this) });
+        RdReactiveBase::get_protocol()->scheduler->queue([this](){ RdReactiveBase::get_protocol().outOfSyncModels.add(this) });
 //        error("serializationHash of ext '$location' doesn't match to counterpart: maybe you forgot to generate models?")
-    }
-*/
+    }*/
 }
 
 void RdExtBase::sendState(IWire const &wire, RdExtBase::ExtState state) const {

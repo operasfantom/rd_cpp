@@ -9,10 +9,13 @@
 #include "../util/DynamicExt.h"
 #include "../util/SocketWireTestBase.h"
 
-TEST_F(RdFrameworkTestBase, /*DISABLED_*/testExtension) {
+TEST_F(SocketWireTestBase, /*DISABLED_*/testExtension) {
     int property_id = 1;
     int entity_id = 2;
     int32_t foo_id = 3;
+
+    Protocol serverProtocol = server(socketLifetime);
+    Protocol clientProtocol = client(socketLifetime, serverProtocol);
 
     RdProperty<DynamicEntity> clientProperty{DynamicEntity(0)};
     statics(clientProperty, property_id);
@@ -23,47 +26,45 @@ TEST_F(RdFrameworkTestBase, /*DISABLED_*/testExtension) {
     statics(serverProperty, property_id);
     statics(serverProperty.get(), entity_id);
     statics(serverProperty.get().foo, foo_id);
+
     serverProperty.slave();
 
-    DynamicEntity::registry(clientProtocol.get());
-    DynamicEntity::registry(serverProtocol.get());
+    DynamicEntity::registry(&clientProtocol);
+    DynamicEntity::registry(&serverProtocol);
     //bound
-    bindStatic(clientProtocol.get(), clientProperty, "top");
-    bindStatic(serverProtocol.get(), serverProperty, "top");
-
-    clientWire->set_auto_flush(false);
-    serverWire->set_auto_flush(false);
+    clientProperty.bind(lifetime, &clientProtocol, "top");
+    serverProperty.bind(lifetime, &serverProtocol, "top");
 
     DynamicEntity clientEntity(1);
     clientProperty.set(std::move(clientEntity));
-    clientWire->process_all_messages();
+    serverScheduler.pump_one_message();
 
     DynamicEntity serverEntity(1);
     serverProperty.set(std::move(serverEntity));
-    serverWire->process_all_messages();
+    clientScheduler.pump_one_message();
 
     //it's new!
 //    clientEntity = clientProperty.get();
-    auto const& newClientEntity = clientProperty.get();
+    auto const &newClientEntity = clientProperty.get();
 
-    DynamicExt const& clientExt = newClientEntity.getOrCreateExtension<DynamicExt>("ext", []() {
+    DynamicExt const &clientExt = newClientEntity.getOrCreateExtension<DynamicExt>("ext", []() {
         return DynamicExt("Ext!", "client");
     });
-    clientWire->process_all_messages();
+    serverScheduler.pump_one_message();
     //client send READY
 
-    auto const& newServerEntity = serverProperty.get();
+    auto const &newServerEntity = serverProperty.get();
     DynamicExt const &serverExt = newServerEntity.getOrCreateExtension<DynamicExt>("ext", []() {
         return DynamicExt("", "server");
     });
-    serverWire->process_all_messages();
+    clientScheduler.pump_one_message();
     //server send READY
 
-    clientWire->process_all_messages();
+    serverScheduler.pump_one_message();
     //client send COUNTERPART_ACK
 
-    serverWire->process_all_messages();
-    //server send COUNTERPART_ACK
+    /*clientScheduler.pump_one_message();
+    //server send COUNTERPART_ACK*/ //todo
 
     EXPECT_EQ("Ext!", serverExt.bar->get());
 }

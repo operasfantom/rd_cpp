@@ -99,11 +99,11 @@ TEST_F(SocketWireTestBase, TestBasicRun) {
     init(serverProtocol, clientProtocol, &sp, &cp);
 
     cp.set(1);
-    serverScheduler.pump_one_message();
+    serverScheduler.pump_one_message(); //server get new value
     EXPECT_EQ(sp.get(), 1);
 
     sp.set(2);
-    clientScheduler.pump_one_message();
+    clientScheduler.pump_one_message(); //server get new value
     EXPECT_EQ(cp.get(), 2);
 
     terminate();
@@ -125,7 +125,7 @@ TEST_F(SocketWireTestBase, TestOrdering) {
     });
     for (int i = 1; i <= STEP; ++i) {
         cp.set(i);
-        serverScheduler.pump_one_message();
+        serverScheduler.pump_one_message();//server get new value
     }
 
     while (true) {
@@ -137,7 +137,7 @@ TEST_F(SocketWireTestBase, TestOrdering) {
         if (x) {
             sleep_this_thread(100);
         } else {
-			break;
+            break;
         }
     }
     EXPECT_EQ((std::vector<int>{0, 1, 2, 3, 4, 5}), log);
@@ -158,12 +158,12 @@ TEST_F(SocketWireTestBase, TestBigBuffer) {
     cp_string.bind(lifetime, &clientProtocol, "top");
 
     cp_string.set("1");
-    serverScheduler.pump_one_message();
+    serverScheduler.pump_one_message();//server get new small string
     EXPECT_EQ(sp_string.get(), "1");
 
     std::string str(100000, '3');
     sp_string.set(str);
-    clientScheduler.pump_one_message();
+    clientScheduler.pump_one_message();//client get new big string
     EXPECT_EQ(cp_string.get(), str);
 
     terminate();
@@ -206,13 +206,13 @@ TEST_F(SocketWireTestBase, TestComplicatedProperty) {
     EXPECT_EQ((listOf{0}), serverLog);
 
     client_property.set(DynamicEntity(2));
-    serverScheduler.pump_one_message();
+    serverScheduler.pump_one_message();//server get the whole DynamicEntity in one message
 
     EXPECT_EQ(clientLog, (listOf{0, 2}));
     EXPECT_EQ(serverLog, (listOf{0, 2}));
 
     client_property.get().foo.set(5);
-    serverScheduler.pump_one_message();
+    serverScheduler.pump_one_message();//server get the only foo in one message
 
     EXPECT_EQ(clientLog, (listOf{0, 2, 5}));
     EXPECT_EQ(serverLog, (listOf{0, 2, 5}));
@@ -223,7 +223,7 @@ TEST_F(SocketWireTestBase, TestComplicatedProperty) {
     EXPECT_EQ(serverLog, (listOf{0, 2, 5}));
 
     client_property.set(DynamicEntity(5));
-    serverScheduler.pump_one_message();
+    serverScheduler.pump_one_message();//server get the whole DynamicEntity in one message
 
     EXPECT_EQ(clientLog, (listOf{0, 2, 5, 5}));
     EXPECT_EQ(serverLog, (listOf{0, 2, 5, 5}));
@@ -240,8 +240,8 @@ TEST_F(SocketWireTestBase, TestEqualChangesRdMap) { //Test pending for ack
     init(serverProtocol, clientProtocol, &s_map, &c_map);
 
     s_map.set("A", "B");
-    clientScheduler.pump_one_message();
-    serverScheduler.pump_one_message();
+    clientScheduler.pump_one_message();//client get ADD and send ACK
+    serverScheduler.pump_one_message();//server get ACK
     for (int i = 0; i < STEP; ++i) {
         s_map.set("A", "B");
     }
@@ -262,14 +262,14 @@ TEST_F(SocketWireTestBase, TestDifferentChangesRdMap) { //Test pending for ack
     init(serverProtocol, clientProtocol, &s_map, &c_map);
 
     s_map.set("A", "B");
-    clientScheduler.pump_one_message();
-    serverScheduler.pump_one_message();
+    clientScheduler.pump_one_message();//client get ADD and send ACK
+    serverScheduler.pump_one_message();//server get ACK
     for (int i = 0; i < STEP; ++i) {
         s_map.set("A", "B");
     }
 
     c_map.set("A", "C");
-    serverScheduler.pump_one_message();
+    serverScheduler.pump_one_message();//server get ADD
     for (int i = 0; i < STEP; ++i) {
         c_map.set("A", "C");
     }
@@ -299,11 +299,11 @@ TEST_F(SocketWireTestBase, TestPingPongRdMap) { //Test pending for ack
     for (auto x : list) {
         if (f) {
             s_map.set("A", x);
-            clientScheduler.pump_one_message();
-            serverScheduler.pump_one_message();
+            clientScheduler.pump_one_message();//client get ADD and send ACK
+            serverScheduler.pump_one_message();//server get ACK
         } else {
             c_map.set("A", x);
-            serverScheduler.pump_one_message();
+            serverScheduler.pump_one_message();//server get ADD and doesn't; send ACK
         }
         f = !f;
     }
