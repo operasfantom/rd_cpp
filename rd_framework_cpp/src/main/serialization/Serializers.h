@@ -39,7 +39,7 @@ public:
     }
 
     template<typename T>
-    void registry(std::function<std::unique_ptr<ISerializable>(SerializationCtx const &, Buffer const &)> reader) {
+    void registry(std::function<T(SerializationCtx const &, Buffer const &)> reader) {
         std::string type_name = demangle<T>();
         hash_t h = getPlatformIndependentHash(type_name);
         std::cerr << "registry: " << std::string(type_name) << " with hash: " << h << std::endl;
@@ -47,7 +47,11 @@ public:
         RdId id(h);
 //        Protocol.initializationLogger.trace { "Registering type ${t.simpleName}, id = $id" }
 
-        readers[id] = std::move(reader);
+        auto real_reader = [reader](SerializationCtx const &ctx, Buffer const &buffer) -> std::unique_ptr<ISerializable> {
+            T object = reader(ctx, buffer);
+            return std::make_unique<T>(std::move(object));
+        };
+        readers[id] = std::move(real_reader);
     }
 
     template<typename T>

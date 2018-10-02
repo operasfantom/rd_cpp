@@ -142,7 +142,7 @@ public:
         protocol->serializers.registry<Foo>([](SerializationCtx const &ctx, Buffer const &buffer) {
             K x = buffer.read_pod<K>();
             K y = buffer.read_pod<K>();//
-            return std::make_unique<Foo>(x, y);
+            return Foo(x, y);
         });
     }
 

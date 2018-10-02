@@ -5,10 +5,9 @@
 #include "DynamicEntity.h"
 
 void DynamicEntity::registry(IProtocol *protocol) {
-    protocol->serializers.registry<DynamicEntity>([](SerializationCtx const &ctx, Buffer const &buffer) {
+    protocol->serializers.registry<DynamicEntity>([](SerializationCtx const &ctx, Buffer const &buffer) -> DynamicEntity {
         RdProperty<int32_t, S> tmp = RdProperty<int32_t, S>::read(ctx, buffer);
-        std::unique_ptr<DynamicEntity> p = std::make_unique<DynamicEntity>(std::move(tmp));
-        return p;
+        return DynamicEntity(std::move(tmp));
     });
 }
 
