@@ -5,6 +5,7 @@
 //
 
 #include "LifetimeImpl.h"
+#include "../Logger.h"
 
 LifetimeImpl::LifetimeImpl(bool is_eternal) : eternaled(is_eternal), id(LifetimeImpl::get_id++) {}
 
@@ -65,4 +66,11 @@ LifetimeImpl::counter_t LifetimeImpl::add_action(std::function<void()> action) {
 
     actions[action_id_in_map] = std::move(action);
     return action_id_in_map++;
+}
+
+LifetimeImpl::~LifetimeImpl() {
+    if (!is_eternal() && !is_terminated()) {
+        Logger().error("forget to terminate lifetime with id:" + std::to_string(id));
+        terminate();
+    }
 }

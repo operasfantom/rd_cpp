@@ -38,6 +38,8 @@ public:
     explicit LifetimeImpl(bool is_eternal = false);
 
     LifetimeImpl(LifetimeImpl const &other) = delete;
+
+    virtual ~LifetimeImpl();
     //endregion
 
     counter_t add_action(std::function<void()> action);

@@ -66,6 +66,10 @@ TEST(signal, bamboo) {
     EXPECT_EQ(1, acc);
     s->fire(0);
     EXPECT_EQ(1, acc);
+
+    definition.terminate();
+    definition_son.terminate();
+    definition_grand_son.terminate();
 }
 
 TEST(signal, priority_advise) {
