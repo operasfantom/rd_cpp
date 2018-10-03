@@ -4,8 +4,6 @@
 
 #include <gtest/gtest.h>
 #include <RdProperty.h>
-#include <RdMap.h>
-#include <RdList.h>
 #include "../util/RdFrameworkTestBase.h"
 #include "../util/DynamicEntity.h"
 

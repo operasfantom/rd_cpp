@@ -10,8 +10,10 @@
 
 #include <LifetimeDefinition.h>
 #include <RdProperty.h>
+
 #include "../../main/Protocol.h"
 #include "WireUtil.h"
+#include "../../main/wire/SocketScheduler.h"
 
 class SocketWireTestBase : public ::testing::Test {
 public:

@@ -6,14 +6,11 @@
 
 #include <gtest/gtest.h>
 #include <RdMap.h>
-#include <unordered_set>
 
 #include "../../main/Protocol.h"
 #include "RdProperty.h"
 #include "../util/SocketWireTestBase.h"
 #include "../../main/wire/SocketWire.h"
-#include "../util/RdFrameworkTestBase.h"
-#include "../util/WireUtil.h"
 #include "../util/DynamicEntity.h"
 
 const int STEP = 5;

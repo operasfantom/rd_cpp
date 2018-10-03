@@ -4,10 +4,8 @@
 
 #include <utility>
 #include <thread>
-#include <algorithm>
 
 #include "SocketWire.h"
-#include "../../../../rd_core_cpp/src/main/Logger.h"
 
 SocketWire::Base::Base(const std::string &id, Lifetime lifetime, const IScheduler *scheduler)
         : WireBase(scheduler), id(id), lifetime(std::move(lifetime)),

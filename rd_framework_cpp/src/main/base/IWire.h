@@ -7,7 +7,6 @@
 
 
 #include <interfaces.h>
-//#include <ext/RdExtBase.h>
 #include "IRdReactive.h"
 #include "../../../../rd_core_cpp/src/main/reactive/base/IProperty.h"
 #include "../../../../rd_core_cpp/src/main/reactive/Property.h"

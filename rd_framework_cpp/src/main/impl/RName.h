@@ -25,12 +25,12 @@ public:
 
     RName &operator=(RName &&other) noexcept = default;
 
-    RName(RName * parent, const std::string &localName, const std::string &separator);
+    RName(RName *parent, const std::string &localName, const std::string &separator);
 
-    explicit RName(const std::string& local_name);
+    explicit RName(const std::string &local_name);
     //endregion
 
-    RName sub(const std::string& localName, const std::string& separator);
+    RName sub(const std::string &localName, const std::string &separator);
 
     std::string toString();
 

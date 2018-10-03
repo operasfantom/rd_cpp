@@ -3,6 +3,7 @@
 //
 
 #include "SocketWireTestBase.h"
+#include "../../main/wire/SocketWire.h"
 
 Protocol SocketWireTestBase::server(Lifetime lifetime, uint16 port) {
     SocketWire::Server *server = new SocketWire::Server(std::move(lifetime), &serverScheduler, port, "TestServer");

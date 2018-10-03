@@ -5,7 +5,6 @@
 
 #include <SignalX.h>
 #include "RdBindableBase.h"
-#include "IProtocol.h"
 
 bool RdBindableBase::is_bound() const {
     return parent != nullptr;

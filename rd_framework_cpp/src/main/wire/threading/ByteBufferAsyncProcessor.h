@@ -22,7 +22,8 @@ public:
     int32_t offset;
     int32_t len;
 
-    ByteArraySlice(Buffer::ByteArray data, int32_t offset, int32_t len) : data(std::move(data)), offset(offset), len(len) {}
+    ByteArraySlice(Buffer::ByteArray data, int32_t offset, int32_t len) : data(std::move(data)), offset(offset),
+                                                                          len(len) {}
 };
 
 class ByteBufferAsyncProcessor {

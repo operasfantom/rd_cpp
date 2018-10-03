@@ -3,7 +3,9 @@
 //
 
 #include <gtest/gtest.h>
-#include <RdProperty.h>
+
+#include "RdProperty.h"
+
 #include "../util/RdFrameworkTestBase.h"
 #include "../util/DynamicEntity.h"
 #include "../util/DynamicExt.h"

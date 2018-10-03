@@ -23,7 +23,7 @@ TEST_F(RdFrameworkTestBase, set_statics) {
     serverSet.advise(serverLifetimeDef.lifetime,
                      [&](AddRemove kind, int v) {
                          log.push_back((kind == AddRemove::ADD) ? v :
-                         -v);
+                                       -v);
                      });
 
     clientSet.add(2);

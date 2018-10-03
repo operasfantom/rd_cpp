@@ -8,7 +8,8 @@
 
 #include <queue>
 #include <utility>
-#include <WireBase.h>
+
+#include "WireBase.h"
 #include "../../main/RdId.h"
 #include "../../main/Buffer.h"
 

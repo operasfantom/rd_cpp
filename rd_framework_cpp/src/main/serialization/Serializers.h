@@ -47,7 +47,8 @@ public:
         RdId id(h);
 //        Protocol.initializationLogger.trace { "Registering type ${t.simpleName}, id = $id" }
 
-        auto real_reader = [reader](SerializationCtx const &ctx, Buffer const &buffer) -> std::unique_ptr<ISerializable> {
+        auto real_reader = [reader](SerializationCtx const &ctx,
+                                    Buffer const &buffer) -> std::unique_ptr<ISerializable> {
             T object = reader(ctx, buffer);
             return std::make_unique<T>(std::move(object));
         };

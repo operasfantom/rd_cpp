@@ -9,7 +9,8 @@ DynamicExt::DynamicExt() {
     bar->slave();
 }
 
-DynamicExt::DynamicExt(RdProperty<std::string> bar, std::string debugName) : bar(std::make_shared<decltype(bar)>(std::move(bar))),
+DynamicExt::DynamicExt(RdProperty<std::string> bar, std::string debugName) : bar(
+        std::make_shared<decltype(bar)>(std::move(bar))),
                                                                              debugName(std::move(debugName)) {}
 
 DynamicExt::DynamicExt(std::string const &bar, std::string const &debugName) : DynamicExt(RdProperty<std::string>(bar),

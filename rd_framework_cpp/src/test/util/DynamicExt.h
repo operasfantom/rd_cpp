@@ -8,8 +8,8 @@
 #define RD_CPP_DYNAMICEXT_H
 
 
-#include <ext/RdExtBase.h>
-#include <RdProperty.h>
+#include "ext/RdExtBase.h"
+#include "RdProperty.h"
 
 class DynamicExt : public RdExtBase, public ISerializable {
 public:

@@ -16,7 +16,7 @@ class ExtWire : public IWire {
 public:
     ExtWire();
 
-    mutable IWire const * realWire = nullptr;
+    mutable IWire const *realWire = nullptr;
 
     void advise(Lifetime lifetime, IRdReactive const *entity) const override;
 

@@ -63,8 +63,8 @@ public:
                 buffer.write_pod<int32_t>(master_version);
                 S::write(this->get_serialization_context(), buffer, v);
                 this->logSend.trace("property " + location.toString() + " + " + rd_id.toString() +
-                              ":: ver = " + std::to_string(master_version) +
-                              ", value = " + to_string(v));
+                                    ":: ver = " + std::to_string(master_version) +
+                                    ", value = " + to_string(v));
             });
         });
 

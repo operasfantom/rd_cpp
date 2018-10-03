@@ -2,7 +2,6 @@
 // Created by jetbrains on 25.07.2018.
 //
 
-#include <cassert>
 #include "TestWire.h"
 
 TestWire::TestWire(IScheduler const *const scheduler) : WireBase(scheduler) {
