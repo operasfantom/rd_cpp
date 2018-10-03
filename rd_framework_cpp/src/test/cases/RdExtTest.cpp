@@ -11,6 +11,36 @@
 #include "../util/DynamicExt.h"
 #include "../util/SocketWireTestBase.h"
 
+TEST_F(SocketWireTestBase, testStringExtension) {
+    Protocol serverProtocol = server(socketLifetime);
+    Protocol clientProtocol = client(socketLifetime, serverProtocol);
+
+    RdProperty sp{0}, cp{0};
+    cp.slave();
+
+    init(serverProtocol, clientProtocol, &sp, &cp);
+
+    sp.getOrCreateExtension<std::string>("data", []() { return "Disconnected"; });
+
+    cp.getOrCreateExtension<std::string>("data", []() { return "Disconnected"; });
+
+//    sp.getOrCreateExtension<int>("data", []() { return int(1); }) = 2;
+
+    EXPECT_EQ(cp.get(), 0);
+    EXPECT_EQ(sp.get(), 0);
+
+    sp.set(1);
+    clientScheduler.pump_one_message();
+
+    std::string const &clientExt = cp.getOrCreateExtension<std::string>("data", []() { return "Connected"; });
+    std::string const &serverExt = sp.getOrCreateExtension<std::string>("data", []() { return "Connected"; });
+
+    EXPECT_EQ(clientExt, "Connected");
+    EXPECT_EQ(serverExt, "Connected");
+
+    terminate();
+}
+
 TEST_F(SocketWireTestBase, /*DISABLED_*/testExtension) {
     int property_id = 1;
     int entity_id = 2;
@@ -69,4 +99,6 @@ TEST_F(SocketWireTestBase, /*DISABLED_*/testExtension) {
     //server send COUNTERPART_ACK*/ //todo
 
     EXPECT_EQ("Ext!", serverExt.bar->get());
+
+    terminate();
 }

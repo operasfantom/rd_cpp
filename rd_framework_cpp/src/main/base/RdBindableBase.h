@@ -80,9 +80,9 @@ public:
     getOrCreateExtension(std::string const &name, std::function<T()> create) const {
         if (non_bindable_extensions.count(name) == 0) {
             non_bindable_children.emplace_back(name, create());
-            return non_bindable_children.back().second;
+            return std::any_cast<T const &>(non_bindable_children.back().second);
         }
-        return non_bindable_extensions[name];
+        return std::any_cast<T const &>(non_bindable_extensions[name]);
     }
     /*void print(PrettyPrinter printer) {
         printer.print(toString())

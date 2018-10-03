@@ -3,7 +3,7 @@
 //
 
 #include <Lifetime.h>
-#include "IRdDynamic.h"
+#include <RdPropertyBase.h>
 #include "RdExtBase.h"
 #include "../../Protocol.h"
 
@@ -49,14 +49,7 @@ void RdExtBase::init(Lifetime lifetime) const {
 
     //todo make it smarter
     for (auto const &[name, child] : this->bindable_children) {
-        /*if (child is RdPropertyBase < * > && child.defaultValueChanged) {
-            child.localChange
-            {
-                child.bind(lifetime, this, name)
-            }
-        } else {
-            child ?.bindPolymorphic(lifetime, this, name)
-        }*/
+        bindPolymorphic(*child, lifetime, this, name);
     }
 
     traceMe(Protocol::initializationLogger, "created and bound :: ${printToString()}");
