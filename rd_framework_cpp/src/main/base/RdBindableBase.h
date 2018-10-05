@@ -53,7 +53,7 @@ public:
 
 //    getOrCreateExtension
 
-    void identify(const IIdentities &identities, const RdId &id) const override;
+    void identify(const IIdentities &identities, RdId id) const override;
 
     mutable std::map<std::string, std::shared_ptr<IRdBindable> > bindable_extensions;//todo concurrency
     mutable std::map<std::string, std::any> non_bindable_extensions;//todo concurrency
@@ -67,6 +67,7 @@ public:
             std::shared_ptr<IRdBindable> new_extension = std::make_shared<T>(create());
             T const &res = *dynamic_cast<T const *>(new_extension.get());
             if (bind_lifetime.has_value()) {
+                auto protocol = get_protocol();
                 new_extension->identify(protocol->identity, rd_id.mix("." + name));
                 new_extension->bind(*bind_lifetime, this, name);
             }

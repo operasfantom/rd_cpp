@@ -10,6 +10,7 @@
 #include "../util/DynamicEntity.h"
 #include "../util/DynamicExt.h"
 #include "../util/SocketWireTestBase.h"
+#include "../util/ExtProperty.h"
 
 TEST_F(SocketWireTestBase, testStringExtension) {
     Protocol serverProtocol = server(socketLifetime);
@@ -76,7 +77,6 @@ TEST_F(SocketWireTestBase, /*DISABLED_*/testExtension) {
     clientScheduler.pump_one_message();
 
     //it's new!
-//    clientEntity = clientProperty.get();
     auto const &newClientEntity = clientProperty.get();
 
     DynamicExt const &clientExt = newClientEntity.getOrCreateExtension<DynamicExt>("ext", []() {
@@ -95,10 +95,35 @@ TEST_F(SocketWireTestBase, /*DISABLED_*/testExtension) {
     serverScheduler.pump_one_message();
     //client send COUNTERPART_ACK
 
-    /*clientScheduler.pump_one_message();
-    //server send COUNTERPART_ACK*/ //todo
-
     EXPECT_EQ("Ext!", serverExt.bar->get());
+
+    terminate();
+}
+
+TEST_F(SocketWireTestBase, /*DISABLED_*/testSlowpokeExtension) {
+    Protocol serverProtocol = server(socketLifetime);
+    Protocol clientProtocol = client(socketLifetime, serverProtocol);
+
+    RdProperty<int> serverProperty{0}, clientProperty{0};
+    init(serverProtocol, clientProtocol, &serverProperty, &clientProperty);
+
+    auto const &serverExt = serverProperty.getOrCreateExtension<ExtProperty<std::string>>("data", []() {
+        return ExtProperty<std::string>("SERVER");
+    });
+
+    serverExt.property.set("UPDATE");
+
+    auto const &clientExt = clientProperty.getOrCreateExtension<ExtProperty<std::string>>("data", []() {
+        return ExtProperty<std::string>("CLIENT");
+    });
+
+    EXPECT_EQ(clientExt.property.get(), "CLIENT");
+
+    clientScheduler.pump_one_message();
+    serverScheduler.pump_one_message();
+
+    EXPECT_EQ(serverExt.property.get(), "UPDATE");
+    EXPECT_EQ(clientExt.property.get(), "UPDATE");
 
     terminate();
 }

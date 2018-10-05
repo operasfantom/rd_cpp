@@ -2,7 +2,10 @@
 // Created by jetbrains on 30.07.2018.
 //
 
+#include <string>
+
 #include "Buffer.h"
+#include <algorithm>
 
 Buffer::Buffer(int32_t initialSize) {
     byteBufferMemoryBase.resize(initialSize);
@@ -39,7 +42,7 @@ void Buffer::write(const void *src, size_t size) const {
 
 void Buffer::require_available(int32_t moreSize) const {
     if (offset + moreSize > size_) {
-        int32_t newSize = std::max(size_ * 2, offset + moreSize);
+        int32_t newSize = (std::max)(size_ * 2, offset + moreSize);
         byteBufferMemoryBase.resize(newSize);
         size_ = newSize;
     }

@@ -35,7 +35,7 @@ void TestWire::process_one_message() const {
     }
     auto msg = std::move(msgQ.front());
     msgQ.pop();
-    counterpart->message_broker.dispatch(msg.id, std::move(msg.istream));
+    counterpart->message_broker.dispatch(msg.id, std::move(msg.buffer));
 }
 
 void TestWire::set_auto_flush(bool value) {

@@ -16,9 +16,9 @@
 class RdMessage {
 public:
     RdId id;
-    Buffer istream;
+    Buffer buffer;
 
-    RdMessage(const RdId &id, Buffer istream) : id(id), istream(std::move(istream)) {};
+    RdMessage(const RdId &id, Buffer buffer) : id(id), buffer(std::move(buffer)) {};
 };
 
 class TestWire : public WireBase {

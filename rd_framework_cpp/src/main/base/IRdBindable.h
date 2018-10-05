@@ -27,15 +27,15 @@ public:
 
     virtual void bind(Lifetime lf, IRdDynamic const *parent, std::string const &name) const = 0;
 
-    virtual void identify(IIdentities const &identities, const RdId &id) const = 0;
+    virtual void identify(IIdentities const &identities, RdId id) const = 0;
 };
 
 template<typename T>
 typename std::enable_if_t<!std::is_base_of_v<IRdBindable, T>>
-inline identifyPolymorphic(T const &that, IIdentities const &identities, RdId const &id) {}
+inline identifyPolymorphic(T const &that, IIdentities const &identities, RdId id) {}
 
 //template <>
-inline void identifyPolymorphic(const IRdBindable &that, IIdentities const &identities, RdId const &id) {
+inline void identifyPolymorphic(const IRdBindable &that, IIdentities const &identities, RdId id) {
     that.identify(identities, id);
 }
 

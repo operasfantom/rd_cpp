@@ -13,7 +13,7 @@
 
 class SocketScheduler : public IScheduler {
 public:
-    std::__cxx11::string name;
+    std::string name;
 
     mutable std::condition_variable cv;
     mutable std::mutex lock;
@@ -25,7 +25,7 @@ public:
 
     SocketScheduler();
 
-    explicit SocketScheduler(std::__cxx11::string const &name);
+    explicit SocketScheduler(std::string const &name);
 
     virtual ~SocketScheduler() = default;
     //endregion

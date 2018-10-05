@@ -19,7 +19,7 @@ class SerializationCtx;
 
 class Serializers {
 public:
-    std::unordered_map<RdId, std::function<std::unique_ptr<ISerializable>(SerializationCtx const &,
+    mutable std::unordered_map<RdId, std::function<std::unique_ptr<ISerializable>(SerializationCtx const &,
                                                                           Buffer const &)>, RdId::Hasher> readers;
 
     template<typename T>
@@ -39,7 +39,7 @@ public:
     }
 
     template<typename T>
-    void registry(std::function<T(SerializationCtx const &, Buffer const &)> reader) {
+    void registry(std::function<T(SerializationCtx const &, Buffer const &)> reader) const {
         std::string type_name = demangle<T>();
         hash_t h = getPlatformIndependentHash(type_name);
         std::cerr << "registry: " << std::string(type_name) << " with hash: " << h << std::endl;

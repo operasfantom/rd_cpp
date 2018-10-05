@@ -10,7 +10,7 @@ SocketScheduler::SocketScheduler() : created_thread_id(std::this_thread::get_id(
 void SocketScheduler::flush() const {
     assert_thread();
 
-    auto action = move(messages.front());
+    auto action = std::move(messages.front());
     messages.pop();
     action();
 }
@@ -39,6 +39,6 @@ void SocketScheduler::pump_one_message() const {
     flush();
 }
 
-SocketScheduler::SocketScheduler(std::__cxx11::string const &name) : SocketScheduler() {
+SocketScheduler::SocketScheduler(std::string const &name) : SocketScheduler() {
     this->name = name;
 }

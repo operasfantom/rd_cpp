@@ -23,7 +23,7 @@ public:
 
     const IProtocol *const get_protocol() const override;
 
-    virtual void init(Lifetime lifetime) const;
+    void init(Lifetime lifetime) const override;
 
     void on_wire_received(Buffer buffer) const override;
 

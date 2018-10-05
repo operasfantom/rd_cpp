@@ -66,7 +66,7 @@ public:
     }
 
 
-    virtual void identify(IIdentities const &identities, RdId const &id) const override {
+    void identify(IIdentities const &identities, RdId id) const override {
         RdBindableBase::identify(identities, id);
         if (!this->optimize_nested)
             identifyPolymorphic(this->get(), identities, identities.next(id));

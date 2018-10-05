@@ -20,7 +20,6 @@ void RdExtBase::init(Lifetime lifetime) const {
 
 //    serializersOwner.registry(parentProtocol.serializers);
 
-//        val sc = ExtScheduler(parentProtocol.scheduler)
     auto sc = parentProtocol->scheduler;
     extWire->realWire = parentWire.get();
     lifetime->bracket(
@@ -28,7 +27,7 @@ void RdExtBase::init(Lifetime lifetime) const {
                 extProtocol = std::make_shared<IProtocol>(parentProtocol->identity, sc,
                                                           std::dynamic_pointer_cast<IWire>(extWire));
             },
-            [&]() {
+            [this]() {
                 extProtocol = nullptr;
             }
     );
