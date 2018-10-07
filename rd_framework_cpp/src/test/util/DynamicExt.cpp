@@ -5,19 +5,18 @@
 #include "DynamicExt.h"
 
 DynamicExt::DynamicExt() {
-    bindable_children.emplace_back("bar", bar);
-    bar->slave();
+    bindable_children.emplace_back("bar", deleted_shared_ptr(bar));
+    bar.slave();
 }
 
 DynamicExt::DynamicExt(RdProperty<std::string> bar, std::string debugName) : bar(
-        std::make_shared<decltype(bar)>(std::move(bar))),
-                                                                             debugName(std::move(debugName)) {}
+        std::move(bar)), debugName(std::move(debugName)) {}
 
 DynamicExt::DynamicExt(std::string const &bar, std::string const &debugName) : DynamicExt(RdProperty<std::string>(bar),
                                                                                           debugName) {}
 
 void DynamicExt::write(SerializationCtx const &ctx, Buffer const &buffer) const {
-    bar->write(ctx, buffer);
+    bar.write(ctx, buffer);
 }
 
 void DynamicExt::registry(IProtocol *protocol) {
@@ -25,4 +24,14 @@ void DynamicExt::registry(IProtocol *protocol) {
         throw std::invalid_argument("try to registry DynamicExt");
     });
 }
+/*
+void DynamicExt::bind(Lifetime lf, IRdDynamic const *parent, std::string const &name) const {
+    RdExtBase::bind(lf, parent, name);
+    bar.bind(lf, this, "bar");
+}
+
+void DynamicExt::identify(IIdentities const &identities, RdId id) const {
+    RdExtBase::identify(identities, id);
+    bar.identify(identities, id.mix("bar"));
+}*/
 

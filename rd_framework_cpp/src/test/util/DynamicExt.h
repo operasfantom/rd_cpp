@@ -13,7 +13,7 @@
 
 class DynamicExt : public RdExtBase, public ISerializable {
 public:
-    std::shared_ptr<RdProperty<std::string> > bar;
+    RdProperty<std::string> bar = RdProperty<std::string>("");
     std::string debugName;
 
     DynamicExt();
@@ -23,6 +23,10 @@ public:
     DynamicExt(std::string const &bar, std::string const &debugName);
 
     void write(SerializationCtx const &ctx, Buffer const &buffer) const override;
+
+    /*virtual void bind(Lifetime lf, IRdDynamic const *parent, std::string const &name) const;
+
+    virtual void identify(IIdentities const &identities, RdId id) const;*/
 
     static void registry(IProtocol *protocol);
 };

@@ -37,7 +37,7 @@ struct HashSharedPtr {
 
 template<typename U>
 typename std::enable_if_t<!std::is_copy_constructible_v<U>, std::shared_ptr<U> >
-deleted_shared_ptr(U const &element) {
+deleted_shared_ptr(U &element) {
     return std::shared_ptr<U>(&element, [](U *) {});
 }
 

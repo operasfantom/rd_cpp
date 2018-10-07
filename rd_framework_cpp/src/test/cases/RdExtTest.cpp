@@ -21,9 +21,9 @@ TEST_F(SocketWireTestBase, testStringExtension) {
 
     init(serverProtocol, clientProtocol, &sp, &cp);
 
-    sp.getOrCreateExtension<std::string>("data", []() { return "Disconnected"; });
+    sp.getOrCreateExtension<std::string>("data", []() { return "Immutable"; });
 
-    cp.getOrCreateExtension<std::string>("data", []() { return "Disconnected"; });
+    cp.getOrCreateExtension<std::string>("data", []() { return "Immutable"; });
 
 //    sp.getOrCreateExtension<int>("data", []() { return int(1); }) = 2;
 
@@ -33,13 +33,13 @@ TEST_F(SocketWireTestBase, testStringExtension) {
     sp.set(1);
     clientScheduler.pump_one_message();
 
-    std::string const &clientExt = cp.getOrCreateExtension<std::string>("data", []() { return "Connected"; });
-    std::string const &serverExt = sp.getOrCreateExtension<std::string>("data", []() { return "Connected"; });
+    std::string const &clientExt = cp.getOrCreateExtension<std::string>("data", []() { return "Mutable"; });
+    std::string const &serverExt = sp.getOrCreateExtension<std::string>("data", []() { return "Mutable"; });
 
     checkSchedulersAreEmpty();
 
-    EXPECT_EQ(clientExt, "Connected");
-    EXPECT_EQ(serverExt, "Connected");
+    EXPECT_EQ(clientExt, "Immutable");
+    EXPECT_EQ(serverExt, "Immutable");
 
     terminate();
 }
@@ -79,27 +79,28 @@ TEST_F(SocketWireTestBase, /*DISABLED_*/testExtension) {
     clientScheduler.pump_one_message();
 
     //it's new!
-    auto const &newClientEntity = clientProperty.get();
-
-    DynamicExt const &clientExt = newClientEntity.getOrCreateExtension<DynamicExt>("ext", []() {
-        return DynamicExt("Ext!", "client");
-    });
-    serverScheduler.pump_one_message();
-    //client send READY
-
     auto const &newServerEntity = serverProperty.get();
+
     DynamicExt const &serverExt = newServerEntity.getOrCreateExtension<DynamicExt>("ext", []() {
-        return DynamicExt("", "server");
+        return DynamicExt("Ext!", "client");
     });
     clientScheduler.pump_one_message();
     //server send READY
 
+    auto const &newClientEntity = clientProperty.get();
+    DynamicExt const &clientExt = newClientEntity.getOrCreateExtension<DynamicExt>("ext", []() {
+        return DynamicExt("", "server");
+    });
     serverScheduler.pump_one_message();
-    //client send COUNTERPART_ACK
+    //client send READY
+
+    clientScheduler.pump_one_message();
+    //server send COUNTERPART_ACK
 
     checkSchedulersAreEmpty();
 
-    EXPECT_EQ("Ext!", serverExt.bar->get());
+    EXPECT_EQ("Ext!", serverExt.bar.get());
+    EXPECT_EQ("Ext!", clientExt.bar.get());
 
     terminate();
 }

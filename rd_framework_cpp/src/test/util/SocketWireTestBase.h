@@ -63,7 +63,7 @@ public:
     }
 
     void checkSchedulersAreEmpty() {
-        sleep_this_thread(100);
+        sleep_this_thread(200);
         EXPECT_TRUE(clientScheduler.messages.empty());
         EXPECT_TRUE(serverScheduler.messages.empty());
     };

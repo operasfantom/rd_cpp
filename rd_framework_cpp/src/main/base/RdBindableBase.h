@@ -71,7 +71,7 @@ public:
                 new_extension->identify(protocol->identity, rd_id.mix("." + name));
                 new_extension->bind(*bind_lifetime, this, name);
             }
-            bindable_children.emplace_back(name, new_extension);
+            bindable_extensions[name] = std::move(new_extension);
             return res;
         }
     }
@@ -80,8 +80,7 @@ public:
     std::enable_if_t<!std::is_base_of_v<IRdBindable, T>, T> const &
     getOrCreateExtension(std::string const &name, std::function<T()> create) const {
         if (non_bindable_extensions.count(name) == 0) {
-            non_bindable_children.emplace_back(name, create());
-            return std::any_cast<T const &>(non_bindable_children.back().second);
+            return std::any_cast<T const &>(non_bindable_extensions[name] = create());
         }
         return std::any_cast<T const &>(non_bindable_extensions[name]);
     }
