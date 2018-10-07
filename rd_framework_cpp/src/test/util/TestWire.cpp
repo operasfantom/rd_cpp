@@ -15,7 +15,7 @@ void TestWire::send(RdId const &id, std::function<void(Buffer const &buffer)> wr
 
     bytesWritten += ostream.get_position();
 
-    ostream.set_position(0);
+    ostream.rewind();
 
     msgQ.push(RdMessage(id, std::move(ostream)));
     if (auto_flush) {

@@ -32,7 +32,7 @@ void ExtWire::send(RdId const &id, std::function<void(Buffer const &buffer)> wri
     {
         std::lock_guard _(lock);
         if (!sendQ.empty() || !connected.get()) {
-            Buffer buffer(10);
+            Buffer buffer;
             writer(buffer);
             sendQ.push(std::make_pair(id, buffer.getRealArray()));
             return;

@@ -33,7 +33,7 @@ protected:
 public:
     //region ctor/dtor
 
-    explicit Buffer(int32_t initialSize);
+    explicit Buffer(int32_t initialSize = 10); //todo
 
     explicit Buffer(const ByteArray &array, int32_t offset = 0)
             : byteBufferMemoryBase(std::move(array)), offset(offset), size_(array.size()) {}
