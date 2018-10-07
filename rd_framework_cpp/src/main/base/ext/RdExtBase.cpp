@@ -24,7 +24,7 @@ void RdExtBase::init(Lifetime lifetime) const {
     extWire->realWire = parentWire.get();
     lifetime->bracket(
             [&]() {
-                extProtocol = std::make_shared<IProtocol>(parentProtocol->identity, sc,
+                extProtocol = std::make_shared<Protocol>(parentProtocol->identity, sc,
                                                           std::dynamic_pointer_cast<IWire>(extWire));
             },
             [this]() {
