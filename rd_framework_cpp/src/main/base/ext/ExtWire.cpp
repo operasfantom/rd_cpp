@@ -16,7 +16,7 @@ ExtWire::ExtWire() {
                     auto[id, payload] = std::move(sendQ.front());
                     sendQ.pop();
                     realWire->send(id, [payload = std::move(payload)](Buffer const &buffer) {
-                        buffer.write_array(payload);
+                        buffer.write_array_raw(payload);
                     });
                 }
             }
@@ -34,7 +34,7 @@ void ExtWire::send(RdId const &id, std::function<void(Buffer const &buffer)> wri
         if (!sendQ.empty() || !connected.get()) {
             Buffer buffer(10);
             writer(buffer);
-            sendQ.push(std::make_pair(id, buffer.getArray()));
+            sendQ.push(std::make_pair(id, buffer.getRealArray()));
             return;
         }
     }

@@ -78,6 +78,11 @@ public:
     }
 
     template<typename T>
+    void write_array_raw(std::vector<T> const &array) const {
+        write(array.data(), sizeof(T) * array.size());
+    }
+
+    template<typename T>
     T read_enum() const {
         int32_t x = read_pod<int32_t>();
         return static_cast<T>(x);
@@ -90,6 +95,12 @@ public:
 
     ByteArray getArray() {
         return byteBufferMemoryBase;
+    }
+
+    ByteArray getRealArray() {
+        auto res = byteBufferMemoryBase;
+        res.resize(offset);
+        return res;
     }
 
     word_t const *data() const {
