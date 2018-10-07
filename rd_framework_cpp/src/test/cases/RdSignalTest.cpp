@@ -141,7 +141,7 @@ public:
     static void registry(IProtocol *protocol) {
         protocol->serializers.registry<Foo>([](SerializationCtx const &ctx, Buffer const &buffer) {
             K x = buffer.read_pod<K>();
-            K y = buffer.read_pod<K>();//
+            K y = buffer.read_pod<K>();
             return Foo(x, y);
         });
     }

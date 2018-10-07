@@ -61,6 +61,12 @@ public:
         socketLifetimeDef.terminate();
         lifetimeDef.terminate();
     }
+
+    void checkSchedulersAreEmpty() {
+        sleep_this_thread(100);
+        EXPECT_TRUE(clientScheduler.messages.empty());
+        EXPECT_TRUE(serverScheduler.messages.empty());
+    };
 };
 
 

@@ -1,12 +1,12 @@
-#include <random>
-
 //
 // Created by jetbrains on 27.08.2018.
 //
 
 #include <gtest/gtest.h>
-#include <RdMap.h>
 
+#include <random>
+
+#include <RdMap.h>
 #include "../../main/Protocol.h"
 #include "RdProperty.h"
 #include "../util/SocketWireTestBase.h"
@@ -97,10 +97,16 @@ TEST_F(SocketWireTestBase, TestBasicRun) {
 
     cp.set(1);
     serverScheduler.pump_one_message(); //server get new value
+
+    checkSchedulersAreEmpty();
+
     EXPECT_EQ(sp.get(), 1);
 
     sp.set(2);
     clientScheduler.pump_one_message(); //server get new value
+
+    checkSchedulersAreEmpty();
+
     EXPECT_EQ(cp.get(), 2);
 
     terminate();
@@ -137,6 +143,9 @@ TEST_F(SocketWireTestBase, TestOrdering) {
             break;
         }
     }
+
+    checkSchedulersAreEmpty();
+
     EXPECT_EQ((std::vector<int>{0, 1, 2, 3, 4, 5}), log);
 
     terminate();
@@ -156,11 +165,17 @@ TEST_F(SocketWireTestBase, TestBigBuffer) {
 
     cp_string.set("1");
     serverScheduler.pump_one_message();//server get new small string
+
+    checkSchedulersAreEmpty();
+
     EXPECT_EQ(sp_string.get(), "1");
 
-    std::string str(100000, '3');
+    std::string str(100'000, '3');
     sp_string.set(str);
     clientScheduler.pump_one_message();//client get new big string
+
+    checkSchedulersAreEmpty();
+
     EXPECT_EQ(cp_string.get(), str);
 
     terminate();
@@ -199,11 +214,15 @@ TEST_F(SocketWireTestBase, TestComplicatedProperty) {
         entity.foo.advise(Lifetime::Eternal(), [&](int32_t const &it) { serverLog.push_back(it); });
     });
 
+    checkSchedulersAreEmpty();
+
     EXPECT_EQ((listOf{0}), clientLog);
     EXPECT_EQ((listOf{0}), serverLog);
 
     client_property.set(DynamicEntity(2));
     serverScheduler.pump_one_message();//server get the whole DynamicEntity in one message
+
+    checkSchedulersAreEmpty();
 
     EXPECT_EQ(clientLog, (listOf{0, 2}));
     EXPECT_EQ(serverLog, (listOf{0, 2}));
@@ -211,16 +230,22 @@ TEST_F(SocketWireTestBase, TestComplicatedProperty) {
     client_property.get().foo.set(5);
     serverScheduler.pump_one_message();//server get the only foo in one message
 
+    checkSchedulersAreEmpty();
+
     EXPECT_EQ(clientLog, (listOf{0, 2, 5}));
     EXPECT_EQ(serverLog, (listOf{0, 2, 5}));
 
     client_property.get().foo.set(5);
+
+    checkSchedulersAreEmpty();
 
     EXPECT_EQ(clientLog, (listOf{0, 2, 5}));
     EXPECT_EQ(serverLog, (listOf{0, 2, 5}));
 
     client_property.set(DynamicEntity(5));
     serverScheduler.pump_one_message();//server get the whole DynamicEntity in one message
+
+    checkSchedulersAreEmpty();
 
     EXPECT_EQ(clientLog, (listOf{0, 2, 5, 5}));
     EXPECT_EQ(serverLog, (listOf{0, 2, 5, 5}));
@@ -243,6 +268,8 @@ TEST_F(SocketWireTestBase, TestEqualChangesRdMap) { //Test pending for ack
         s_map.set("A", "B");
     }
     c_map.set("A", "B");
+
+    checkSchedulersAreEmpty();
 
     EXPECT_EQ(s_map.get("A"), "B");
     EXPECT_EQ(c_map.get("A"), "B");
@@ -270,6 +297,8 @@ TEST_F(SocketWireTestBase, TestDifferentChangesRdMap) { //Test pending for ack
     for (int i = 0; i < STEP; ++i) {
         c_map.set("A", "C");
     }
+
+    checkSchedulersAreEmpty();
 
     EXPECT_EQ(s_map.get("A"), "C");
     EXPECT_EQ(c_map.get("A"), "C");
@@ -306,6 +335,9 @@ TEST_F(SocketWireTestBase, TestPingPongRdMap) { //Test pending for ack
     }
 
     int last = *list.rbegin();
+
+    checkSchedulersAreEmpty();
+
     EXPECT_EQ(s_map.get("A"), last);
     EXPECT_EQ(c_map.get("A"), last);
 
@@ -331,6 +363,9 @@ TEST_F(SocketWireTestBase, DISABLED_TestRunWithSlowpokeServer) {
 
     cp.set(4);
     serverScheduler.pump_one_message();
+
+    checkSchedulersAreEmpty();
+
     EXPECT_EQ(sp.get(), 4);
 
     terminate();

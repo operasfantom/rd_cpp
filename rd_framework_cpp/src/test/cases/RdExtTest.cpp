@@ -36,6 +36,8 @@ TEST_F(SocketWireTestBase, testStringExtension) {
     std::string const &clientExt = cp.getOrCreateExtension<std::string>("data", []() { return "Connected"; });
     std::string const &serverExt = sp.getOrCreateExtension<std::string>("data", []() { return "Connected"; });
 
+    checkSchedulersAreEmpty();
+
     EXPECT_EQ(clientExt, "Connected");
     EXPECT_EQ(serverExt, "Connected");
 
@@ -95,6 +97,8 @@ TEST_F(SocketWireTestBase, /*DISABLED_*/testExtension) {
     serverScheduler.pump_one_message();
     //client send COUNTERPART_ACK
 
+    checkSchedulersAreEmpty();
+
     EXPECT_EQ("Ext!", serverExt.bar->get());
 
     terminate();
@@ -125,10 +129,7 @@ TEST_F(SocketWireTestBase, /*DISABLED_*/testSlowpokeExtension) {
     clientScheduler.pump_one_message(); //send ReceivedCounterpart
     clientScheduler.pump_one_message(); //send "UPDATE"
 
-    sleep_this_thread(100);
-
-    EXPECT_TRUE(clientScheduler.messages.empty());
-    EXPECT_TRUE(serverScheduler.messages.empty());
+    checkSchedulersAreEmpty();
 
     EXPECT_EQ(serverExt.property.get(), "UPDATE");
     EXPECT_EQ(clientExt.property.get(), "UPDATE");

@@ -24,10 +24,6 @@ public:
 
     void write(SerializationCtx const &ctx, Buffer const &buffer) const override;
 
-    void init(Lifetime lifetime) const override;
-
-    void identify(IIdentities const &identities, RdId id) const override;
-
     static void registry(IProtocol *protocol);
 };
 
