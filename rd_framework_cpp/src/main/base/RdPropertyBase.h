@@ -47,7 +47,7 @@ public:
             this->change.advise(lifetime, [this](T const &v) {
                 if (is_local_change) {
                     const IProtocol *iProtocol = get_protocol();
-                    identifyPolymorphic(v, iProtocol->identity, iProtocol->identity.next(rd_id));
+                    identifyPolymorphic(v, *iProtocol->identity, iProtocol->identity->next(rd_id));
                 }
             });
         }

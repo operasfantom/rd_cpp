@@ -68,7 +68,7 @@ public:
             T const &res = *dynamic_cast<T const *>(new_extension.get());
             if (bind_lifetime.has_value()) {
                 auto protocol = get_protocol();
-                new_extension->identify(protocol->identity, rd_id.mix("." + name));
+                new_extension->identify(*protocol->identity, rd_id.mix("." + name));
                 new_extension->bind(*bind_lifetime, this, name);
             }
             bindable_extensions[name] = std::move(new_extension);

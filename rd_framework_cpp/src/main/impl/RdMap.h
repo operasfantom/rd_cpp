@@ -69,7 +69,7 @@ public:
                 V const *new_value = e.get_new_value();
                 if (new_value) {
                     const IProtocol *iProtocol = get_protocol();
-                    identifyPolymorphic(*new_value, iProtocol->identity, iProtocol->identity.next(rd_id));
+                    identifyPolymorphic(*new_value, *iProtocol->identity, iProtocol->identity->next(rd_id));
                 }
 
                 get_wire()->send(rd_id, [this, e](Buffer const &buffer) {

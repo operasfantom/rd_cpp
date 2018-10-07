@@ -17,14 +17,14 @@ class IRdDynamic;
 class IProtocol : public IRdDynamic {
 public:
     Serializers serializers;
-    Identities identity;
+    std::shared_ptr<IIdentities> identity;
     IScheduler const *scheduler;
     std::shared_ptr<IWire> wire;
     SerializationCtx context;
 
     //region ctor/dtor
 
-    IProtocol(Identities identity, const IScheduler *scheduler, std::shared_ptr<IWire> wire);
+    IProtocol(std::shared_ptr<IIdentities> identity, const IScheduler *scheduler, std::shared_ptr<IWire> wire);
 
     virtual ~IProtocol() = default;
     //endregion

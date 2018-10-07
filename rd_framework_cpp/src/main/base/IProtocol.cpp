@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by jetbrains on 30.07.2018.
 //
@@ -8,13 +10,11 @@
 #include "IProtocol.h"
 
 //todo IIdentitites
-IProtocol::IProtocol(Identities identity, const IScheduler *scheduler, std::shared_ptr<IWire> wire) : identity(
-        std::move(identity)),
-                                                                                                      scheduler(
-                                                                                                              scheduler),
-                                                                                                      wire(std::move(
-                                                                                                              wire)),
-                                                                                                      context(&serializers) {}
+IProtocol::IProtocol(std::shared_ptr<IIdentities> identity, const IScheduler *scheduler, std::shared_ptr<IWire> wire) :
+        identity(std::move(identity)),
+        scheduler(scheduler),
+        wire(std::move(wire)),
+        context(&serializers) {}
 
 const SerializationCtx &IProtocol::get_serialization_context() const {
     return context;
