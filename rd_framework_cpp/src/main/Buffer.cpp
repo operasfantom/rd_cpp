@@ -42,7 +42,7 @@ void Buffer::write(const void *src, size_t size) const {
 }
 
 void Buffer::require_available(int32_t moreSize) const {
-    if (offset + moreSize > size_) {
+    if (offset + moreSize >= size_) {
         int32_t newSize = (std::max)(size_ * 2, offset + moreSize);
         byteBufferMemoryBase.resize(newSize);
         size_ = newSize;
