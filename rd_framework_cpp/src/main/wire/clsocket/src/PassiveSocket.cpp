@@ -160,7 +160,7 @@ bool CPassiveSocket::Listen(const char *pAddr, uint16 nPort, int32 nConnectionBa
     //--------------------------------------------------------------------------
     if (bind(m_socket, (struct sockaddr *) &m_stServerSockaddr, sizeof(m_stServerSockaddr)) !=
         CSimpleSocket::SocketError) {
-        int namelen = sizeof(m_stServerSockaddr);
+        socklen_t namelen = sizeof(m_stServerSockaddr);
         if (getsockname(m_socket, (struct sockaddr *) &m_stServerSockaddr, &namelen) != CSimpleSocket::SocketError) {
             if (m_nSocketType == CSimpleSocket::SocketTypeTcp) {
                 if (listen(m_socket, nConnectionBacklog) != CSimpleSocket::SocketError) {

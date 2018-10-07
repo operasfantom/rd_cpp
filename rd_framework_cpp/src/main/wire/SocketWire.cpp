@@ -115,6 +115,9 @@ bool SocketWire::Base::ReadFromSocket(char *res, int32_t msglen) const {
                 hi = lo = receiver_buffer.begin();
             }
             logger.info(this->id + ": receive started");
+            if (!socketProvider->IsSocketValid()) {
+                return false;
+            }
             int32_t read = socketProvider->Receive(static_cast<int32>(receiver_buffer.end() - hi), &*hi);
             if (read == -1) {
                 logger.error(this->id + ": socket was shutted down for receiving");
@@ -135,6 +138,7 @@ SocketWire::Client::Client(Lifetime lifetime, const IScheduler *scheduler, uint1
         try {
             while (!lifetime->is_terminated()) {
                 try {
+                    socket = std::make_shared<CActiveSocket>();
                     MY_ASSERT_THROW_MSG(socket->Initialize(), this->id + ": failed to init ActiveSocket");
                     MY_ASSERT_THROW_MSG(socket->DisableNagleAlgoritm(), this->id + ": failed to DisableNagleAlgoritm");
 

@@ -18,3 +18,7 @@ add_executable(rd_framework_cpp_test
 
 target_link_libraries(rd_framework_cpp_test gtest gtest_main)
 target_link_libraries(rd_framework_cpp_test rd_framework_cpp)
+
+if (UNIX)
+    add_definitions(-D_LINUX)
+endif ()

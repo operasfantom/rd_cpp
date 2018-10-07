@@ -41,5 +41,8 @@ target_include_directories(rd_framework_cpp PUBLIC base)
 target_include_directories(rd_framework_cpp PUBLIC impl)
 add_subdirectory(wire)
 
-target_link_libraries(rd_framework_cpp PUBLIC rd_core_cpp)
-target_link_libraries(rd_framework_cpp PUBLIC clsocket)
+target_link_libraries(rd_framework_cpp PUBLIC rd_core_cpp clsocket)
+
+if (UNIX)
+    add_definitions(-D_LINUX)
+endif ()
