@@ -13,8 +13,9 @@
 #include <mutex>
 #include <optional>
 #include <condition_variable>
-#include "../../../../../rd_core_cpp/src/main/Logger.h"
-#include "../../Buffer.h"
+
+#include "Logger.h"
+#include "Buffer.h"
 
 class ByteArraySlice {
 public:

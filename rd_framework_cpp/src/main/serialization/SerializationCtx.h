@@ -5,7 +5,7 @@
 #ifndef RD_CPP_FRAMEWORK_SERIALIZATIONCTX_H
 #define RD_CPP_FRAMEWORK_SERIALIZATIONCTX_H
 
-#include "../Buffer.h"
+#include "Buffer.h"
 #include "Serializers.h"
 
 

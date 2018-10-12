@@ -2,10 +2,12 @@
 // Created by jetbrains on 07.10.2018.
 //
 
-#include <random>
 #include "gtest/gtest.h"
-#include "../../main/Buffer.h"
-#include "../../main/serialization/Polymorphic.h"
+
+#include <random>
+
+#include "Buffer.h"
+#include "Polymorphic.h"
 
 TEST(BufferTest, readWritePod) {
     Buffer buffer;

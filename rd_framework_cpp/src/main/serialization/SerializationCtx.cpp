@@ -2,7 +2,7 @@
 // Created by jetbrains on 20.07.2018.
 //
 
-#include <IProtocol.h>
+#include "IProtocol.h"
 
 SerializationCtx::SerializationCtx(const IProtocol &protocol) : serializers(&protocol.serializers) {}
 

@@ -6,12 +6,12 @@
 
 #include <random>
 
-#include <RdMap.h>
-#include "../../main/Protocol.h"
+#include "RdMap.h"
+#include "Protocol.h"
 #include "RdProperty.h"
-#include "../util/SocketWireTestBase.h"
-#include "../../main/wire/SocketWire.h"
-#include "../util/DynamicEntity.h"
+#include "SocketWireTestBase.h"
+#include "SocketWire.h"
+#include "DynamicEntity.h"
 
 const int STEP = 5;
 

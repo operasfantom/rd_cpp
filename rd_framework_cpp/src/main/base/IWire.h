@@ -6,10 +6,9 @@
 #define RD_CPP_IWIRE_H
 
 
-#include <interfaces.h>
+#include "interfaces.h"
 #include "IRdReactive.h"
-#include "../../../../rd_core_cpp/src/main/reactive/base/IProperty.h"
-#include "../../../../rd_core_cpp/src/main/reactive/Property.h"
+#include "Property.h"
 
 class IWire {
 public:

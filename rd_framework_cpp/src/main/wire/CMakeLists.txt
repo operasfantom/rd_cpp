@@ -1,3 +1,2 @@
-project(rd_cpp)
-
 add_subdirectory(clsocket)
+#add_subdirectory(threading)

@@ -6,7 +6,8 @@
 #define RD_CPP_IVIEWABLEMAP_H
 
 #include <variant>
-#include <util.h>
+
+#include "util.h"
 #include "interfaces.h"
 #include "viewable_collections.h"
 

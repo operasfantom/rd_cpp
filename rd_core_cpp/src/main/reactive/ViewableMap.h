@@ -5,10 +5,11 @@
 #ifndef RD_CPP_CORE_VIEWABLE_MAP_H
 #define RD_CPP_CORE_VIEWABLE_MAP_H
 
-//#include "Logger.h"
-#include <base/IViewableMap.h>
-#include "SignalX.h"
 #include <ordered-map/include/tsl/ordered_map.h>
+
+#include "Logger.h"
+#include "base/IViewableMap.h"
+#include "SignalX.h"
 
 template<typename K, typename V>
 class ViewableMap : public IViewableMap<K, V> {

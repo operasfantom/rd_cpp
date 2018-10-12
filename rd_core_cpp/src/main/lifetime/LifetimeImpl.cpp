@@ -1,11 +1,11 @@
-#include <utility>
-
 //
 // Created by jetbrains on 09.07.2018.
 //
 
+#include <utility>
+
 #include "LifetimeImpl.h"
-#include "../Logger.h"
+#include "Logger.h"
 
 LifetimeImpl::LifetimeImpl(bool is_eternal) : eternaled(is_eternal), id(LifetimeImpl::get_id++) {}
 

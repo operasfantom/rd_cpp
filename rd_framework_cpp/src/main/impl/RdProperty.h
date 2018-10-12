@@ -6,10 +6,10 @@
 #define RD_CPP_RDPROPERTY_H
 
 
-#include <Property.h>
-#include <RdPropertyBase.h>
-#include "../serialization/Polymorphic.h"
-#include "../serialization/ISerializable.h"
+#include "Property.h"
+#include "RdPropertyBase.h"
+#include "Polymorphic.h"
+#include "ISerializable.h"
 
 template<typename T, typename S = Polymorphic<T>>
 class RdProperty : public RdPropertyBase<T, S>, public ISerializable {

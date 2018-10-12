@@ -8,8 +8,8 @@
 
 #include "RdReactiveBase.h"
 #include "ISerializer.h"
-#include "../../../../rd_core_cpp/src/main/reactive/SignalX.h"
-#include "../serialization/Polymorphic.h"
+#include "SignalX.h"
+#include "Polymorphic.h"
 #include "Property.h"
 
 template<typename T, typename S = Polymorphic<T>>

@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 
 #include "RdSet.h"
-#include "../util/RdFrameworkTestBase.h"
+#include "RdFrameworkTestBase.h"
 
 using vi = std::vector<int>;
 

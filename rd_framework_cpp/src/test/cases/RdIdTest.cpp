@@ -3,7 +3,8 @@
 //
 
 #include <gtest/gtest.h>
-#include "../../main/RdId.h"
+
+#include "RdId.h"
 
 TEST(rd_id, mix) {
     RdId id1 = RdId::Null().mix("abcd").mix("efg");

@@ -6,9 +6,9 @@
 #define RD_CPP_WIREBASE_H
 
 
-#include <Property.h>
+#include "Property.h"
 #include "IWire.h"
-#include "../MessageBroker.h"
+#include "MessageBroker.h"
 
 class WireBase : public IWire {
 protected:

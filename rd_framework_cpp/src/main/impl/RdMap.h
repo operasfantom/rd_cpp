@@ -6,10 +6,11 @@
 #define RD_CPP_RDMAP_H
 
 
-#include <ViewableMap.h>
 #include <cstdint>
-#include <RdReactiveBase.h>
-#include "../serialization/Polymorphic.h"
+
+#include "ViewableMap.h"
+#include "RdReactiveBase.h"
+#include "Polymorphic.h"
 
 template<typename K, typename V, typename KS = Polymorphic<K>, typename VS = Polymorphic<V>>
 class RdMap : public RdReactiveBase, public IViewableMap<K, V> {

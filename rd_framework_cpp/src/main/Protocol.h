@@ -6,7 +6,7 @@
 #define RD_CPP_PROTOCOL_H
 
 
-#include <IProtocol.h>
+#include "IProtocol.h"
 #include "interfaces.h"
 
 

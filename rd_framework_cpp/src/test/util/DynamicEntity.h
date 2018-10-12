@@ -6,10 +6,10 @@
 #define RD_CPP_DYNAMICENTITY_H
 
 
-#include <RdBindableBase.h>
-#include <../../main/FrameworkMarshallers.h>
-#include "../../main/serialization/ISerializable.h"
-#include <RdProperty.h>
+#include "RdBindableBase.h"
+#include "FrameworkMarshallers.h"
+#include "ISerializable.h"
+#include "RdProperty.h"
 
 class DynamicEntity : public RdBindableBase, public ISerializable {
     using S = FrameworkMarshallers::Int32;

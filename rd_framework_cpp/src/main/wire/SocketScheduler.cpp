@@ -3,7 +3,7 @@
 //
 
 #include "SocketScheduler.h"
-#include "../../../../rd_core_cpp/src/test/util/util.h"
+#include "util.h"
 
 SocketScheduler::SocketScheduler() : created_thread_id(std::this_thread::get_id()) {}
 

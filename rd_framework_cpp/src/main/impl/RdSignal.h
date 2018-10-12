@@ -5,12 +5,12 @@
 #ifndef RD_CPP_RDSIGNAL_H
 #define RD_CPP_RDSIGNAL_H
 
-#include <Lifetime.h>
-#include <interfaces.h>
-#include <IScheduler.h>
-#include <SignalX.h>
+#include "Lifetime.h"
+#include "interfaces.h"
+#include "IScheduler.h"
+#include "SignalX.h"
 #include "RdReactiveBase.h"
-#include "../serialization/Polymorphic.h"
+#include "Polymorphic.h"
 
 template<typename T, typename S = Polymorphic<T>>
 class RdSignal : public RdReactiveBase, public ISignal<T> {

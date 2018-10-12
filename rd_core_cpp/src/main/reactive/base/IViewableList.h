@@ -7,10 +7,10 @@
 
 
 #include <utility>
-
 #include <variant>
-#include <util.h>
-#include "../interfaces.h"
+
+#include "util.h"
+#include "interfaces.h"
 #include "viewable_collections.h"
 
 template<typename T>

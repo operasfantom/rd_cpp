@@ -5,7 +5,6 @@
 #ifndef RD_CPP_RDEXTBASE_H
 #define RD_CPP_RDEXTBASE_H
 
-
 #include "RdReactiveBase.h"
 #include "ExtWire.h"
 

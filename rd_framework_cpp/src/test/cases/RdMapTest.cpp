@@ -4,9 +4,9 @@
 
 #include <gtest/gtest.h>
 
-#include <RdMap.h>
-#include "../util/RdFrameworkTestBase.h"
-#include "../util/DynamicEntity.h"
+#include "RdMap.h"
+#include "RdFrameworkTestBase.h"
+#include "DynamicEntity.h"
 #include "../../../../rd_core_cpp/src/test/util/util.h"
 
 TEST_F(RdFrameworkTestBase, rd_map_statics) {

@@ -8,10 +8,9 @@
 
 #include <string>
 #include <memory>
-#include <IIdentities.h>
+#include <iostream>
 
-#include "iostream"
-
+#include "IIdentities.h"
 #include "interfaces.h"
 #include "RdId.h"
 

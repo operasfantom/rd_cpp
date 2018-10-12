@@ -3,6 +3,7 @@
 //
 
 #include <string>
+
 #include "util.h"
 
 std::string operator "" _s(char const *str, size_t len) {

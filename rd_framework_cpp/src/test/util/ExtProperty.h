@@ -6,8 +6,8 @@
 #define RD_CPP_EXTPROPERTY_H
 
 
-#include <ext/RdExtBase.h>
-#include <RdProperty.h>
+#include "ext/RdExtBase.h"
+#include "RdProperty.h"
 
 template<typename T>
 class ExtProperty : public RdExtBase {

@@ -7,7 +7,7 @@
 
 
 #include "IRdDynamic.h"
-#include "../RdId.h"
+#include "RdId.h"
 
 
 class IRdBindable : public IRdDynamic {

@@ -3,6 +3,7 @@
 //
 
 #include <gtest/gtest.h>
+
 #include "Property.h"
 
 TEST(property, advise) {

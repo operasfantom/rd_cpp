@@ -8,9 +8,10 @@
 #include <gtest/gtest.h>
 
 #include <memory>
+
 #include "TestWire.h"
-#include "../../main/Identities.h"
-#include "../../main/Protocol.h"
+#include "Identities.h"
+#include "Protocol.h"
 #include "TestScheduler.h"
 
 extern TestScheduler testScheduler;

@@ -7,7 +7,8 @@
 
 
 #include <functional>
-#include "../Logger.h"
+
+#include "Logger.h"
 
 class IScheduler {
     Logger logger;

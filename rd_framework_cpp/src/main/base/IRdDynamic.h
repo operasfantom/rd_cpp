@@ -5,8 +5,8 @@
 #ifndef RD_CPP_IRDDYNAMIC_H
 #define RD_CPP_IRDDYNAMIC_H
 
-#include <RName.h>
-#include "../serialization/SerializationCtx.h"
+#include "RName.h"
+#include "SerializationCtx.h"
 
 //class IProtocol;
 

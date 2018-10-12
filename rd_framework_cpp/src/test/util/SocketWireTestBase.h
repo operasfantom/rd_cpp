@@ -8,12 +8,11 @@
 
 #include <gtest/gtest.h>
 
-#include <LifetimeDefinition.h>
-#include <RdProperty.h>
-
-#include "../../main/Protocol.h"
+#include "LifetimeDefinition.h"
+#include "RdProperty.h"
+#include "Protocol.h"
 #include "WireUtil.h"
-#include "../../main/wire/SocketScheduler.h"
+#include "SocketScheduler.h"
 
 class SocketWireTestBase : public ::testing::Test {
 public:

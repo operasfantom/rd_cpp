@@ -6,11 +6,11 @@
 
 #include "RdProperty.h"
 
-#include "../util/RdFrameworkTestBase.h"
-#include "../util/DynamicEntity.h"
-#include "../util/DynamicExt.h"
-#include "../util/SocketWireTestBase.h"
-#include "../util/ExtProperty.h"
+#include "RdFrameworkTestBase.h"
+#include "DynamicEntity.h"
+#include "DynamicExt.h"
+#include "SocketWireTestBase.h"
+#include "ExtProperty.h"
 
 TEST_F(SocketWireTestBase, testStringExtension) {
     Protocol serverProtocol = server(socketLifetime);

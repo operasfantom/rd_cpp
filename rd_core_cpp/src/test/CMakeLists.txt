@@ -1,3 +1,5 @@
+#exec
+
 add_executable(rd_core_cpp_test
         cases/SignalTest.cpp
         cases/ViewableMapTest.cpp
@@ -8,5 +10,7 @@ add_executable(rd_core_cpp_test
         util/util.cpp
         util/util.h)
 
-target_link_libraries(rd_core_cpp_test gtest gtest_main)
-target_link_libraries(rd_core_cpp_test rd_core_cpp)
+target_include_directories(rd_core_cpp_test PUBLIC cases)
+target_include_directories(rd_core_cpp_test PUBLIC util)
+
+target_link_libraries(rd_core_cpp_test gtest gtest_main rd_core_cpp)

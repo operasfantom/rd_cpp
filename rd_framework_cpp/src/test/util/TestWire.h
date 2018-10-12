@@ -10,8 +10,8 @@
 #include <utility>
 
 #include "WireBase.h"
-#include "../../main/RdId.h"
-#include "../../main/Buffer.h"
+#include "RdId.h"
+#include "Buffer.h"
 
 class RdMessage {
 public:

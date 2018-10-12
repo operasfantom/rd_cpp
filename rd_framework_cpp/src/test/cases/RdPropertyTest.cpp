@@ -3,9 +3,10 @@
 //
 
 #include <gtest/gtest.h>
-#include <RdProperty.h>
-#include "../util/RdFrameworkTestBase.h"
-#include "../util/DynamicEntity.h"
+
+#include "RdProperty.h"
+#include "RdFrameworkTestBase.h"
+#include "DynamicEntity.h"
 
 using vi = std::vector<int>;
 

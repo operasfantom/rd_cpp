@@ -8,12 +8,9 @@
 
 #include <functional>
 #include <optional>
-#include "SequentialLifetimes.h"
 
+#include "SequentialLifetimes.h"
 #include "Lifetime.h"
-//#include "SignalX.h"
-//#include "SignalX.h"
-//#include "SignalX.h"
 
 template<typename T>
 class ISource {

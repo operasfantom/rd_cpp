@@ -8,7 +8,7 @@
 #include <mutex>
 #include <thread>
 #include "IRdReactive.h"
-#include "../../../rd_core_cpp/src/main/Logger.h"
+#include "Logger.h"
 
 class Mq {
 public:

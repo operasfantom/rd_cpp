@@ -5,7 +5,7 @@
 #ifndef RD_CPP_CORE_PROPERTY_H
 #define RD_CPP_CORE_PROPERTY_H
 
-#include <base/IProperty.h>
+#include "base/IProperty.h"
 #include "SignalX.h"
 #include "interfaces.h"
 

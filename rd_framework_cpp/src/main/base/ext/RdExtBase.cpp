@@ -2,10 +2,10 @@
 // Created by jetbrains on 24.07.2018.
 //
 
-#include <Lifetime.h>
-#include <RdPropertyBase.h>
+#include "Lifetime.h"
+#include "RdPropertyBase.h"
 #include "RdExtBase.h"
-#include "../../Protocol.h"
+#include "Protocol.h"
 
 const IProtocol *const RdExtBase::get_protocol() const {
     return extProtocol ? extProtocol.get() : RdReactiveBase::get_protocol();

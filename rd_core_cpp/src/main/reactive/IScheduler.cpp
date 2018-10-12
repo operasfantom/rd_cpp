@@ -3,6 +3,7 @@
 //
 
 #include <functional>
+
 #include "IScheduler.h"
 
 void IScheduler::assert_thread() const {

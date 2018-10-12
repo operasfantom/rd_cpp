@@ -3,10 +3,10 @@
 //
 #include <gtest/gtest.h>
 
-#include <RdProperty.h>
+#include "RdProperty.h"
 #include "RdList.h"
-#include "../util/RdFrameworkTestBase.h"
-#include "../util/DynamicEntity.h"
+#include "RdFrameworkTestBase.h"
+#include "DynamicEntity.h"
 #include "../../../../rd_core_cpp/src/test/util/util.h"
 
 TEST_F(RdFrameworkTestBase, rd_list_static) {
