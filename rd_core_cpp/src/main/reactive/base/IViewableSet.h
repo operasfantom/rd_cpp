@@ -37,12 +37,14 @@ public:
         advise(lifetime, [this, lifetime, handler](AddRemove kind, T const &key) {
             switch (kind) {
                 case AddRemove::ADD: {
-                    LifetimeDefinition &def = lifetimes[lifetime][key] = std::move(LifetimeDefinition(lifetime));
-                    handler(def.lifetime, key);
+                    auto const &[it, inserted] = lifetimes[lifetime].emplace(key, LifetimeDefinition(lifetime));
+                    MY_ASSERT_MSG(inserted, "lifetime definition already exists in viewable set by key:" + to_string(key));
+                    handler(it->second.lifetime, key);
                     break;
                 }
                 case AddRemove::REMOVE: {
-                    LifetimeDefinition def = std::move(lifetimes[lifetime][key]);
+                    MY_ASSERT_MSG(lifetimes[lifetime].count(key) > 0, "attempting to remove non-existing lifetime in viewable set by key:" + to_string(key));
+                    LifetimeDefinition def = std::move(lifetimes[lifetime].at(key));
                     lifetimes[lifetime].erase(key);
                     def.terminate();
                     break;

@@ -48,7 +48,7 @@ void LifetimeImpl::attach_nested(std::shared_ptr<LifetimeImpl> nested) {
     if (nested->is_terminated() || is_eternal()) return;
 
     std::function<void()> action = [nested]() { nested->terminate(); };
-    counter_t action_id=0;
+    counter_t action_id = 0;
     {
 //        std::lock_guard _(lock);
         action_id = add_action(action);
@@ -69,8 +69,8 @@ LifetimeImpl::counter_t LifetimeImpl::add_action(std::function<void()> action) {
 }
 
 LifetimeImpl::~LifetimeImpl() {
-    /*if (!is_eternal() && !is_terminated()) {
+    if (!is_eternal() && !is_terminated()) {
         Logger().error("forget to terminate lifetime with id:" + std::to_string(id));
         terminate();
-    }*/
+    }
 }

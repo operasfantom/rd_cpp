@@ -82,7 +82,7 @@ public:
         }
     };
 
-    virtual ~IViewableMap() {}
+    virtual ~IViewableMap() = default;
 
     void view(Lifetime lifetime,
               std::function<void(Lifetime lifetime, std::pair<K const *, V const *> const &)> handler) const override {
@@ -91,16 +91,15 @@ public:
             switch (kind) {
                 case AddRemove::ADD: {
                     if (lifetimes[lifetime].count(key) == 0) {
-                        LifetimeDefinition &def = lifetimes[lifetime][key] = LifetimeDefinition(lifetime);
-                        handler(def.lifetime, entry);
+                        auto const &[it, inserted] = lifetimes[lifetime].emplace(key, LifetimeDefinition(lifetime));
+                        MY_ASSERT_MSG(inserted, "lifetime definition already exists in viewable map by key:" + to_string(key));
+                        handler(it->second.lifetime, entry);
                     }
                     break;
                 }
                 case AddRemove::REMOVE: {
-                    if (lifetimes[lifetime].count(key) == 0) {
-                        throw std::invalid_argument("attempting to remove non-existing item");
-                    }
-                    LifetimeDefinition def = std::move(lifetimes[lifetime][key]);
+                    MY_ASSERT_MSG(lifetimes[lifetime].count(key) > 0, "attempting to remove non-existing lifetime in viewable map by key:" + to_string(key));
+                    LifetimeDefinition def = std::move(lifetimes[lifetime].at(key));
                     lifetimes[lifetime].erase(key);
                     def.terminate();
                     break;

@@ -19,6 +19,8 @@ private:
 public:
     Lifetime lifetime;
 
+    LifetimeDefinition() = delete;
+
     explicit LifetimeDefinition(bool is_eternal = false);
 
     explicit LifetimeDefinition(const Lifetime &parent);

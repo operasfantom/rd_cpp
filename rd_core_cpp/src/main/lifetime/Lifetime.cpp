@@ -8,7 +8,7 @@ LifetimeImpl *Lifetime::operator->() const {
     return ptr.operator->();
 }
 
-Lifetime::Lifetime(bool is_eternal) : ptr(new LifetimeImpl(is_eternal)) {}
+Lifetime::Lifetime(bool is_eternal) : ptr(std::make_shared<LifetimeImpl>(is_eternal)) {}
 
 Lifetime Lifetime::create_nested() const {
     Lifetime lw(false);
