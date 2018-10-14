@@ -29,15 +29,17 @@ void Buffer::check_available(int32_t moreSize) const {
     }
 }
 
-void Buffer::read(void *dst, size_t size) const {
+void Buffer::read(word_t *dst, size_t size) const {
     check_available(size);
-    memcpy(dst, &byteBufferMemoryBase[offset], size);
+//    memcpy(dst, &byteBufferMemoryBase[offset], size);
+    std::copy(&byteBufferMemoryBase[offset], &byteBufferMemoryBase[offset] + size, dst);
     offset += size;
 }
 
-void Buffer::write(const void *src, size_t size) const {
+void Buffer::write(const word_t *src, size_t size) const {
     require_available(size);
-    memcpy(&byteBufferMemoryBase[offset], src, size);
+//    memcpy(&byteBufferMemoryBase[offset], src, size);
+    std::copy(src, src + size, &byteBufferMemoryBase[offset]);
     offset += size;
 }
 

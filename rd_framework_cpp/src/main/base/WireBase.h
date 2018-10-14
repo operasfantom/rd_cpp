@@ -30,9 +30,6 @@ public:
     void dumpToString() {
 //        messageBroker.printToString()''
     }
-
-protected:
-    Property<bool> connected = Property<bool>(false);
 };
 
 

@@ -25,10 +25,10 @@ protected:
     void require_available(int32_t size) const;
 
     //read
-    void read(void *dst, size_t size) const;
+    void read(word_t *dst, size_t size) const;
 
     //write
-    void write(const void *src, size_t size) const;
+    void write(const word_t *src, size_t size) const;
 
 public:
     //region ctor/dtor
@@ -54,27 +54,27 @@ public:
     template<typename T, typename = std::enable_if_t<std::is_integral_v<T> > >
     T read_pod() const {
         T result;
-        read(&result, sizeof(T));
+        read(reinterpret_cast<word_t *>(&result), sizeof(T));
         return result;
     }
 
     template<typename T, typename = std::enable_if_t<std::is_integral_v<T> > >
     void write_pod(T const &value) const {
-        write(&value, sizeof(T));
+        write(reinterpret_cast<word_t const *>(&value), sizeof(T));
     }
 
     template<typename T>
     std::vector<T> read_array() const {
         int32_t len = read_pod<int32_t>();
         std::vector<T> result(len);
-        read(result.data(), sizeof(T) * len);
+        read(reinterpret_cast<word_t *>(result.data()), sizeof(T) * len);
         return result;
     }
 
     template<typename T>
     void write_array(std::vector<T> const &array) const {
         write_pod<int32_t>(array.size());
-        write(array.data(), sizeof(T) * array.size());
+        write(reinterpret_cast<word_t const *>(array.data()), sizeof(T) * array.size());
     }
 
     template<typename T>

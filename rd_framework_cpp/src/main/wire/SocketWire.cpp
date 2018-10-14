@@ -66,7 +66,7 @@ void SocketWire::Base::send(RdId const &id, std::function<void(Buffer const &buf
     id.write(buffer); //write id
     writer(buffer); //write rest
 
-    int32_t len = static_cast<int32_t>(buffer.get_position());
+    int32_t len = buffer.get_position();
 
     buffer.rewind();
     buffer.write_pod<int32_t>(len - 4);

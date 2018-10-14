@@ -11,6 +11,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <atomic>
 
 class LifetimeImpl {
 private:
@@ -21,7 +22,7 @@ private:
     bool eternaled = false;
     bool terminated = false;
 
-    using counter_t = int32_t;
+    using counter_t = std::atomic<int32_t>;
     counter_t id = 0;
 
     counter_t action_id_in_map = 0;
@@ -34,6 +35,7 @@ private:
 public:
 
     //region ctor/dtor
+    LifetimeImpl() = delete;
 
     explicit LifetimeImpl(bool is_eternal = false);
 
