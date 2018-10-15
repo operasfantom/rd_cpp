@@ -15,7 +15,12 @@ void MessageBroker::invoke(const IRdReactive *that, Buffer msg, bool sync) const
         that->on_wire_received(std::move(msg));
     } else {
         auto action = [this, that, message = std::move(msg)]() mutable {
-            if (std::lock_guard _(lock); subscriptions.count(that->rd_id) > 0) {
+            bool exists_id = false;
+            {
+                std::lock_guard _(lock);
+                exists_id = subscriptions.count(that->rd_id) > 0;
+            }
+            if (exists_id) {
                 that->on_wire_received(std::move(message));
             } else {
                 logger.trace("Handler for $this disappeared");

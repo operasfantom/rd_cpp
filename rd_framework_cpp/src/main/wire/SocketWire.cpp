@@ -71,18 +71,17 @@ void SocketWire::Base::send(RdId const &id, std::function<void(Buffer const &buf
     buffer.rewind();
     buffer.write_pod<int32_t>(len - 4);
 
-    auto bytes = buffer.getArray();
-    bytes.resize(len);
-    threadLocalSendByteArray = bytes;
+    threadLocalSendByteArray = buffer.getArray();
+    threadLocalSendByteArray.resize(len);
     /*sendBuffer.put(bytes);*/
-    std::unique_lock<std::mutex> ul(send_lock);
+    std::unique_lock ul(send_lock);
     send_var.wait(ul, [this]() -> bool { return socketProvider != nullptr; });
-    send0(Buffer(bytes));
+    send0(Buffer(threadLocalSendByteArray));//todo not copy array
 }
 
 void SocketWire::Base::set_socket_provider(std::shared_ptr<CSimpleSocket> new_socket) {
     {
-        std::unique_lock<std::mutex> ul(send_lock);
+        std::unique_lock ul(send_lock);
         socketProvider = std::move(new_socket);
         send_var.notify_all();
     }
