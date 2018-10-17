@@ -9,15 +9,15 @@
 #include <utility>
 #include <variant>
 
-#include "util.h"
+#include "overloaded.h"
 #include "interfaces.h"
 #include "viewable_collections.h"
 
-template<typename T>
+/*template<typename T>
 class IViewableList;
 
 template<typename T>
-std::vector<T> convert_to_list(IViewableList<T> const &list);
+std::vector<T> convert_to_list(IViewableList<T> const &list);*/
 
 template<typename T>
 class IViewableList : public IViewable<const std::pair<size_t, T const *>> {

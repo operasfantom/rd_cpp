@@ -7,7 +7,7 @@
 #include "RdList.h"
 #include "RdFrameworkTestBase.h"
 #include "DynamicEntity.h"
-#include "../../../../rd_core_cpp/src/test/util/util.h"
+#include "../../../../rd_core_cpp/src/test/util/test_util.h"
 
 TEST_F(RdFrameworkTestBase, rd_list_static) {
     int32_t id = 1;
@@ -25,7 +25,7 @@ TEST_F(RdFrameworkTestBase, rd_list_static) {
 
     client_list.advise(Lifetime::Eternal(),
                        [&](IViewableList<std::string>::Event entry) {
-                           logUpdate.push_back(to_string_list_event<std::string>(entry));
+                           logUpdate.emplace_back(to_string_list_event<std::string>(entry));
                        });
 
     EXPECT_EQ(0, server_list.size());

@@ -34,7 +34,7 @@ public:
                 if (!is_local_change) return;
 
                 get_wire()->send(rd_id, [this, kind, v](Buffer const &buffer) {
-                    buffer.write_enum<AddRemove>(kind);
+                    buffer.writeEnum<AddRemove>(kind);
                     S::write(this->get_serialization_context(), buffer, v);
 
                     this->logSend.trace(
@@ -49,7 +49,7 @@ public:
     }
 
     void on_wire_received(Buffer buffer) const override {
-        AddRemove kind = buffer.read_enum<AddRemove>();
+        AddRemove kind = buffer.readEnum<AddRemove>();
         T value = S::read(this->get_serialization_context(), buffer);
 
         switch (kind) {

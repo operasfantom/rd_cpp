@@ -85,11 +85,11 @@ TEST(BufferTest, bigVector) {
     std::generate_n(list.begin(), STEP, [&number]() { return --number; });
     std::shuffle(list.begin(), list.end(), std::mt19937(std::random_device()()));
 
-    buffer.write_array(list);
+    buffer.writeArray(list);
 
     buffer.rewind();
 
-    auto res = buffer.read_array<int64_t>();
+    auto res = buffer.readArray<int64_t>();
 
     EXPECT_EQ(res, list);
 }
@@ -103,15 +103,15 @@ TEST(BufferTest, Enum) {
 
     Buffer buffer;
 
-    buffer.write_enum<Numbers>(Numbers::ONE);
-    buffer.write_enum<Numbers>(Numbers::TWO);
-    buffer.write_enum<Numbers>(Numbers::THREE);
+    buffer.writeEnum<Numbers>(Numbers::ONE);
+    buffer.writeEnum<Numbers>(Numbers::TWO);
+    buffer.writeEnum<Numbers>(Numbers::THREE);
 
     buffer.rewind();
 
-    auto one = buffer.read_enum<Numbers>();
-    auto two = buffer.read_enum<Numbers>();
-    auto three = buffer.read_enum<Numbers>();
+    auto one = buffer.readEnum<Numbers>();
+    auto two = buffer.readEnum<Numbers>();
+    auto three = buffer.readEnum<Numbers>();
 
     EXPECT_EQ(Numbers::ONE, one);
     EXPECT_EQ(Numbers::TWO, two);

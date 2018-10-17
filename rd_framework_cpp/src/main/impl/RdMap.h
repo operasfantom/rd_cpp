@@ -13,7 +13,7 @@
 #include "Polymorphic.h"
 
 template<typename K, typename V, typename KS = Polymorphic<K>, typename VS = Polymorphic<V>>
-class RdMap : public RdReactiveBase, public IViewableMap<K, V> {
+class RdMap : public RdReactiveBase, public IViewableMap<K, V>, public ISerializable {
 private:
     ViewableMap<K, V> map;
     mutable int64_t nextVersion = 0;
@@ -38,13 +38,13 @@ public:
     virtual ~RdMap() = default;
     //endregion
 
-    static RdMap<K, V> read(SerializationCtx ctx, Buffer const &buffer) {
-        RdMap<K, V> res;
+    static RdMap<K, V, KS, VS> read(SerializationCtx const &ctx, Buffer const &buffer) {
+        RdMap<K, V, KS, VS> res;
         return withId(res, RdId::read(buffer));
     }
 
-    void write(SerializationCtx ctx, Buffer const &buffer, RdMap<K, V, KS, VS> const &that) {
-        that.rd_id.write(buffer);
+    void write(SerializationCtx const &ctx, Buffer const &buffer) const override {
+        rd_id.write(buffer);
     }
 
     static const int32_t versionedFlagShift = 8;

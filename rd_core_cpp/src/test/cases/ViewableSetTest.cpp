@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 #include "ViewableSet.h"
-#include "util.h"
+#include "test_util.h"
 
 TEST (viewable_set, advise) {
     std::unique_ptr<IViewableSet<int>> set(new ViewableSet<int>());

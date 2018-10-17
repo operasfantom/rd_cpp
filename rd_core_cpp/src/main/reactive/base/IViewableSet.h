@@ -7,7 +7,7 @@
 
 
 #include "interfaces.h"
-#include "util.h"
+#include "core_util.h"
 #include "viewable_collections.h"
 
 template<typename T>

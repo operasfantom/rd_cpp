@@ -55,7 +55,7 @@ void RdExtBase::init(Lifetime lifetime) const {
 }
 
 void RdExtBase::on_wire_received(Buffer buffer) const {
-    ExtState remoteState = buffer.read_enum<ExtState>();
+    ExtState remoteState = buffer.readEnum<ExtState>();
     traceMe(logReceived, "remote: " + to_string(remoteState));
 
 
@@ -87,7 +87,7 @@ void RdExtBase::sendState(IWire const &wire, RdExtBase::ExtState state) const {
 
     wire.send(rd_id, [&](Buffer const &buffer) {
 //            logSend.traceMe(state);
-        buffer.write_enum<ExtState>(state);
+        buffer.writeEnum<ExtState>(state);
         buffer.write_pod<int64_t>(serializationHash);
     });
 }

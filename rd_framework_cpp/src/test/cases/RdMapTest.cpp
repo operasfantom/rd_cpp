@@ -7,7 +7,8 @@
 #include "RdMap.h"
 #include "RdFrameworkTestBase.h"
 #include "DynamicEntity.h"
-#include "../../../../rd_core_cpp/src/test/util/util.h"
+//#include "test_util.h"
+#include "../../../../rd_core_cpp/src/test/util/test_util.h"
 
 TEST_F(RdFrameworkTestBase, rd_map_statics) {
     int32_t id = 1;
@@ -23,7 +24,7 @@ TEST_F(RdFrameworkTestBase, rd_map_statics) {
 
     std::vector<std::string> logUpdate;
     clientMap.advise(Lifetime::Eternal(), [&](typename IViewableMap<int32_t, std::string>::Event entry) {
-        logUpdate.push_back(to_string_map_event<int32_t/*, std::string*/>(entry));
+        logUpdate.push_back(to_string_map_event<int32_t, std::string>(entry));
     });
 
     EXPECT_EQ(0, serverMap.size());

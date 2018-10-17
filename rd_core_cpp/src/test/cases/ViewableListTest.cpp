@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "ViewableList.h"
-#include "util.h"
+#include "test_util.h"
 
 TEST(viewable_list, add_remove_advise) {
     std::unique_ptr<IViewableList<int>> list(new ViewableList<int>());

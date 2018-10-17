@@ -14,7 +14,7 @@
 #include "IMarshaller.h"
 #include "ISerializable.h"
 #include "Identities.h"
-#include "util.h"
+#include "framework_util.h"
 
 class SerializationCtx;
 

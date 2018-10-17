@@ -13,7 +13,7 @@
 #include "Polymorphic.h"
 
 template<typename T, typename S = Polymorphic<T>>
-class RdSignal : public RdReactiveBase, public ISignal<T> {
+class RdSignal : public RdReactiveBase, public ISignal<T>, public ISerializable {
 protected:
     Signal<T> signal;
 public:
@@ -21,6 +21,14 @@ public:
 
     virtual ~RdSignal() = default;
     //endregion
+
+    static RdSignal<T, S> read(SerializationCtx const &ctx, Buffer const &buffer) {
+        return withId(RdSignal<T, S>(), RdId::read(buffer));
+    }
+
+    virtual void write(SerializationCtx const &ctx, Buffer const &buffer) const {
+        rd_id.write(buffer);
+    }
 
     std::string logmsg(T const &value) const {
         return "signal " + location.toString() + " " + rd_id.toString() + ":: value = " + to_string(value);

@@ -14,13 +14,6 @@
 #define MY_ASSERT_MSG(expr, msg) if(!(expr)){std::cerr<<std::endl<<(msg)<<std::endl;assert(expr);}
 #define MY_ASSERT_THROW_MSG(expr, msg) if(!(expr)){std::cerr<<std::endl<<(msg)<<std::endl;throw std::runtime_error(msg);}
 
-template<class... Ts>
-struct overloaded : Ts ... {
-    using Ts::operator()...;
-};
-
-template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
-
 template<typename T>
 struct KeyEqualSharedPtr {
     bool operator()(std::shared_ptr<T> const &ptr_l, std::shared_ptr<T> const &ptr_r) const {

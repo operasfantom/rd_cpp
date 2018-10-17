@@ -6,7 +6,7 @@
 #include "gtest/gtest.h"
 
 #include "ViewableMap.h"
-#include "util.h"
+#include "test_util.h"
 
 TEST(viewable_map, advise) {
     std::unique_ptr<IViewableMap<int, int> > map(new ViewableMap<int, int>());

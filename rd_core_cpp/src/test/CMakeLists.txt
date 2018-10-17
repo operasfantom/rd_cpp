@@ -7,8 +7,8 @@ add_executable(rd_core_cpp_test
         cases/ViewableSetTest.cpp
         cases/AdviseVsViewTest.cpp
         cases/ViewableListTest.cpp
-        util/util.cpp
-        util/util.h)
+        util/test_util.cpp
+        util/test_util.h)
 
 target_include_directories(rd_core_cpp_test PUBLIC cases)
 target_include_directories(rd_core_cpp_test PUBLIC util)

@@ -64,7 +64,7 @@ public:
     }
 
     template<typename T>
-    std::vector<T> read_array() const {
+    std::vector<T> readArray() const {
         int32_t len = read_pod<int32_t>();
         std::vector<T> result(len);
         read(reinterpret_cast<word_t *>(result.data()), sizeof(T) * len);
@@ -72,24 +72,24 @@ public:
     }
 
     template<typename T>
-    void write_array(std::vector<T> const &array) const {
+    void writeArray(std::vector<T> const &array) const {
         write_pod<int32_t>(array.size());
         write(reinterpret_cast<word_t const *>(array.data()), sizeof(T) * array.size());
     }
 
     template<typename T>
-    void write_array_raw(std::vector<T> const &array) const {
+    void writeByteArrayRaw(std::vector<T> const &array) const {
         write(array.data(), sizeof(T) * array.size());
     }
 
     template<typename T>
-    T read_enum() const {
+    T readEnum() const {
         int32_t x = read_pod<int32_t>();
         return static_cast<T>(x);
     }
 
     template<typename T>
-    void write_enum(T x) const {
+    void writeEnum(T x) const {
         write_pod<int32_t>(static_cast<int32_t>(x));
     }
 

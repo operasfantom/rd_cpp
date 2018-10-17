@@ -5,8 +5,10 @@
 #ifndef RD_CPP_POLYMORPHIC_H
 #define RD_CPP_POLYMORPHIC_H
 
-#include "ISerializer.h"
 #include <type_traits>
+
+#include "ISerializer.h"
+#include "RdReactiveBase.h"
 
 template<typename T, typename R = void>
 class Polymorphic/* : public ISerializer<T>*/ {
@@ -41,11 +43,11 @@ template<typename T>
 class Polymorphic<std::vector<T>> {
 public:
     static std::vector<T> read(SerializationCtx const &ctx, Buffer const &buffer) {
-        return buffer.read_array<T>();
+        return buffer.readArray<T>();
     }
 
     static void write(SerializationCtx const &ctx, Buffer const &buffer, std::vector<T> const &value) {
-        buffer.write_array<T>(value);
+        buffer.writeArray<T>(value);
     }
 };
 
@@ -53,13 +55,13 @@ template<>
 class Polymorphic<std::string> {
 public:
     static std::string read(SerializationCtx const &ctx, Buffer const &buffer) {
-        auto v = buffer.read_array<char>();
+        auto v = buffer.readArray<char>();
         return std::string(v.begin(), v.end());
     }
 
     static void write(SerializationCtx const &ctx, Buffer const &buffer, std::string const &value) {
         std::vector<char> v(value.begin(), value.end());
-        buffer.write_array<char>(v);
+        buffer.writeArray<char>(v);
     }
 };
 
@@ -71,6 +73,18 @@ public:
     }
 
     static void write(SerializationCtx const &ctx, Buffer const &buffer, void *const &value) {}
+};
+
+template<typename T>
+class Polymorphic<T, typename std::enable_if_t<std::is_base_of_v<RdReactiveBase, T> > > {
+public:
+    static T read(SerializationCtx const &ctx, Buffer const &buffer) {
+        return T::read(ctx, buffer);
+    }
+
+    static void write(SerializationCtx const &ctx, Buffer const &buffer, T const &value) {
+        value.write(ctx, buffer);
+    }
 };
 
 #endif //RD_CPP_POLYMORPHIC_H

@@ -9,10 +9,10 @@
 #include "RdReactiveBase.h"
 #include "Polymorphic.h"
 #include "SerializationCtx.h"
-#include "util.h"
+#include "framework_util.h"
 
 template<typename V, typename S = Polymorphic<V>>
-class RdList : public RdReactiveBase, public IViewableList<V> {
+class RdList : public RdReactiveBase, public IViewableList<V>, public ISerializable {
 private:
     mutable ViewableList<V> list;
     mutable int64_t nextVersion = 1;
@@ -26,22 +26,12 @@ public:
     virtual ~RdList() = default;
     //endregion
 
-    class Companion {
-    public:
-        static RdList<V, S> read(SerializationCtx const &ctx, Buffer const &buffer) {
-            return RdList<V, S>::read(ctx, buffer);
-        }
-
-        static void write(SerializationCtx const &ctx, Buffer const &buffer, RdList<V, S> const &value) {
-            value.write(ctx, buffer);
-        }
-    };
-
-    static RdList<V> read(SerializationCtx ctx, Buffer const &buffer) {
-//        return withId<RdList<V>>(RdList(valSzr, ViewableList(), buffer.read_pod<int64_t>()), RdId::read(buffer));
+    static RdList<V, S> read(SerializationCtx const &ctx, Buffer const &buffer) {
+        RdList<V, S> result;
+        return withId(result, RdId::read(buffer));
     }
 
-    void write(SerializationCtx ctx, Buffer const &buffer) {
+    void write(SerializationCtx const &ctx, Buffer const &buffer) const override {
         buffer.write_pod<int64_t>(nextVersion);
         rd_id.write(buffer);
     }

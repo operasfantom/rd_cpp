@@ -5,9 +5,11 @@
 #ifndef RD_CPP_CORE_VIEWABLESET_H
 #define RD_CPP_CORE_VIEWABLESET_H
 
-#include <base/IViewableSet.h>
-#include "SignalX.h"
 #include <ordered-map/include/tsl/ordered_set.h>
+
+#include "base/IViewableSet.h"
+#include "SignalX.h"
+#include "util/core_util.h"
 
 
 template<typename T>

@@ -10,6 +10,7 @@
 #include "Logger.h"
 #include "base/IViewableMap.h"
 #include "SignalX.h"
+#include "util/core_util.h"
 
 template<typename K, typename V>
 class ViewableMap : public IViewableMap<K, V> {

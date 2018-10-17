@@ -2,7 +2,7 @@
 // Created by jetbrains on 15.09.2018.
 //
 
-#include <util.h>
+#include <framework_util.h>
 #include "ByteBufferAsyncProcessor.h"
 
 ByteBufferAsyncProcessor::ByteBufferAsyncProcessor(const std::string &id, int32_t chunkSize,

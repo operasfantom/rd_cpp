@@ -33,7 +33,7 @@ add_library(rd_framework_cpp STATIC
         serialization/ISerializable.cpp serialization/ISerializable.h
         serialization/IMarshaller.cpp serialization/IMarshaller.h
         FrameworkMarshallers.cpp FrameworkMarshallers.h
-        util/util.cpp util/util.h
+        util/framework_util.cpp util/framework_util.h
         wire/threading/ByteBufferAsyncProcessor.cpp wire/threading/ByteBufferAsyncProcessor.h
         base/ext/ExtWire.cpp base/ext/ExtWire.h
         util/shared_function.cpp util/shared_function.h)

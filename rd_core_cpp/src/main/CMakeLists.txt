@@ -14,11 +14,11 @@ add_library(rd_core_cpp STATIC
         lifetime/Lifetime.cpp lifetime/Lifetime.h
         reactive/IScheduler.cpp reactive/IScheduler.h
         reactive/base/IViewableList.h
-        util/util.cpp util/util.h
+        util/core_util.cpp util/core_util.h
         reactive/base/IViewableSet.h
         reactive/base/IViewableMap.h reactive/SignalX.cpp
         reactive/base/IProperty.h
-        reactive/base/viewable_collections.cpp reactive/base/viewable_collections.h)
+        reactive/base/viewable_collections.cpp reactive/base/viewable_collections.h util/overloaded.h)
 
 
 target_include_directories(rd_core_cpp PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
