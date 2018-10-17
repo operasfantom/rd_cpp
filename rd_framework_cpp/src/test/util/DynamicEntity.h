@@ -12,7 +12,7 @@
 #include "RdProperty.h"
 
 class DynamicEntity : public RdBindableBase, public ISerializable {
-    using S = FrameworkMarshallers::Int32;
+    using S = FrameworkMarshallers::Int;
 public:
     RdProperty<int32_t, S> foo;
 

@@ -10,6 +10,22 @@
 #include <optional>
 #include <vector>
 #include <type_traits>
+#include <functional>
+
+struct is_bool {
+};
+struct not_bool {
+};
+
+template<typename T>
+struct bool_tag {
+    using type = not_bool;
+};
+
+template<>
+struct bool_tag<bool> {
+    using type = is_bool;
+};
 
 class Buffer {
 public:
@@ -30,13 +46,35 @@ protected:
     //write
     void write(const word_t *src, size_t size) const;
 
+    template<typename T>
+    T read_pod_tag(is_bool) const {
+        return read_pod<uint8_t>();
+    }
+
+    template<typename T>
+    T read_pod_tag(not_bool) const {
+        T result;
+        read(reinterpret_cast<word_t *>(&result), sizeof(T));
+        return result;
+    }
+
+    template<typename T>
+    void write_pod_tag(T const &value, is_bool) const {
+        write_pod<uint8_t>(value);
+    }
+
+    template<typename T>
+    void write_pod_tag(T const &value, not_bool) const {
+        write(reinterpret_cast<word_t const *>(&value), sizeof(T));
+    }
+
 public:
     //region ctor/dtor
 
     explicit Buffer(int32_t initialSize = 10); //todo
 
     explicit Buffer(const ByteArray &array, int32_t offset = 0)
-            : byteBufferMemoryBase(std::move(array)), offset(offset), size_(array.size()) {}
+            : byteBufferMemoryBase(array), offset(offset), size_(array.size()) {}
 
     Buffer(Buffer const &) = delete;
 
@@ -53,14 +91,12 @@ public:
 
     template<typename T, typename = std::enable_if_t<std::is_integral_v<T> > >
     T read_pod() const {
-        T result;
-        read(reinterpret_cast<word_t *>(&result), sizeof(T));
-        return result;
+        return this->read_pod_tag<T>(typename bool_tag<T>::type());
     }
 
     template<typename T, typename = std::enable_if_t<std::is_integral_v<T> > >
     void write_pod(T const &value) const {
-        write(reinterpret_cast<word_t const *>(&value), sizeof(T));
+        this->write_pod_tag<T>(value, typename bool_tag<T>::type());
     }
 
     template<typename T>
@@ -93,27 +129,34 @@ public:
         write_pod<int32_t>(static_cast<int32_t>(x));
     }
 
-    ByteArray getArray() {
-        return byteBufferMemoryBase;
+    template<typename T>
+    std::optional<T> readNullable(std::function<T()> reader) {
+        bool nullable = !read_pod<bool>();
+        if (nullable) {
+            return std::nullopt;
+        }
+        return reader();
     }
 
-    ByteArray getRealArray() {
-        auto res = byteBufferMemoryBase;
-        res.resize(offset);
-        return res;
+    template<typename T>
+    void writeNullable(std::optional<T> value, std::function<void(T)> writer) {
+        if (!value.has_value()) {
+            write_pod<bool>(false);
+        } else {
+            write_pod<bool>(true);
+            writer(*value);
+        }
     }
 
-    word_t const *data() const {
-        return byteBufferMemoryBase.data();
-    }
+    ByteArray getArray();
 
-    word_t *data() {
-        return byteBufferMemoryBase.data();
-    }
+    ByteArray getRealArray();
 
-    size_t size() const {
-        return size_;
-    }
+    word_t const *data() const;
+
+    word_t *data();
+
+    size_t size() const;
 
 };
 

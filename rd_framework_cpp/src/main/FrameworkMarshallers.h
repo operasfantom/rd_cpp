@@ -8,7 +8,7 @@
 #include "serialization/SerializationCtx.h"
 
 namespace FrameworkMarshallers {
-    class Int32 {
+    class Int {
     private:
         int32_t predefinedId = 3;
     public:
