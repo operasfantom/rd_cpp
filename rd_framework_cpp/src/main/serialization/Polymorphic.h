@@ -27,7 +27,6 @@ template<typename T>
 class Polymorphic<T, typename std::enable_if_t<std::is_integral_v<T> > > {
 public:
     static int read(SerializationCtx const &ctx, Buffer const &buffer) {
-//        ctx.serializers->readPolymorphicNullable(ctx, buffer);
         return buffer.read_pod<T>();
     }
 

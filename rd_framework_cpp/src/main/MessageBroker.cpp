@@ -8,6 +8,7 @@
 #include "MessageBroker.h"
 #include "framework_util.h"
 #include "util/shared_function.h"
+#include "Buffer.h"
 
 std::recursive_mutex lock;
 
@@ -46,7 +47,7 @@ void MessageBroker::dispatch(RdId id, Buffer message) const {
             }
             broker[id].defaultSchedulerMessages++;
 
-            defaultScheduler->queue([this, id, &message]() {
+            auto action = [this, id, message = std::move(message)]() mutable {
                 IRdReactive const *subscription = subscriptions[id];
 
                 if (subscription != nullptr) {
@@ -66,7 +67,9 @@ void MessageBroker::dispatch(RdId id, Buffer message) const {
                         invoke(subscription, std::move(it));
                     }
                 }
-            });
+            };
+            std::function<void()> function = make_shared_function(std::move(action));
+            defaultScheduler->queue(std::move(function));
         } else {
             if (s->get_wire_scheduler() == defaultScheduler || s->get_wire_scheduler()->out_of_order_execution) {
                 invoke(s, std::move(message));

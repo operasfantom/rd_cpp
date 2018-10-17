@@ -18,7 +18,7 @@ void SocketScheduler::flush() const {
 void SocketScheduler::queue(std::function<void()> action) const {
     {
         std::lock_guard _(lock);
-        messages.push(move(action));
+        messages.push(std::move(action));
     }
     cv.notify_all();
 }
