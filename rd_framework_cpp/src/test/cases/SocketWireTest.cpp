@@ -194,8 +194,8 @@ TEST_F(SocketWireTestBase, TestComplicatedProperty) {
     RdProperty<DynamicEntity> &client_property = statics(client_property_storage, (property_id));
     RdProperty<DynamicEntity> &server_property = statics(server_property_storage, (property_id)).slave();
 
-    client_property.get().rd_id = server_property.get().rd_id = RdId(2);
-    client_property.get().foo.rd_id = server_property.get().foo.rd_id = RdId(3);
+    client_property.get().rdid = server_property.get().rdid = RdId(2);
+    client_property.get().foo.rdid = server_property.get().foo.rdid = RdId(3);
 
     DynamicEntity::registry(&clientProtocol);
     DynamicEntity::registry(&serverProtocol);

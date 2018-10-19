@@ -20,7 +20,7 @@ void MessageBroker::invoke(const IRdReactive *that, Buffer msg, bool sync) const
             bool exists_id = false;
             {
                 std::lock_guard _(lock);
-                exists_id = subscriptions.count(that->rd_id) > 0;
+                exists_id = subscriptions.count(that->rdid) > 0;
             }
             if (exists_id) {
                 that->on_wire_received(std::move(message));
@@ -89,13 +89,13 @@ void MessageBroker::dispatch(RdId id, Buffer message) const {
 }
 
 void MessageBroker::advise_on(Lifetime lifetime, IRdReactive const *entity) const {
-    MY_ASSERT_MSG(!entity->rd_id.isNull(), ("id is null for entity: " + std::string(typeid(*entity).name())));
+    MY_ASSERT_MSG(!entity->rdid.isNull(), ("id is null for entity: " + std::string(typeid(*entity).name())));
 
     //advise MUST happen under default scheduler, not custom
     defaultScheduler->assert_thread();
 
     if (std::lock_guard _(lock); !lifetime->is_terminated()) {
-        auto key = entity->rd_id;
+        auto key = entity->rdid;
         IRdReactive const *value = entity;
         subscriptions[key] = value;
         lifetime->add_action([this, key]() {

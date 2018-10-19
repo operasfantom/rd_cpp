@@ -5,7 +5,7 @@
 #include "DynamicExt.h"
 
 DynamicExt::DynamicExt() {
-    bindable_children.emplace_back("bar", deleted_shared_ptr(bar));
+    bindableChildren.emplace_back("bar", deleted_shared_ptr(bar));
     bar.slave();
 }
 

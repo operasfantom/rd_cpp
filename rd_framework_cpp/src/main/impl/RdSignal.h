@@ -27,11 +27,11 @@ public:
     }
 
     virtual void write(SerializationCtx const &ctx, Buffer const &buffer) const {
-        rd_id.write(buffer);
+        rdid.write(buffer);
     }
 
     std::string logmsg(T const &value) const {
-        return "signal " + location.toString() + " " + rd_id.toString() + ":: value = " + to_string(value);
+        return "signal " + location.toString() + " " + rdid.toString() + ":: value = " + to_string(value);
     }
 
     void init(Lifetime lifetime) const override {
@@ -52,7 +52,7 @@ public:
         if (!async) {
             assert_threading();
         }
-        get_wire()->send(rd_id, [this, &value](Buffer const &buffer) {
+        get_wire()->send(rdid, [this, &value](Buffer const &buffer) {
             this->logSend.trace(logmsg(value));
             S::write(get_serialization_context(), buffer, value);
         });

@@ -33,7 +33,7 @@ public:
 
     void write(SerializationCtx const &ctx, Buffer const &buffer) const override {
         buffer.write_pod<int64_t>(nextVersion);
-        rd_id.write(buffer);
+        rdid.write(buffer);
     }
 
     static const int32_t versionedFlagShift = 2; // update when changing Op
@@ -41,7 +41,7 @@ public:
     bool optimizeNested = false;
 
     std::string logmsg(Op op, int64_t version, int32_t key, V const *value = nullptr) const {
-        return "list " + location.toString() + " " + rd_id.toString() + ":: " + to_string(op) +
+        return "list " + location.toString() + " " + rdid.toString() + ":: " + to_string(op) +
                ":: key = " + std::to_string(key) +
                ((version > 0) ? " :: version = " + /*std::*/to_string(version) : "") +
                " :: value = " + (value ? to_string(*value) : "");
@@ -59,11 +59,11 @@ public:
                     if (new_value) {
                         const IProtocol *iProtocol = get_protocol();
                         identifyPolymorphic(*new_value, *iProtocol->identity,
-                                            iProtocol->identity->next(rd_id));
+                                            iProtocol->identity->next(rdid));
                     }
                 }
 
-                get_wire()->send(rd_id, [this, &e](Buffer const &buffer) {
+                get_wire()->send(rdid, [this, &e](Buffer const &buffer) {
                     Op op = static_cast<Op >(e.v.index());
 
                     buffer.write_pod<int64_t>(static_cast<int64_t>(op) | (nextVersion++ << versionedFlagShift));

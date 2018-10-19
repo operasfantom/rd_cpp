@@ -33,12 +33,12 @@ public:
             advise(lifetime, [this](AddRemove kind, T const &v) {
                 if (!is_local_change) return;
 
-                get_wire()->send(rd_id, [this, kind, v](Buffer const &buffer) {
+                get_wire()->send(rdid, [this, kind, v](Buffer const &buffer) {
                     buffer.writeEnum<AddRemove>(kind);
                     S::write(this->get_serialization_context(), buffer, v);
 
                     this->logSend.trace(
-                            "set " + location.toString() + " " + rd_id.toString() +
+                            "set " + location.toString() + " " + rdid.toString() +
                             ":: " + to_string(kind) +
                             ":: " + to_string(v));
                 });

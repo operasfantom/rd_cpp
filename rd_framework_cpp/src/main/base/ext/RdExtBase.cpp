@@ -47,7 +47,7 @@ void RdExtBase::init(Lifetime lifetime) const {
 
 
     //todo make it smarter
-    for (auto const &[name, child] : this->bindable_children) {
+    for (auto const &[name, child] : this->bindableChildren) {
         bindPolymorphic(*child, lifetime, this, name);
     }
 
@@ -85,7 +85,7 @@ void RdExtBase::on_wire_received(Buffer buffer) const {
 
 void RdExtBase::sendState(IWire const &wire, RdExtBase::ExtState state) const {
 
-    wire.send(rd_id, [&](Buffer const &buffer) {
+    wire.send(rdid, [&](Buffer const &buffer) {
 //            logSend.traceMe(state);
         buffer.writeEnum<ExtState>(state);
         buffer.write_pod<int64_t>(serializationHash);
@@ -93,5 +93,5 @@ void RdExtBase::sendState(IWire const &wire, RdExtBase::ExtState state) const {
 }
 
 void RdExtBase::traceMe(const Logger &logger, std::string const &message) const {
-    logger.trace("ext " + location.toString() + " " + rd_id.toString() + ":: " + message);
+    logger.trace("ext " + location.toString() + " " + rdid.toString() + ":: " + message);
 }

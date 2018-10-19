@@ -44,13 +44,13 @@ public:
     }
 
     void write(SerializationCtx const &ctx, Buffer const &buffer) const override {
-        rd_id.write(buffer);
+        rdid.write(buffer);
     }
 
     static const int32_t versionedFlagShift = 8;
 
     std::string logmsg(Op op, int64_t version, K const *key, V const *value = nullptr) const {
-        return "map " + location.toString() + " " + rd_id.toString() + ":: " + to_string(op) +
+        return "map " + location.toString() + " " + rdid.toString() + ":: " + to_string(op) +
                ":: key = " + to_string(*key) +
                ((version > 0) ? " :: version = " + /*std::*/to_string(version) : "") +
                " :: value = " + (value ? to_string(*value) : "");
@@ -70,10 +70,10 @@ public:
                 V const *new_value = e.get_new_value();
                 if (new_value) {
                     const IProtocol *iProtocol = get_protocol();
-                    identifyPolymorphic(*new_value, *iProtocol->identity, iProtocol->identity->next(rd_id));
+                    identifyPolymorphic(*new_value, *iProtocol->identity, iProtocol->identity->next(rdid));
                 }
 
-                get_wire()->send(rd_id, [this, e](Buffer const &buffer) {
+                get_wire()->send(rdid, [this, e](Buffer const &buffer) {
                     int32_t versionedFlag = ((is_master() ? 1 : 0)) << versionedFlagShift;
                     Op op = static_cast<Op>(e.v.index());
 
@@ -162,7 +162,7 @@ public:
             }
 
             if (msgVersioned) {
-                get_wire()->send(rd_id, [this, version, key](Buffer const &innerBuffer) {
+                get_wire()->send(rdid, [this, version, key](Buffer const &innerBuffer) {
                     innerBuffer.write_pod<int32_t>((1 << versionedFlagShift) | static_cast<int32_t>(Op::ACK));
                     innerBuffer.write_pod<int64_t>(version);
                     KS::write(this->get_serialization_context(), innerBuffer, key);

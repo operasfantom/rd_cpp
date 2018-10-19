@@ -3,7 +3,7 @@
 //
 
 
-#include <SignalX.h>
+#include "SignalX.h"
 #include "RdBindableBase.h"
 
 bool RdBindableBase::is_bound() const {
@@ -21,7 +21,7 @@ void RdBindableBase::bind(Lifetime lf, IRdDynamic const *parent, const std::stri
                     this->bind_lifetime = lf;
                     location = location.sub("<<unbound>>", "::");
                     this->parent = nullptr;
-                    rd_id = RdId::Null();
+                    rdid = RdId::Null();
                 }
     );
 
@@ -33,11 +33,11 @@ void RdBindableBase::bind(Lifetime lf, IRdDynamic const *parent, const std::stri
 }
 
 void RdBindableBase::identify(const IIdentities &identities, RdId id) const {
-    MY_ASSERT_MSG(rd_id.isNull(), "Already has RdId: " + rd_id.toString() + ", entity: $this");
+    MY_ASSERT_MSG(rdid.isNull(), "Already has RdId: " + rdid.toString() + ", entity: $this");
     MY_ASSERT_MSG(!id.isNull(), "Assigned RdId mustn't be null, entity: $this");
 
-    this->rd_id = id;
-    for (const auto&[name, child] : bindable_children) {
+    this->rdid = id;
+    for (const auto&[name, child] : bindableChildren) {
         identifyPolymorphic(*child, identities, id.mix("." + name));
     }
 }
@@ -59,7 +59,7 @@ SerializationCtx const &RdBindableBase::get_serialization_context() const {
 }
 
 void RdBindableBase::init(Lifetime lifetime) const {
-    for (const auto&[name, child] : bindable_children) {
+    for (const auto&[name, child] : bindableChildren) {
         if (child != nullptr) {
             bindPolymorphic(*child, lifetime, this, name);
         }

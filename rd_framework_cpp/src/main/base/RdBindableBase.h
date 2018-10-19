@@ -24,8 +24,8 @@ protected:
 
     const IProtocol *const get_protocol() const override;
 
-    mutable std::vector<std::pair<std::string, std::shared_ptr<IRdBindable> > > bindable_children;
-    mutable std::vector<std::pair<std::string, std::any> > non_bindable_children;
+    mutable std::vector<std::pair<std::string, std::shared_ptr<IRdBindable> > > bindableChildren;
+    mutable std::vector<std::pair<std::string, std::any> > nonBindableChildren;
 
     SerializationCtx const &get_serialization_context() const override;
 
@@ -68,7 +68,7 @@ public:
             T const &res = *dynamic_cast<T const *>(new_extension.get());
             if (bind_lifetime.has_value()) {
                 auto protocol = get_protocol();
-                new_extension->identify(*protocol->identity, rd_id.mix("." + name));
+                new_extension->identify(*protocol->identity, rdid.mix("." + name));
                 new_extension->bind(*bind_lifetime, this, name);
             }
             bindable_extensions[name] = std::move(new_extension);
@@ -95,10 +95,10 @@ public:
 //T : RdBindableBase
 template<typename T>
 T &withId(T &that, RdId const &id) {
-    MY_ASSERT_MSG(that.rd_id == RdId::Null(), "this.id != RdId.NULL_ID, but ${this.rdid}");
+    MY_ASSERT_MSG(that.rdid == RdId::Null(), "this.id != RdId.NULL_ID, but ${this.rdid}");
     MY_ASSERT_MSG((id != RdId::Null()), "id != RdId.NULL_ID");
 
-    that.rd_id = id;
+    that.rdid = id;
     return that;
 }
 

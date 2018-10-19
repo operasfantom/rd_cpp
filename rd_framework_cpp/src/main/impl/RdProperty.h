@@ -51,7 +51,7 @@ public:
     }
 
     void write(SerializationCtx const &ctx, Buffer const &buffer) const override {
-        this->rd_id.write(buffer);
+        this->rdid.write(buffer);
         buffer.write_pod<bool>(true);
         S::write(ctx, buffer, this->value);
     }
@@ -68,7 +68,7 @@ public:
 
     void identify(IIdentities const &identities, RdId id) const override {
         RdBindableBase::identify(identities, id);
-        if (!this->optimize_nested)
+        if (!this->optimizeNested)
             identifyPolymorphic(this->get(), identities, identities.next(id));
     }
 

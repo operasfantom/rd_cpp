@@ -12,7 +12,7 @@
 
 class IRdBindable : public IRdDynamic {
 public:
-    mutable RdId rd_id = RdId::Null();
+    mutable RdId rdid = RdId::Null();
 
     //region ctor/dtor
 
