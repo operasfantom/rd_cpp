@@ -11,9 +11,8 @@
 
 
 class IRdReactive : public virtual IRdBindable {
-protected:
-    bool async = false;
 public:
+    bool async = false;
     //region ctor/dtor
 
     IRdReactive() = default;

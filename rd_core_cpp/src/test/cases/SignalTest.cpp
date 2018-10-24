@@ -17,7 +17,7 @@ TEST(signal, advice) {
 
     Lifetime::use<int>([&](Lifetime lf) {
                            s->advise(lf,
-                                     [&log](int const & x) { log.push_back(x); }
+                                     [&log](int const &x) { log.push_back(x); }
                            );
                            lf->add_action([&log]() { log.push_back(0); });
                            s->fire(++acc);
@@ -73,17 +73,17 @@ TEST(signal, bamboo) {
 }
 
 TEST(signal, priority_advise) {
-    Signal<void*> signal;
+    Signal<void *> signal;
     std::vector<int> log;
-    signal.advise_eternal( [&log](void*) { log.push_back(1); });
-    signal.advise_eternal( [&log](void*) { log.push_back(2); });
+    signal.advise_eternal([&log](void *) { log.push_back(1); });
+    signal.advise_eternal([&log](void *) { log.push_back(2); });
 
-    priorityAdviseSection( [&signal, &log](){
-        signal.advise_eternal( [&log](void*){ log.push_back(3); });
-        signal.advise_eternal( [&log](void*){ log.push_back(4); });
+    priorityAdviseSection([&signal, &log]() {
+        signal.advise_eternal([&log](void *) { log.push_back(3); });
+        signal.advise_eternal([&log](void *) { log.push_back(4); });
     });
 
-    signal.advise_eternal( [&log](void*){ log.push_back(5); } );
+    signal.advise_eternal([&log](void *) { log.push_back(5); });
 
 
     signal.fire(nullptr);

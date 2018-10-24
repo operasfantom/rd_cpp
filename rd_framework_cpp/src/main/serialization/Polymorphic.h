@@ -86,4 +86,31 @@ public:
     }
 };
 
+template<typename T>
+class Polymorphic<T, typename std::enable_if_t<std::is_enum_v<T> > > {
+    static T read(SerializationCtx const &ctx, Buffer const &buffer) {
+        return buffer.readEnum<T>();
+    }
+
+    static void write(SerializationCtx const &ctx, Buffer const &buffer, T const &value) {
+        buffer.writeEnum<T>(value);
+    }
+};
+
+template<typename T>
+class Polymorphic<std::optional<T>> {
+public:
+    static std::optional<T> read(SerializationCtx const &ctx, Buffer const &buffer) {
+        return buffer.readNullable<T>([&ctx, &buffer]() {
+            return Polymorphic<T>::read(ctx, buffer);
+        });
+    }
+
+    static void write(SerializationCtx const &ctx, Buffer const &buffer, std::optional<T> const &value) {
+        buffer.writeNullable<T>(value, [&ctx, &buffer](T const &v) {
+            Polymorphic<T>::write(ctx, buffer, v);
+        });
+    }
+};
+
 #endif //RD_CPP_POLYMORPHIC_H

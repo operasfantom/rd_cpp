@@ -257,3 +257,59 @@ TEST_F(RdFrameworkTestBase, property_vector_polymorphic) {
 
     AfterTest();
 }
+
+TEST_F(RdFrameworkTestBase, property_optional) {
+    using Type = int32_t;
+    using opt = std::optional<Type>;
+
+    int property_id = 1;
+
+    RdProperty client_property = RdProperty<opt>(std::nullopt);
+    RdProperty server_property = RdProperty<opt>(std::nullopt);
+
+    statics(client_property, (property_id));
+    statics(server_property, (property_id)).slave();
+
+    std::vector<opt> client_log;
+    std::vector<opt> server_log;
+
+    Lifetime::use([&](Lifetime lifetime) {
+        client_property.advise(lifetime, [&client_log](opt const &v) { client_log.push_back(v); });
+        server_property.advise(lifetime, [&server_log](opt const &v) { server_log.push_back(v); });
+
+        //not bound
+        EXPECT_EQ((std::vector<opt>{std::nullopt}), client_log);
+        EXPECT_EQ((std::vector<opt>{std::nullopt}), server_log);
+
+        //bound
+        bindStatic(serverProtocol.get(), server_property, "top");
+        bindStatic(clientProtocol.get(), client_property, "top");
+
+        EXPECT_EQ((std::vector<opt>{std::nullopt}), client_log);
+        EXPECT_EQ((std::vector<opt>{std::nullopt}), server_log);
+
+        client_property.set(1);
+        EXPECT_EQ(1, client_log.back());
+        EXPECT_EQ(1, server_log.back());
+
+        server_property.set(2);
+        EXPECT_EQ(2, client_log.back());
+        EXPECT_EQ(2, server_log.back());
+        size_t fixed_size = client_log.size();
+
+        client_property.set(2);
+        EXPECT_EQ(fixed_size, client_log.size());
+        EXPECT_EQ(fixed_size, server_log.size());
+
+        opt empty_object;
+        client_property.set(empty_object);
+
+        EXPECT_EQ(std::nullopt, client_log.back());
+        EXPECT_EQ(std::nullopt, server_log.back());
+
+        client_property.set(-1);
+
+        EXPECT_EQ(-1, client_log.back());
+        EXPECT_EQ(-1, server_log.back());
+    });
+}

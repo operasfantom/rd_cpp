@@ -130,7 +130,7 @@ public:
     }
 
     template<typename T>
-    std::optional<T> readNullable(std::function<T()> reader) {
+    std::optional<T> readNullable(std::function<T()> reader) const {
         bool nullable = !read_pod<bool>();
         if (nullable) {
             return std::nullopt;
@@ -139,7 +139,7 @@ public:
     }
 
     template<typename T>
-    void writeNullable(std::optional<T> value, std::function<void(T)> writer) {
+    void writeNullable(std::optional<T> value, std::function<void(T const &)> writer) const {
         if (!value.has_value()) {
             write_pod<bool>(false);
         } else {
