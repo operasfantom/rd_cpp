@@ -307,6 +307,13 @@ TEST_F(RdFrameworkTestBase, property_optional) {
         EXPECT_EQ(std::nullopt, client_log.back());
         EXPECT_EQ(std::nullopt, server_log.back());
 
+        size_t fixed_size2 = client_log.size();
+
+        client_property.set(empty_object);
+
+        EXPECT_EQ(fixed_size2, client_log.size());
+        EXPECT_EQ(fixed_size2, server_log.size());
+
         client_property.set(-1);
 
         EXPECT_EQ(-1, client_log.back());

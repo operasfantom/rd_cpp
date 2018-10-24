@@ -54,13 +54,11 @@ template<>
 class Polymorphic<std::string> {
 public:
     static std::string read(SerializationCtx const &ctx, Buffer const &buffer) {
-        auto v = buffer.readArray<char>();
-        return std::string(v.begin(), v.end());
+        return buffer.readString();
     }
 
     static void write(SerializationCtx const &ctx, Buffer const &buffer, std::string const &value) {
-        std::vector<char> v(value.begin(), value.end());
-        buffer.writeArray<char>(v);
+        buffer.writeString(value);
     }
 };
 

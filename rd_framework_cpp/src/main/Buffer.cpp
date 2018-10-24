@@ -77,3 +77,13 @@ size_t Buffer::size() const {
     return size_;
 }
 
+std::string Buffer::readString() const {
+    auto v = readArray<char>();
+    return std::string(v.begin(), v.end());
+}
+
+void Buffer::writeString(std::string const &value) const {
+    std::vector<char> v(value.begin(), value.end());
+    writeArray<char>(v);
+}
+

@@ -118,6 +118,10 @@ public:
         write(array.data(), sizeof(T) * array.size());
     }
 
+    std::string readString() const;
+
+    void writeString(std::string const& value) const;
+
     template<typename T>
     T readEnum() const {
         int32_t x = read_pod<int32_t>();
