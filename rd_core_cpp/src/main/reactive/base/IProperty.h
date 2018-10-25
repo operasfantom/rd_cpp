@@ -35,7 +35,7 @@ public:
         if (lifetime->is_terminated()) {
             return;
         }
-        signal.advise(lifetime, handler);
+        signal.advise(std::move(lifetime), handler);
         handler(this->value);
     }
 
@@ -44,7 +44,7 @@ public:
     }
 
     void advise(Lifetime lifetime, std::function<void(T const &)> handler) const override {
-        advise0(lifetime, handler, this->change);
+        advise0(std::move(lifetime), std::move(handler), this->change);
     }
 
     virtual void set(T) const = 0;

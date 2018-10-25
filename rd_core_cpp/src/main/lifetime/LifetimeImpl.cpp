@@ -65,9 +65,9 @@ LifetimeImpl::counter_t LifetimeImpl::add_action(std::function<void()> action) {
 }
 
 LifetimeImpl::~LifetimeImpl() {
-    if (!is_eternal() && !is_terminated()) {
+    /*if (!is_eternal() && !is_terminated()) {
         Logger().error("forget to terminate lifetime with id:" + std::to_string(id));
         terminate();
-    }
+    }*/
 }
 

@@ -5,13 +5,13 @@
 #ifndef RD_CPP_CORE_SIGNAL_H
 #define RD_CPP_CORE_SIGNAL_H
 
-#include <LifetimeImpl.h>
-#include "interfaces.h"
-#include "SignalImpl.h"
-
 #include <functional>
 #include <iostream>
 #include <atomic>
+
+#include <LifetimeImpl.h>
+#include "interfaces.h"
+#include "SignalImpl.h"
 
 
 template<typename T>
