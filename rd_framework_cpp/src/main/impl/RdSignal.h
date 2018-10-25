@@ -26,7 +26,7 @@ public:
         return withId(RdSignal<T, S>(), RdId::read(buffer));
     }
 
-    virtual void write(SerializationCtx const &ctx, Buffer const &buffer) const {
+    void write(SerializationCtx const &ctx, Buffer const &buffer) const override {
         rdid.write(buffer);
     }
 

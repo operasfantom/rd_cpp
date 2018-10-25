@@ -7,42 +7,18 @@
 
 #include <LifetimeImpl.h>
 #include "interfaces.h"
+#include "SignalImpl.h"
 
 #include <functional>
 #include <iostream>
 #include <atomic>
 
-//namespace {
-extern int32_t cookie;
-//}
 
 template<typename T>
 class Signal : public ISignal<T> {
 private:
-//    std::vector<std::function<void(T)> > listeners;
-    using counter_t = int32_t;
-//    std::atomic<counter_t> advise_id = 0;
-    mutable counter_t advise_id = 0;
-
-    using listeners_t = std::map<counter_t, std::function<void(T const &)> >;
-    mutable listeners_t listeners, priority_listeners;
-
-    void advise0(const Lifetime &lifetime, std::function<void(T const &)> handler, listeners_t &queue) const {
-        auto id = advise_id;
-        lifetime->bracket(
-                [&queue, lifetime, id, handler]() { queue[id] = handler; },
-                [&queue, lifetime, id, handler]() {
-                    if (queue.count(id) == 0) {
-                        throw std::invalid_argument("erasing from queue in lifetime's termination");
-                    }
-                    queue.erase(id/*.load()*/);
-                }
-        );
-        ++advise_id;
-    }
-
+    std::shared_ptr<SignalImpl<T>> ptr = std::make_shared<SignalImpl<T>>();
 public:
-
     //region ctor/dtor
 
     Signal() = default;
@@ -60,28 +36,20 @@ public:
     //endregion
 
     void fire(T const &value) const override {
-        for (auto const &[id, action] : priority_listeners) {
-            action(value);
-        }
-        for (auto const &[id, action] : listeners) {
-            action(value);
-        }
+        ptr->fire(value);
     }
 
     void advise(Lifetime lifetime, std::function<void(T const &)> handler) const override {
-        advise0(lifetime, handler, isPriorityAdvise() ? priority_listeners : listeners);
+        ptr->advise(lifetime, std::move(handler));
     }
 
     void advise_eternal(std::function<void(T const &)> handler) const {
         advise(Lifetime::Eternal(), handler);
     }
-
-    static bool isPriorityAdvise() {
-        return cookie > 0;
-    }
 };
 
-inline void priorityAdviseSection(const std::function<void()> &block) {
+template<typename F>
+void priorityAdviseSection(F &&block) {
     ++cookie;
     block();
     --cookie;
