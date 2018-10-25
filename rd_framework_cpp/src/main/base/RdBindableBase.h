@@ -71,7 +71,7 @@ public:
                 new_extension->identify(*protocol->identity, rdid.mix("." + name));
                 new_extension->bind(*bind_lifetime, this, name);
             }
-            bindable_extensions[name] = std::move(new_extension);
+            bindable_extensions.emplace(name, std::move(new_extension));
             return res;
         }
     }
@@ -82,7 +82,7 @@ public:
         if (non_bindable_extensions.count(name) == 0) {
             return std::any_cast<T const &>(non_bindable_extensions[name] = create());
         }
-        return std::any_cast<T const &>(non_bindable_extensions[name]);
+        return std::any_cast<T const &>(non_bindable_extensions.at(name));
     }
     /*void print(PrettyPrinter printer) {
         printer.print(toString())

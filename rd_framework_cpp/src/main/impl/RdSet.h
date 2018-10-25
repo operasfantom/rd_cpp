@@ -20,6 +20,12 @@ protected:
 public:
     //region ctor/dtor
 
+    RdSet() = default;
+
+    RdSet(RdSet &&) = default;
+
+    RdSet &operator=(RdSet &&) = default;
+
     virtual ~RdSet() = default;
 
     //endregion

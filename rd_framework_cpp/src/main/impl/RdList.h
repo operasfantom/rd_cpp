@@ -23,6 +23,10 @@ public:
 
     RdList() = default;
 
+    RdList(RdList &&) = default;
+
+    RdList &operator=(RdList &&) = default;
+
     virtual ~RdList() = default;
     //endregion
 

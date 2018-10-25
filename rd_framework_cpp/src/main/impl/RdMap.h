@@ -35,6 +35,10 @@ public:
 
     RdMap() = default;
 
+    RdMap(RdMap &&) = default;
+
+    RdMap &operator=(RdMap &&) = default;
+
     virtual ~RdMap() = default;
     //endregion
 
