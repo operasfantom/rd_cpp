@@ -7,8 +7,7 @@
 
 template<typename ContainerT, class _Pr>
 void erase_if(ContainerT &items, _Pr _Pred) {
-    typename ContainerT::iterator it = items.begin();
-    for (; it != items.end();) {
+    for (auto it = items.begin(); it != items.end();) {
         if (_Pred(it->second)) it = items.erase(it);
         else ++it;
     }

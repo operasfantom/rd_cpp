@@ -44,13 +44,25 @@ public:
     virtual ~LifetimeImpl();
     //endregion
 
-    counter_t add_action(std::function<void()> action);
+    template<typename F>
+    counter_t add_action(F &&action) {
+        std::lock_guard _(lock);
+
+        if (is_eternal()) return -1;
+        if (is_terminated()) throw std::invalid_argument("Already Terminated");
+
+        actions[action_id_in_map] = std::forward<F>(action);
+        return action_id_in_map++;
+    }
 
     static inline counter_t get_id = 0;
 
-    static inline std::shared_ptr<LifetimeImpl> eternal = std::make_shared<LifetimeImpl>(true);
-
-    void bracket(std::function<void()> opening, std::function<void()> closing);
+    template<typename F, typename G>
+    void bracket(F &&opening, G &&closing) {
+        if (is_terminated()) return;
+        opening();
+        add_action(std::forward<G>(closing));
+    }
 
     bool is_terminated() const;
 

@@ -25,7 +25,7 @@ public:
     static Lifetime const &Eternal();
 
     //region ctor/dtor
-    
+
     Lifetime() = delete;
 
     Lifetime(Lifetime const &other) = default;
@@ -47,16 +47,16 @@ public:
 
     Lifetime create_nested() const;
 
-    template<typename T>
-    static T use(std::function<T(Lifetime)> block) {
+    template<typename T, typename F>
+    static T use(F &&block) {
         Lifetime lw = Eternal().create_nested();
         T result = block(lw);
         lw->terminate();
         return result;
     }
 
-//    template<>
-    static void use(std::function<void(Lifetime)> block) {
+    template<typename F>
+    static void use(F &&block) {
         Lifetime lw = Eternal().create_nested();
         block(lw);
         lw->terminate();

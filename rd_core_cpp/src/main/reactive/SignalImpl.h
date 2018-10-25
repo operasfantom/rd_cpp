@@ -42,14 +42,24 @@ private:
         erase_if(queue, [](Event<T> const &e) -> bool { return !e.is_active; });
     }
 
+    void fire_impl(T const &value, listeners_t &queue) const {
+        for (auto &[id, event] : queue) {
+            if (event.is_active) {
+                event.action(value);
+            }
+        }
+        cleanup(queue);
+    }
+
 public:
-    void advise0(const Lifetime &lifetime, std::function<void(T const &)> handler, listeners_t &queue) const {
+    template<typename F>
+    void advise0(const Lifetime &lifetime, F &&handler, listeners_t &queue) const {
         counter_t id = advise_id.load();
         lifetime->bracket(
-                [&queue, lifetime, id, handler = std::move(handler)]() {
+                [&queue, id, handler = std::forward<F>(handler)]() {
                     queue.emplace(id, Event<T>(handler));
                 },
-                [&queue, lifetime, id]() {
+                [&queue, id]() {
                     if (queue.count(id) == 0) {
                         throw std::invalid_argument("erasing from queue in lifetime's termination");
                     }
@@ -59,23 +69,14 @@ public:
         ++advise_id;
     }
 
-    void advise(Lifetime lifetime, std::function<void(T const &)> handler) const /*override*/ {
-        advise0(std::move(lifetime), std::move(handler), isPriorityAdvise() ? priority_listeners : listeners);
+    template<typename F>
+    void advise(Lifetime lifetime, F &&handler) const /*override*/ {
+        advise0(std::move(lifetime), std::forward<F>(handler), isPriorityAdvise() ? priority_listeners : listeners);
     }
 
     void fire(T const &value) const /*override */{
-        for (auto &[id, event] : priority_listeners) {
-            if (event.is_active) {
-                event.action(value);
-            }
-        }
-        cleanup(priority_listeners);
-        for (auto &[id, event] : listeners) {
-            if (event.is_active) {
-                event.action(value);
-            }
-        }
-        cleanup(listeners);
+        fire_impl(value, priority_listeners);
+        fire_impl(value, listeners);
     }
 
     static bool isPriorityAdvise() {

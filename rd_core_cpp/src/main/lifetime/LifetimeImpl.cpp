@@ -9,12 +9,6 @@
 
 LifetimeImpl::LifetimeImpl(bool is_eternal) : eternaled(is_eternal), id(LifetimeImpl::get_id++) {}
 
-void LifetimeImpl::bracket(std::function<void()> opening, std::function<void()> closing) {
-    if (is_terminated()) return;
-    opening();
-    add_action(std::move(closing));
-}
-
 void LifetimeImpl::terminate() {
     if (is_eternal()) return;
 
@@ -52,16 +46,6 @@ void LifetimeImpl::attach_nested(std::shared_ptr<LifetimeImpl> nested) {
     nested->add_action([this, id = action_id.load()]() {
         actions.erase(id);
     });
-}
-
-LifetimeImpl::counter_t LifetimeImpl::add_action(std::function<void()> action) {
-    std::lock_guard _(lock);
-
-    if (is_eternal()) return -1;
-    if (is_terminated()) throw std::invalid_argument("Already Terminated");
-
-    actions[action_id_in_map] = std::move(action);
-    return action_id_in_map++;
 }
 
 LifetimeImpl::~LifetimeImpl() {
