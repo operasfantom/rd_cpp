@@ -36,7 +36,9 @@ add_library(rd_framework_cpp STATIC
         util/framework_util.cpp util/framework_util.h
         wire/threading/ByteBufferAsyncProcessor.cpp wire/threading/ByteBufferAsyncProcessor.h
         base/ext/ExtWire.cpp base/ext/ExtWire.h
-        util/shared_function.cpp util/shared_function.h)
+        util/shared_function.cpp util/shared_function.h
+#        task/RdCall.cpp task/RdCall.h task/RdTask.cpp task/RdTask.h task/RdTaskResult.cpp task/RdTaskResult.h
+        )
 
 target_include_directories(rd_framework_cpp PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(rd_framework_cpp PUBLIC base)
@@ -44,6 +46,8 @@ target_include_directories(rd_framework_cpp PUBLIC impl)
 target_include_directories(rd_framework_cpp PUBLIC serialization)
 target_include_directories(rd_framework_cpp PUBLIC util)
 target_include_directories(rd_framework_cpp PUBLIC wire)
+#target_include_directories(rd_framework_cpp PUBLIC task)
+
 add_subdirectory(wire)
 
 target_link_libraries(rd_framework_cpp PUBLIC rd_core_cpp clsocket)

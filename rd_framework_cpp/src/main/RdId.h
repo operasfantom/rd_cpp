@@ -11,18 +11,22 @@
 #include <string>
 #include <memory>
 
+class RdId;
+
+namespace std {
+    template<>
+    struct hash<RdId> {
+        size_t operator()(const RdId &value) const;
+    };
+};
+
 class RdId {
 private:
     using hash_t = int64_t;
 
     hash_t hash;
+    friend struct std::hash<RdId>;
 public:
-    struct Hasher {
-        size_t operator()(RdId const &id) const noexcept {
-            return std::hash<hash_t>()(id.hash);
-        }
-    };
-
     friend bool operator==(RdId const &left, RdId const &right) {
         return left.hash == right.hash;
     }
@@ -59,7 +63,7 @@ public:
 
     bool isNull() const;
 
-    std::string toString();
+    std::string toString() const;
 
     RdId notNull();
 
@@ -70,5 +74,9 @@ public:
     RdId mix(int64_t tail) const;
 };
 
+
+inline size_t std::hash<RdId>::operator()(const RdId &value) const {
+    return std::hash<RdId::hash_t>()(value.hash);
+}
 
 #endif //RD_CPP_FRAMEWORK_RDID_H

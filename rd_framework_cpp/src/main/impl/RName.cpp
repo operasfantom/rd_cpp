@@ -15,7 +15,7 @@ namespace {
     RName EMPTY(nullptr, "", "");
 }
 
-std::string RName::toString() {
+std::string RName::toString() const {
     std::optional<std::string> res;
     if (parent)
         res = parent->toString();

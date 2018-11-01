@@ -37,7 +37,7 @@ bool RdId::isNull() const {
     return get_hash() == NULL_ID.get_hash();
 }
 
-std::string RdId::toString() {
+std::string RdId::toString() const {
     return std::to_string(hash);
 }
 

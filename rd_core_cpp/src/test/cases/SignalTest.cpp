@@ -2,6 +2,7 @@
 // Created by jetbrains on 09.07.2018.
 //
 
+#include <test_util.h>
 #include "gtest/gtest.h"
 
 #include "interfaces.h"
@@ -88,4 +89,21 @@ TEST(signal, priority_advise) {
 
     signal.fire(nullptr);
     EXPECT_EQ((std::vector<int>{3, 4, 1, 2, 5}), log);
+}
+
+TEST(signal, testRecursion) {
+    Signal<void *> A;
+    Signal<void *> B;
+    LifetimeDefinition lifetimeA(Lifetime::Eternal());
+    LifetimeDefinition lifetimeB(Lifetime::Eternal());
+    std::vector<std::string> log;
+    A.advise(lifetimeA.lifetime, [&](void *) {
+        log.emplace_back("A");
+        lifetimeB.terminate();
+    });
+    A.advise(lifetimeB.lifetime, [&](void *) {
+        log.emplace_back("B");
+    });
+    A.fire(nullptr);
+    EXPECT_EQ(std::vector<std::string>{"A"}, log); //do we expect {"A"} or {"A", "B"} ?
 }

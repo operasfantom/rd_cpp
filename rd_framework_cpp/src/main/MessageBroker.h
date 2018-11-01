@@ -28,8 +28,8 @@ public:
 class MessageBroker {
 private:
     IScheduler const *defaultScheduler = nullptr;
-    mutable std::unordered_map<RdId, IRdReactive const *, RdId::Hasher> subscriptions;
-    mutable std::unordered_map<RdId, Mq, RdId::Hasher> broker;
+    mutable std::unordered_map<RdId, IRdReactive const *> subscriptions;
+    mutable std::unordered_map<RdId, Mq> broker;
 
     Logger logger;
 

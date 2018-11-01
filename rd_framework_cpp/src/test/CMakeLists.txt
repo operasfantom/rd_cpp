@@ -19,7 +19,7 @@ add_executable(rd_framework_cpp_test
         util/DynamicExt.cpp util/DynamicExt.h
         util/ExtProperty.cpp
         util/ExtProperty.h
-        cases/BufferTest.cpp)
+        cases/BufferTest.cpp cases/RdTaskTest.cpp)
 
 target_include_directories(rd_framework_cpp_test PUBLIC cases)
 target_include_directories(rd_framework_cpp_test PUBLIC util)

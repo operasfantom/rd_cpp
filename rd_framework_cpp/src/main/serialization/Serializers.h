@@ -21,7 +21,7 @@ class SerializationCtx;
 class Serializers {
 public:
     mutable std::unordered_map<RdId, std::function<std::unique_ptr<ISerializable>(SerializationCtx const &,
-                                                                          Buffer const &)>, RdId::Hasher> readers;
+                                                                          Buffer const &)>> readers;
 
     template<typename T>
     T readPolymorphic(SerializationCtx const &ctx, Buffer const &stream) const {

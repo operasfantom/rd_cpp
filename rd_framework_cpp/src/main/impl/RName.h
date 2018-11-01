@@ -32,7 +32,7 @@ public:
 
     RName sub(const std::string &localName, const std::string &separator);
 
-    std::string toString();
+    std::string toString() const;
 
     static RName Empty();
 };
