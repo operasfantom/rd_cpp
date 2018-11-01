@@ -114,8 +114,8 @@ TEST_F(RdFrameworkTestBase, property_companion) {
     statics(p1_in, 2);
     statics(p2_in, 2);
 
-    RdProperty<RdProperty<int32_t>/*, RdProperty<int32_t>::Companion*/> p1{std::move(p1_in)};
-    RdProperty<RdProperty<int32_t>/*, RdProperty<int32_t>::Companion*/> p2{std::move(p2_in)};
+    RdProperty<RdProperty<int32_t>> p1{std::move(p1_in)};
+    RdProperty<RdProperty<int32_t>> p2{std::move(p2_in)};
 
     int32_t nxt = 10;
     std::vector<int> log;

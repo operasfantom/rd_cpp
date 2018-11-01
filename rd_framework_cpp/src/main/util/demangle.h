@@ -5,7 +5,7 @@
 #ifndef RD_CPP_FRAMEWORK_UTIL_H
 #define RD_CPP_FRAMEWORK_UTIL_H
 
-#include "util/core_util.h"
+#include "core_util.h"
 
 #ifdef __GNUG__
 

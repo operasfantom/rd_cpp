@@ -7,7 +7,7 @@
 void DynamicEntity::registry(IProtocol *protocol) {
     protocol->serializers.registry<DynamicEntity>(
             [](SerializationCtx const &ctx, Buffer const &buffer) -> DynamicEntity {
-                RdProperty<int32_t, S> tmp = RdProperty<int32_t, S>::read(ctx, buffer);
+                RdProperty<int32_t> tmp = RdProperty<int32_t>::read(ctx, buffer);
                 return DynamicEntity(std::move(tmp));
             });
 }

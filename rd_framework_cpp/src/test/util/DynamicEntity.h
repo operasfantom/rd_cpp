@@ -12,9 +12,8 @@
 #include "RdProperty.h"
 
 class DynamicEntity : public RdBindableBase, public ISerializable {
-    using S = FrameworkMarshallers::Int;
 public:
-    RdProperty<int32_t, S> foo;
+    RdProperty<int32_t> foo;
 
     //region ctor/dtor
 
@@ -32,9 +31,9 @@ public:
     virtual ~DynamicEntity() = default;
     //endregion
 
-    explicit DynamicEntity(RdProperty<int32_t, S> &&foo) : foo(std::move(foo)) {}
+    explicit DynamicEntity(RdProperty<int32_t> &&foo) : foo(std::move(foo)) {}
 
-    explicit DynamicEntity(int32_t value) : DynamicEntity(RdProperty<int32_t, S>(value)) {};
+    explicit DynamicEntity(int32_t value) : DynamicEntity(RdProperty<int32_t>(value)) {};
     //endregion
 
     static void registry(IProtocol *protocol);

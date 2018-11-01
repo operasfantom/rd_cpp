@@ -128,8 +128,8 @@ TEST_F(RdFrameworkTestBase, rd_list_dynamic) {
 TEST_F(RdFrameworkTestBase, rd_list_of_rd_property) {
     int32_t id = 1;
 
-    RdList<RdProperty<int32_t>, RdProperty<int32_t>::Companion> server_list_storage;
-    RdList<RdProperty<int32_t>, RdProperty<int32_t>::Companion> client_list_storage;
+    RdList<RdProperty<int32_t>> server_list_storage;
+    RdList<RdProperty<int32_t>> client_list_storage;
 
     auto &server_list = statics(server_list_storage, id);
     auto &client_list = statics(client_list_storage, id);

@@ -6,7 +6,7 @@
 #include <cassert>
 
 #include "MessageBroker.h"
-#include "framework_util.h"
+#include "demangle.h"
 #include "util/shared_function.h"
 #include "Buffer.h"
 

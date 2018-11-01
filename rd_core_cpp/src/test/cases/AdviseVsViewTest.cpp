@@ -63,7 +63,7 @@ TEST(advise_vs_view, advise_behaviour2) {
     lifetime->add_action([&property]() { property.set(true); });
     lifetimeDef.terminate();
 
-    std::vector<bool> expected{false, true};
+    std::vector<bool> expected{false};
     EXPECT_EQ(expected, log);
 }
 

@@ -23,7 +23,8 @@ public:
     //endregion
 
     static RdSignal<T, S> read(SerializationCtx const &ctx, Buffer const &buffer) {
-        return withId(RdSignal<T, S>(), RdId::read(buffer));
+        RdSignal<T, S> res;
+        return withId(res, RdId::read(buffer));
     }
 
     void write(SerializationCtx const &ctx, Buffer const &buffer) const override {

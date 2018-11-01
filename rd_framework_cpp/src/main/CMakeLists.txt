@@ -32,12 +32,12 @@ add_library(rd_framework_cpp STATIC
         impl/RdSet.h
         serialization/ISerializable.cpp serialization/ISerializable.h
         serialization/IMarshaller.cpp serialization/IMarshaller.h
-        FrameworkMarshallers.cpp FrameworkMarshallers.h
-        util/framework_util.cpp util/framework_util.h
+        util/demangle.cpp util/demangle.h
         wire/threading/ByteBufferAsyncProcessor.cpp wire/threading/ByteBufferAsyncProcessor.h
         base/ext/ExtWire.cpp base/ext/ExtWire.h
         util/shared_function.cpp util/shared_function.h
-#        task/RdCall.cpp task/RdCall.h task/RdTask.cpp task/RdTask.h task/RdTaskResult.cpp task/RdTaskResult.h
+        #task
+#        task/RdCall.cpp task/RdCall.h task/RdTask.cpp task/RdTask.h task/RdTaskResult.cpp task/RdTaskResult.h task/RdEndpoint.cpp task/RdEndpoint.h
         )
 
 target_include_directories(rd_framework_cpp PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

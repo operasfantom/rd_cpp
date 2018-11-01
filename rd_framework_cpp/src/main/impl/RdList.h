@@ -9,7 +9,7 @@
 #include "RdReactiveBase.h"
 #include "Polymorphic.h"
 #include "SerializationCtx.h"
-#include "framework_util.h"
+#include "demangle.h"
 
 template<typename V, typename S = Polymorphic<V>>
 class RdList : public RdReactiveBase, public IViewableList<V>, public ISerializable {

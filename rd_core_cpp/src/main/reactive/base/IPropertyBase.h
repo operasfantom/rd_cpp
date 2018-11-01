@@ -36,7 +36,7 @@ public:
         if (lifetime->is_terminated()) return;
 
         Lifetime lf = lifetime.create_nested();
-        std::shared_ptr<SequentialLifetimes> seq(new SequentialLifetimes(lf));
+        std::shared_ptr<SequentialLifetimes> seq = std::make_shared<SequentialLifetimes>(lf);
 
         this->advise_before(lf, [this, lf, seq](T const &v) {
             if (!lf->is_terminated()) {

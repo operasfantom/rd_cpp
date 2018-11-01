@@ -18,7 +18,7 @@ namespace std {
     struct hash<RdId> {
         size_t operator()(const RdId &value) const;
     };
-};
+}
 
 class RdId {
 private:
