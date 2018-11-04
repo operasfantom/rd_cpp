@@ -24,7 +24,9 @@ public:
 
     static RdSignal<T, S> read(SerializationCtx const &ctx, Buffer const &buffer) {
         RdSignal<T, S> res;
-        return withId(res, RdId::read(buffer));
+        const RdId &id = RdId::read(buffer);
+        withId(res, id);
+        return res;
     }
 
     void write(SerializationCtx const &ctx, Buffer const &buffer) const override {

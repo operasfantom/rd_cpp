@@ -37,8 +37,8 @@ add_library(rd_framework_cpp STATIC
         base/ext/ExtWire.cpp base/ext/ExtWire.h
         util/shared_function.cpp util/shared_function.h
         #task
-#        task/RdCall.cpp task/RdCall.h task/RdTask.cpp task/RdTask.h task/RdTaskResult.cpp task/RdTaskResult.h task/RdEndpoint.cpp task/RdEndpoint.h
-        )
+        task/RdCall.cpp task/RdCall.h task/RdTask.cpp task/RdTask.h task/RdTaskResult.cpp task/RdTaskResult.h task/RdEndpoint.cpp task/RdEndpoint.h
+        task/RdTaskImpl.cpp task/RdTaskImpl.h)
 
 target_include_directories(rd_framework_cpp PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(rd_framework_cpp PUBLIC base)
@@ -46,7 +46,7 @@ target_include_directories(rd_framework_cpp PUBLIC impl)
 target_include_directories(rd_framework_cpp PUBLIC serialization)
 target_include_directories(rd_framework_cpp PUBLIC util)
 target_include_directories(rd_framework_cpp PUBLIC wire)
-#target_include_directories(rd_framework_cpp PUBLIC task)
+target_include_directories(rd_framework_cpp PUBLIC task)
 
 add_subdirectory(wire)
 

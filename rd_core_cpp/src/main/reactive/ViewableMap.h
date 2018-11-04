@@ -27,6 +27,12 @@ private:
 public:
     //region ctor/dtor
 
+    ViewableMap() = default;
+
+    ViewableMap(ViewableMap &&) = default;
+
+    ViewableMap &operator=(ViewableMap &&) = default;
+
     virtual ~ViewableMap() = default;
     //endregion
 

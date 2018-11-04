@@ -3,12 +3,14 @@
 //
 
 #include <functional>
+#include <thread>
+#include <cstring>
 
 #include "IScheduler.h"
 
 void IScheduler::assert_thread() const {
     if (!is_active()) {
-
+        Logger().error("Illegal scheduler for current action");
     }
 }
 

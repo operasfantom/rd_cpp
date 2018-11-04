@@ -44,7 +44,9 @@ public:
 
     static RdMap<K, V, KS, VS> read(SerializationCtx const &ctx, Buffer const &buffer) {
         RdMap<K, V, KS, VS> res;
-        return withId(res, RdId::read(buffer));
+        const RdId &id = RdId::read(buffer);
+        withId(res, id);
+        return res;
     }
 
     void write(SerializationCtx const &ctx, Buffer const &buffer) const override {

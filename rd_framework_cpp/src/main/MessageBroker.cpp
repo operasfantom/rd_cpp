@@ -56,7 +56,7 @@ void MessageBroker::dispatch(RdId id, Buffer message) const {
                     else
                         invoke(subscription, std::move(message));
                 } else {
-                    logger.trace("No handler for id: " + to_string(id));
+                    logger.trace("No handler for id: " + id.toString());
                 }
 
                 if (--broker[id].defaultSchedulerMessages == 0) {

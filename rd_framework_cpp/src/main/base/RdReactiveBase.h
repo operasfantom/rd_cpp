@@ -39,7 +39,7 @@ public:
 
     const Serializers &get_serializers() const;
 
-    const IScheduler *const get_default_scheduler() const;
+    const IScheduler * get_default_scheduler() const;
 
     const IScheduler *const get_wire_scheduler() const;
 

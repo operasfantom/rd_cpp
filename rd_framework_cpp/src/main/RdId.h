@@ -5,11 +5,11 @@
 #ifndef RD_CPP_FRAMEWORK_RDID_H
 #define RD_CPP_FRAMEWORK_RDID_H
 
-#include "Buffer.h"
-
 #include <cstdint>
 #include <string>
 #include <memory>
+
+#include "Buffer.h"
 
 class RdId;
 

@@ -10,7 +10,7 @@
 #include "task/RdCall.h"
 #include "task/RdEndpoint.h"
 
-/*TEST_F(RdFrameworkTestBase, testStaticSuccess) {
+TEST_F(RdFrameworkTestBase, testStaticSuccess) {
     int entity_id = 1;
 
     auto client_entity = RdCall<int, std::string>();
@@ -35,4 +35,4 @@
 //    assertEquals("2", taskResult.value);
 
     AfterTest();
-}*/
+}

@@ -86,6 +86,7 @@ public:
 
 template<typename T>
 class Polymorphic<T, typename std::enable_if_t<std::is_enum_v<T> > > {
+public:
     static T read(SerializationCtx const &ctx, Buffer const &buffer) {
         return buffer.readEnum<T>();
     }

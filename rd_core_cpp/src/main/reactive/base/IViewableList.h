@@ -122,14 +122,14 @@ public:
             switch (kind) {
                 case AddRemove::ADD: {
                     LifetimeDefinition def(lifetime);
-                    std::vector<LifetimeDefinition> &v = lifetimes[lifetime];
+                    std::vector<LifetimeDefinition> &v = lifetimes.at(lifetime);
                     auto it = v.emplace(v.begin() + idx, std::move(def));
                     handler(it->lifetime, idx, value);
                     break;
                 }
                 case AddRemove::REMOVE: {
-                    LifetimeDefinition def = std::move(lifetimes[lifetime][idx]);
-                    std::vector<LifetimeDefinition> &v = lifetimes[lifetime];
+                    LifetimeDefinition def = std::move(lifetimes.at(lifetime)[idx]);
+                    std::vector<LifetimeDefinition> &v = lifetimes.at(lifetime);
                     v.erase(v.begin() + idx);
                     def.terminate();
                     break;

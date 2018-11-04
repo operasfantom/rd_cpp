@@ -50,7 +50,7 @@ void LifetimeImpl::attach_nested(std::shared_ptr<LifetimeImpl> nested) {
 
 LifetimeImpl::~LifetimeImpl() {
     /*if (!is_eternal() && !is_terminated()) {
-        Logger().error("forget to terminate lifetime with id:" + std::to_string(id));
+        Logger().error("forget to terminate lifetime with id:" + to_string(id));
         terminate();
     }*/
 }

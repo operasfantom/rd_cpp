@@ -92,17 +92,17 @@ public:
             const std::pair<K const *, V const *> entry = std::make_pair(&key, &value);
             switch (kind) {
                 case AddRemove::ADD: {
-                    if (lifetimes[lifetime].count(key) == 0) {
-                        auto const &[it, inserted] = lifetimes[lifetime].emplace(key, LifetimeDefinition(lifetime));
+                    if (lifetimes.at(lifetime).count(key) == 0) {
+                        auto const &[it, inserted] = lifetimes.at(lifetime).emplace(key, LifetimeDefinition(lifetime));
                         MY_ASSERT_MSG(inserted, "lifetime definition already exists in viewable map by key:" + to_string(key));
                         handler(it->second.lifetime, entry);
                     }
                     break;
                 }
                 case AddRemove::REMOVE: {
-                    MY_ASSERT_MSG(lifetimes[lifetime].count(key) > 0, "attempting to remove non-existing lifetime in viewable map by key:" + to_string(key));
-                    LifetimeDefinition def = std::move(lifetimes[lifetime].at(key));
-                    lifetimes[lifetime].erase(key);
+                    MY_ASSERT_MSG(lifetimes.at(lifetime).count(key) > 0, "attempting to remove non-existing lifetime in viewable map by key:" + to_string(key));
+                    LifetimeDefinition def = std::move(lifetimes.at(lifetime).at(key));
+                    lifetimes.at(lifetime).erase(key);
                     def.terminate();
                     break;
                 }

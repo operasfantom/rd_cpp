@@ -19,8 +19,8 @@ const IWire *const RdReactiveBase::get_wire() const {
 }
 
 void RdReactiveBase::assert_threading() const {
-    if (!async && !get_default_scheduler()->is_active()) {
-//        logAssert.error("Must be executed on UI thread", IllegalStateException("|E| Wrong thread"))
+    if (!async) {
+        get_default_scheduler()->assert_thread();
     }
 }
 
@@ -34,7 +34,7 @@ const Serializers &RdReactiveBase::get_serializers() const {
     return get_protocol()->serializers;
 }
 
-const IScheduler *const RdReactiveBase::get_default_scheduler() const {
+const IScheduler * RdReactiveBase::get_default_scheduler() const {
     return get_protocol()->scheduler;
 }
 
