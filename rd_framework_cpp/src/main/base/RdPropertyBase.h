@@ -118,6 +118,6 @@ public:
     }
 };
 
-static_assert(std::is_move_constructible_v<RdPropertyBase<int>>);
+static_assert(std::is_move_constructible_v<RdPropertyBase<int> >);
 
 #endif //RD_CPP_RDPROPERTYBASE_H

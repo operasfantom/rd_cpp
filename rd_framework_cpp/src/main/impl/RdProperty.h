@@ -70,5 +70,6 @@ public:
     }
 };
 
+static_assert(std::is_move_constructible_v<RdProperty<int> >);
 
 #endif //RD_CPP_RDPROPERTY_H

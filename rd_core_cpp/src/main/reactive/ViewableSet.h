@@ -30,7 +30,15 @@ private:
 public:
     //region ctor/dtor
 
+
+    ViewableSet() = default;
+
+    ViewableSet(ViewableSet &&) = default;
+
+    ViewableSet &operator=(ViewableSet &&) = default;
+
     virtual ~ViewableSet() = default;
+
     //endregion
 
     bool add(T element) const override {
@@ -87,5 +95,6 @@ public:
     }
 };
 
+static_assert(std::is_move_constructible_v<ViewableSet<int> >);
 
 #endif //RD_CPP_CORE_VIEWABLESET_H

@@ -174,5 +174,6 @@ public:
     }
 };
 
+static_assert(std::is_move_constructible_v<RdList<int> >);
 
 #endif //RD_CPP_RDLIST_H

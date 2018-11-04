@@ -220,5 +220,6 @@ public:
     }
 };
 
+static_assert(std::is_move_constructible_v<RdMap<int, int> >);
 
 #endif //RD_CPP_RDMAP_H

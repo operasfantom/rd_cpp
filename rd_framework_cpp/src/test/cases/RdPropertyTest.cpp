@@ -198,12 +198,6 @@ public:
     }
 };
 
-template<typename T>
-class Foo {
-public:
-    Foo() {}
-};
-
 TEST_F(RdFrameworkTestBase, property_vector_polymorphic) {
     using list = std::vector<DynamicEntity>;
 

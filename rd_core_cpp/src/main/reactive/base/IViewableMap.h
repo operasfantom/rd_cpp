@@ -92,8 +92,8 @@ public:
             const std::pair<K const *, V const *> entry = std::make_pair(&key, &value);
             switch (kind) {
                 case AddRemove::ADD: {
-                    if (lifetimes.at(lifetime).count(key) == 0) {
-                        auto const &[it, inserted] = lifetimes.at(lifetime).emplace(key, LifetimeDefinition(lifetime));
+                    if (lifetimes[lifetime].count(key) == 0) {
+                        auto const &[it, inserted] = lifetimes[lifetime].emplace(key, LifetimeDefinition(lifetime));
                         MY_ASSERT_MSG(inserted, "lifetime definition already exists in viewable map by key:" + to_string(key));
                         handler(it->second.lifetime, entry);
                     }
@@ -148,5 +148,6 @@ public:
     virtual bool empty() const = 0;
 };
 
+static_assert(std::is_move_constructible_v<IViewableMap<int, int>::Event>);
 
 #endif //RD_CPP_IVIEWABLEMAP_H

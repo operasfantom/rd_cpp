@@ -33,6 +33,13 @@ protected:
 public:
 
     //region ctor/dtor
+
+    ViewableList() = default;
+
+    ViewableList(ViewableList &&) = default;
+
+    ViewableList &operator=(ViewableList &&) = default;
+
     virtual ~ViewableList() = default;
 
     //endregion
@@ -132,5 +139,7 @@ public:
         return list.empty();
     }
 };
+
+static_assert(std::is_move_constructible_v<ViewableList<int> >);
 
 #endif //RD_CPP_CORE_VIEWABLELIST_H

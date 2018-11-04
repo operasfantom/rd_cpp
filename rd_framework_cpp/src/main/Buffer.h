@@ -108,9 +108,25 @@ public:
     }
 
     template<typename T>
+    std::vector<T> readArray(std::function<T()> reader) const {
+        int32_t len = read_pod<int32_t>();
+        std::vector<T> result(len);
+        std::generate(result.begin(), result.end(), reader);
+        return result;
+    }
+
+    template<typename T>
     void writeArray(std::vector<T> const &array) const {
         write_pod<int32_t>(array.size());
         write(reinterpret_cast<word_t const *>(array.data()), sizeof(T) * array.size());
+    }
+
+    template<typename T>
+    void writeArray(std::vector<T> const &array, std::function<void(T const &)> writer) const {
+        write_pod<int32_t>(array.size());
+        for (auto const &e : array) {
+            writer(e);
+        }
     }
 
     template<typename T>
@@ -120,7 +136,7 @@ public:
 
     std::string readString() const;
 
-    void writeString(std::string const& value) const;
+    void writeString(std::string const &value) const;
 
     template<typename T>
     T readEnum() const {
@@ -129,7 +145,7 @@ public:
     }
 
     template<typename T>
-    void writeEnum(T x) const {
+    void writeEnum(T const &x) const {
         write_pod<int32_t>(static_cast<int32_t>(x));
     }
 
@@ -143,7 +159,7 @@ public:
     }
 
     template<typename T>
-    void writeNullable(std::optional<T> value, std::function<void(T const &)> writer) const {
+    void writeNullable(std::optional<T> const &value, std::function<void(T const &)> writer) const {
         if (!value.has_value()) {
             write_pod<bool>(false);
         } else {

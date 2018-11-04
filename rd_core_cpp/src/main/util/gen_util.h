@@ -18,5 +18,14 @@ size_t contentHashCode(std::vector<T> const &list) {
     return __r;
 }
 
+template<typename T>
+size_t contentDeepHashCode(T &&value) {
+    return std::hash<T>()(value);
+}
+
+template<typename T>
+size_t contentDeepHashCode(std::vector<T> const &value) {
+    return contentDeepHashCode<T>(value);
+}
 
 #endif //RD_CPP_GEN_UTIL_H

@@ -122,7 +122,7 @@ public:
             switch (kind) {
                 case AddRemove::ADD: {
                     LifetimeDefinition def(lifetime);
-                    std::vector<LifetimeDefinition> &v = lifetimes.at(lifetime);
+                    std::vector<LifetimeDefinition> &v = lifetimes[lifetime];
                     auto it = v.emplace(v.begin() + idx, std::move(def));
                     handler(it->lifetime, idx, value);
                     break;
@@ -179,5 +179,6 @@ std::vector<T> convert_to_list(IViewableList<T> const &list) {
     return res;
 }
 
+static_assert(std::is_move_constructible_v<IViewableList<int>::Event>);
 
 #endif //RD_CPP_IVIEWABLELIST_H
