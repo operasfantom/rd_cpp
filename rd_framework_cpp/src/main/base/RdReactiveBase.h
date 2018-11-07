@@ -49,11 +49,11 @@ public:
 
     template<typename T, typename F>
     T local_change(F &&action) const {
-        if (is_bound() && !async) {
-//            assertThreading();
+        if (is_bound()) {
+            assert_threading();
         }
 
-//        require(!isLocalChange){ "!isLocalChange" }
+        MY_ASSERT_MSG(!is_local_change, "!isLocalChange for RdReactiveBase with id:" + rdid.toString());
 
         is_local_change = true;
         T res = action();
