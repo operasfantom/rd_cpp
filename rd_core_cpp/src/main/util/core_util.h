@@ -16,32 +16,34 @@
 
 template<typename T>
 struct KeyEqualSharedPtr {
+    using is_transparent = void;
+
     bool operator()(std::shared_ptr<T> const &ptr_l, std::shared_ptr<T> const &ptr_r) const {
         return *ptr_l == *ptr_r;
+    }
+
+    bool operator()(T const &val_r, std::shared_ptr<T> const &ptr_l) const {
+        return *ptr_l == val_r;
     }
 };
 
 template<typename T>
 struct HashSharedPtr {
-    size_t operator()(std::shared_ptr<T> const &id) const noexcept {
-        return std::hash<T>()(*id);
+    using is_transparent = void;
+
+    size_t operator()(std::shared_ptr<T> const &ptr) const noexcept {
+        return std::hash<T>()(*ptr);
+    }
+
+    size_t operator()(T const &val) const noexcept {
+        return std::hash<T>()(val);
     }
 };
 
 template<typename U>
-typename std::enable_if_t<!std::is_copy_constructible_v<U>, std::shared_ptr<U> >
-deleted_shared_ptr(U &element) {
+std::shared_ptr<U> deleted_shared_ptr(U &element) {
     return std::shared_ptr<U>(&element, [](U *) {});
 }
-
-template<typename U>
-typename std::enable_if_t<std::is_copy_constructible_v<U>, std::shared_ptr<U> >
-//std::shared_ptr<U>
-deleted_shared_ptr(U const &element) {
-    return std::make_shared<U>(element);
-}
-
-//todo it right
 
 template<typename T>
 typename std::enable_if_t<std::is_arithmetic_v<T>, std::string> to_string(T const &val) {

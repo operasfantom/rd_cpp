@@ -14,7 +14,7 @@
 #include "Protocol.h"
 #include "TestScheduler.h"
 
-extern TestScheduler testScheduler;
+inline TestScheduler testScheduler;
 
 class RdFrameworkTestBase : public ::testing::Test {
 public:

@@ -39,7 +39,7 @@ public:
 
     const Serializers &get_serializers() const;
 
-    const IScheduler * get_default_scheduler() const;
+    const IScheduler *get_default_scheduler() const;
 
     const IScheduler *const get_wire_scheduler() const;
 
@@ -47,8 +47,8 @@ public:
 
     void assert_bound() const;
 
-    template<typename T>
-    T local_change(std::function<T()> action) const {
+    template<typename T, typename F>
+    T local_change(F &&action) const {
         if (is_bound() && !async) {
 //            assertThreading();
         }
@@ -56,21 +56,7 @@ public:
 //        require(!isLocalChange){ "!isLocalChange" }
 
         is_local_change = true;
-        T res = std::move(action());
-        is_local_change = false;
-        return std::move(res);
-    }
-
-    template<typename T>
-    T const &local_change_ref(std::function<T const &()> action) const {
-        if (is_bound() && !async) {
-            assert_threading();
-        }
-
-        MY_ASSERT_MSG(!is_local_change, "!isLocalChange");
-
-        is_local_change = true;
-        T const &res = action();
+        T res = action();
         is_local_change = false;
         return res;
     }

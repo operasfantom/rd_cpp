@@ -189,18 +189,14 @@ public:
         map.advise(lifetime, handler);
     }
 
-    V const &get(K const &key) const override {
-        return local_change_ref<V>([&]() -> V const & { return map.get(key); });
+    V const *get(K const &key) const override {
+        return local_change<V const *>([&]() -> V const * { return map.get(key); });
     }
 
     V const *set(K key, V value) const override {
-        /*return local_change_const<V *>([this, key = std::move(key), value = std::move(value)]() mutable -> V const * {
+        return local_change<V const *>([&]() mutable -> V const * {
             return map.set(std::move(key), std::move(value));
-        });*/
-        is_local_change = true;
-        V const *res = map.set(std::move(key), std::move(value));
-        is_local_change = false;
-        return res;
+        });
     }
 
     std::optional<V> remove(K const &key) const override {

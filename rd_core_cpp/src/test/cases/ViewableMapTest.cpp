@@ -43,7 +43,7 @@ TEST(viewable_map, advise) {
         map->set(0, 0);
         map->remove(1);
 
-        EXPECT_EQ(0, map->get(0));
+        EXPECT_EQ(0, *map->get(0));
         return 0;
     });
     EXPECT_EQ(arrayListOf(

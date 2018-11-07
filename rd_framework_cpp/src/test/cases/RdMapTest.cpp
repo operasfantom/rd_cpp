@@ -39,22 +39,24 @@ TEST_F(RdFrameworkTestBase, rd_map_statics) {
     bindStatic(serverProtocol.get(), serverMap, "top");
 
     EXPECT_EQ(3, clientMap.size());
-    EXPECT_EQ("Server value 1", clientMap.get(1));
-    EXPECT_EQ("Server value 2", clientMap.get(2));
-    EXPECT_EQ("Server value 3", clientMap.get(3));
+    EXPECT_EQ("Server value 1", *clientMap.get(1));
+    EXPECT_EQ("Server value 2", *clientMap.get(2));
+    EXPECT_EQ("Server value 3", *clientMap.get(3));
+    EXPECT_EQ(nullptr, clientMap.get(4));
+    EXPECT_EQ(nullptr, clientMap.get(4));
 
     serverMap.set(4, "Server value 4");
     clientMap.set(4, "Client value 4");
 
-    EXPECT_EQ("Client value 4", clientMap.get(4));
-    EXPECT_EQ("Client value 4", serverMap.get(4));
+    EXPECT_EQ("Client value 4", *clientMap.get(4));
+    EXPECT_EQ("Client value 4", *serverMap.get(4));
 
     clientMap.set(5, "Client value 5");
     serverMap.set(5, "Server value 5");
 
 
-    EXPECT_EQ("Server value 5", clientMap.get(5));
-    EXPECT_EQ("Server value 5", serverMap.get(5));
+    EXPECT_EQ("Server value 5", *clientMap.get(5));
+    EXPECT_EQ("Server value 5", *serverMap.get(5));
 
 
     EXPECT_EQ((std::vector<std::string>{"Add 1:Server value 1",

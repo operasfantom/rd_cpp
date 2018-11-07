@@ -23,10 +23,6 @@ private:
 
     mutable tsl::ordered_set<std::shared_ptr<T>, HashSharedPtr<T>, KeyEqualSharedPtr<T>> set;
 
-    static std::shared_ptr<T> factory(T &&element) {
-        return std::make_unique<T>(std::move(element));
-    }
-
 public:
     //region ctor/dtor
 
@@ -42,8 +38,8 @@ public:
     //endregion
 
     bool add(T element) const override {
-        const std::shared_ptr<T> &value = factory(std::move(element));
-        auto const &[it, success] = set.insert(value);
+        const std::shared_ptr<T> value = std::make_shared<T>(std::move(element));
+        auto const &[it, success] = set.emplace(value);
         if (!success) {
             return false;
         }
@@ -68,7 +64,7 @@ public:
         if (!contains(element)) {
             return false;
         }
-        auto it = set.find(deleted_shared_ptr<T>(element));
+        auto it = set.find(element);
         change.fire(Event(AddRemove::REMOVE, it->get()));
         set.erase(it);
         return true;
@@ -86,8 +82,7 @@ public:
     }
 
     bool contains(T const &element) const override {
-        std::shared_ptr<T> pos = deleted_shared_ptr(element);
-        return set.count(pos) > 0;
+        return set.count(element) > 0;
     }
 
     bool empty() const override {

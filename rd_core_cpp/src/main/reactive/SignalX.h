@@ -15,7 +15,7 @@
 #include "interfaces.h"
 #include "erase_if.h"
 
-extern std::atomic<int32_t> cookie;
+inline std::atomic<int32_t> cookie;
 
 template<typename T>
 class Event {

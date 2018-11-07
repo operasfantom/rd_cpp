@@ -23,3 +23,7 @@ namespace {
 Lifetime const &Lifetime::Eternal() {
     return ETERNAL;
 }
+
+bool operator==(Lifetime const &lw1, Lifetime const &lw2) {
+    return lw1.ptr == lw2.ptr;
+}

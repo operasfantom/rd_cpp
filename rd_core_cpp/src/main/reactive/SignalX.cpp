@@ -3,5 +3,3 @@
 //
 
 #include "SignalX.h"
-
-std::atomic<int32_t> cookie = 0;

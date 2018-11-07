@@ -20,10 +20,6 @@ private:
     mutable tsl::ordered_map<std::shared_ptr<K>, std::shared_ptr<V>, HashSharedPtr<K>, KeyEqualSharedPtr<K>> map;
     Signal<Event> change;
 
-    std::shared_ptr<V> const &get_by(K const &key) const {
-        return map.at(deleted_shared_ptr(key));
-    }
-
 public:
     //region ctor/dtor
 
@@ -43,41 +39,41 @@ public:
         }
     }
 
-    V const &get(K const &key) const override {
-        return *get_by(key);
+    const V * get(K const &key) const override {
+        auto it = map.find(key);
+        if (it == map.end()) {
+            return nullptr;
+        }
+        return it->second.get();
     }
 
     const V *set(K key, V value) const override {
-        if (map.count(deleted_shared_ptr(key)) == 0) {
-            auto[it, success] = map.insert(std::make_pair(
-                    std::make_shared<K>(std::move(key)),
-                    std::make_shared<V>(std::move(value))
-            ));
+        if (map.count(key) == 0) {
+            auto[it, success] = map.emplace(std::make_shared<K>(std::move(key)), std::make_shared<V>(std::move(value)));
             auto const &key_ptr = it->first;
             auto const &value_ptr = it->second;
             change.fire(typename Event::Add(key_ptr.get(), value_ptr.get()));
             return nullptr;
         } else {
-            auto it = map.find(deleted_shared_ptr(key));
+            auto it = map.find(key);
             auto const &key_ptr = it->first;
             auto const &value_ptr = it->second;
 
             if (*value_ptr != value) {
-                std::shared_ptr<V> old_value = get_by(key);
+                std::shared_ptr<V> old_value = value_ptr;
 
-                std::shared_ptr<V> object = std::make_shared<V>(std::move(value));
-                map[deleted_shared_ptr(key)] = object;
+                map.at(key_ptr) = std::make_shared<V>(std::move(value));
                 change.fire(typename Event::Update(key_ptr.get(), old_value.get(), value_ptr.get()));
             }
-            return get_by(key).get();
+            return value_ptr.get();
         }
     }
 
     std::optional<V> remove(K const &key) const override {
-        if (map.count(deleted_shared_ptr(key)) > 0) {
-            std::shared_ptr<V> old_value = get_by(key);
+        if (map.count(key) > 0) {
+            std::shared_ptr<V> old_value = map.at(key);
             change.fire(typename Event::Remove(&key, old_value.get()));
-            map.erase(deleted_shared_ptr(key));
+            map.erase(key);
             return std::move(*old_value);
         }
         return std::nullopt;

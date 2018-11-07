@@ -271,8 +271,8 @@ TEST_F(SocketWireTestBase, TestEqualChangesRdMap) { //Test pending for ack
 
     checkSchedulersAreEmpty();
 
-    EXPECT_EQ(s_map.get("A"), "B");
-    EXPECT_EQ(c_map.get("A"), "B");
+    EXPECT_EQ(*s_map.get("A"), "B");
+    EXPECT_EQ(*c_map.get("A"), "B");
 
     terminate();
 }
@@ -300,8 +300,8 @@ TEST_F(SocketWireTestBase, TestDifferentChangesRdMap) { //Test pending for ack
 
     checkSchedulersAreEmpty();
 
-    EXPECT_EQ(s_map.get("A"), "C");
-    EXPECT_EQ(c_map.get("A"), "C");
+    EXPECT_EQ(*s_map.get("A"), "C");
+    EXPECT_EQ(*c_map.get("A"), "C");
 
     terminate();
 }
@@ -338,8 +338,8 @@ TEST_F(SocketWireTestBase, TestPingPongRdMap) { //Test pending for ack
 
     checkSchedulersAreEmpty();
 
-    EXPECT_EQ(s_map.get("A"), last);
-    EXPECT_EQ(c_map.get("A"), last);
+    EXPECT_EQ(*s_map.get("A"), last);
+    EXPECT_EQ(*c_map.get("A"), last);
 
     terminate();
 }

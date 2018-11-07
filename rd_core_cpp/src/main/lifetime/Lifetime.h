@@ -37,9 +37,7 @@ public:
     Lifetime &operator=(Lifetime &&other) noexcept = default;
     //endregion
 
-    friend bool operator==(Lifetime const &lw1, Lifetime const &lw2) {
-        return lw1.ptr == lw2.ptr;
-    }
+    friend bool operator==(Lifetime const &lw1, Lifetime const &lw2);
 
     explicit Lifetime(bool is_eternal = false);
 

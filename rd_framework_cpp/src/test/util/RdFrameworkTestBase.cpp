@@ -4,8 +4,6 @@
 
 #include "RdFrameworkTestBase.h"
 
-TestScheduler testScheduler;
-
 RdFrameworkTestBase::RdFrameworkTestBase() : clientLifetimeDef(Lifetime::Eternal()),
                                              serverLifetimeDef(Lifetime::Eternal()),
                                              clientLifetime(clientLifetimeDef.lifetime),
